@@ -18,7 +18,7 @@
 # Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
 
 """
-    justbytes.version
+    justbases.version
     =================
 
     Version information.

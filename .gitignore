@@ -55,3 +55,9 @@ docs/_build/
 
 # PyBuilder
 target/
+
+.hypothesis
+
+doc/justbases
+doc/tests
+doc/_build

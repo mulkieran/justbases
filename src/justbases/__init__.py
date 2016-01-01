@@ -16,10 +16,28 @@
 #
 # Anne Mulhern <mulhern@cs.wisc.edu>
 
-""" Top level classes for justbases. """
+"""
+The public interface of justbases.
+
+Contents:
+
+  * NatDivision -- long division of natural numbers and its inverse
+  * ConvertError -- error raised by conversion functions
+  * Nats
+
+    - conversion between non-negative ints and sequences
+    - conversion between sequences in one base to sequences in another
+  * Radix -- representation of rational number as string of digits
+  * Rationals
+
+    - conversion between Rational and Radix objects
+    - conversion between Radix objects in any base
+"""
 
 from ._division import NatDivision
 from ._errors import ConvertError
 from ._nats import Nats
 from ._radix import Radix
 from ._rationals import Rationals
+
+from .version import __version__
