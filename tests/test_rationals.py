@@ -21,6 +21,7 @@ import unittest
 
 from hypothesis import given
 from hypothesis import strategies
+from hypothesis import Settings
 
 from justbases import ConvertError
 from justbases import Radix
@@ -32,7 +33,8 @@ class RationalsTestCase(unittest.TestCase):
 
     @given(
        strategies.fractions(),
-       strategies.integers().filter(lambda x: x > 1)
+       strategies.integers(min_value=2),
+       settings=Settings(max_examples=50)
     )
     def testInverses(self, value, to_base):
         """

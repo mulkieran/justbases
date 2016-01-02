@@ -32,9 +32,9 @@ class NatDivisionTestCase(unittest.TestCase):
     """ Tests for division. """
 
     @given(
-       strategies.integers().filter(lambda x: x > 0 and x < 2 ** 17),
-       strategies.integers().filter(lambda x: x > -1 and x < 2 ** 65),
-       strategies.integers().filter(lambda x: x > 2),
+       strategies.integers(min_value=1, max_value=2 ** 16),
+       strategies.integers(min_value=0, max_value=2 ** 64),
+       strategies.integers(min_value=3),
        settings=Settings(max_examples=50)
     )
     @example(divisor=2**17, dividend=2, base=2)

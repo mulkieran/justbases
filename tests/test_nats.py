@@ -28,8 +28,8 @@ class NatsTestCase(unittest.TestCase):
     """ Tests for ints. """
 
     @given(
-       strategies.integers().filter(lambda x: x > -1),
-       strategies.integers().filter(lambda x: x > 1)
+       strategies.integers(min_value=0),
+       strategies.integers(min_value=2),
     )
     def testFromInt(self, value, to_base):
         """
@@ -39,9 +39,9 @@ class NatsTestCase(unittest.TestCase):
         assert Nats.convert_to_int(result, to_base) == value
 
     @given(
-       strategies.integers().filter(lambda x: x > 0 and x < 64),
-       strategies.integers().filter(lambda x: x > 1),
-       strategies.integers().filter(lambda x: x > 1)
+       strategies.integers(min_value=1, max_value=63),
+       strategies.integers(min_value=2),
+       strategies.integers(min_value=2)
     )
     def testFromOther(self, length, from_base, to_base):
         """ Test roundtrip from number in arbitrary base. """
