@@ -15,10 +15,19 @@
 
 from __future__ import absolute_import
 
+from fractions import Fraction
+
 import unittest
+
+from hypothesis import given
+from hypothesis import strategies
+from hypothesis import Settings
 
 from justbases import ConvertError
 from justbases import Radix
+from justbases import Rationals
+from justbases import Rounding
+from justbases import RoundingMethods
 
 
 class RadixTestCase(unittest.TestCase):
@@ -36,3 +45,113 @@ class RadixTestCase(unittest.TestCase):
             Radix(True, [], [-1], [1], 2)
         with self.assertRaises(ConvertError):
             Radix(True, [-300], [1], [1], 2)
+
+    def testStr(self):
+        """
+        Make sure that __str__ executes.
+        """
+        assert str(Radix(True, [1], [2], [3], 4)) != ''
+
+
+class RoundingTestCase(unittest.TestCase):
+    """ Tests for rounding Radixes. """
+
+    @given(
+       strategies.fractions(),
+       strategies.integers(min_value=2),
+       strategies.integers(min_value=0),
+       strategies.sampled_from(RoundingMethods.METHODS()),
+       settings=Settings(max_examples=50)
+    )
+    def testRoundFraction(self, value, base, precision, method):
+        """
+        Test that rounding yields the correct number of digits.
+
+        Test that rounded values are in a good range.
+        """
+        radix = Rationals.convert_from_rational(value, base)
+        result = Rounding.roundFractional(radix, precision, method)
+        assert len(result.non_repeating_part) == precision
+
+        ulp = Fraction(1, radix.base ** precision)
+        rational_result = Rationals.convert_to_rational(result)
+        assert value - ulp <= rational_result
+        assert value + ulp >= rational_result
+
+    @given(
+       strategies.fractions(),
+       strategies.integers(min_value=2),
+       strategies.integers(min_value=0),
+       settings=Settings(max_examples=50)
+    )
+    def testExpandFraction(self, value, base, precision):
+        """
+        Test that the expanded fraction has the correct length.
+
+        Test some values in the expanded fraction.
+        """
+        # pylint: disable=protected-access
+        radix = Rationals.convert_from_rational(value, base)
+        result = Rounding._expandFraction(radix, precision)
+        assert len(result) == precision
+
+        start = radix.non_repeating_part[:precision]
+        assert start == result[:len(start)]
+
+        nr_length = len(radix.non_repeating_part)
+        assert precision <= nr_length or \
+           (radix.repeating_part == [] and result[nr_length] == 0) or \
+           (radix.repeating_part != [] and \
+              result[nr_length] == radix.repeating_part[0])
+
+    def testOverflow(self):
+        """
+        Ensure that rounding causes overflow.
+        """
+        radix = Radix(True, [], [], [1], 2)
+        result = Rounding.roundFractional(
+           radix,
+           3,
+           RoundingMethods.ROUND_UP
+        )
+        assert result.integer_part == [1]
+        assert result.non_repeating_part == [0, 0, 0]
+        assert result.repeating_part == []
+
+    def testMiddles(self):
+        """
+        Ensure that there is no tie breaker.
+        """
+        radix = Radix(True, [], [1, 1, 1, 1], [], 2)
+        result = Rounding.roundFractional(
+           radix,
+           3,
+           RoundingMethods.ROUND_HALF_UP
+        )
+        assert result.integer_part == [1]
+        assert result.non_repeating_part == [0, 0, 0]
+        assert result.repeating_part == []
+
+    def testAdd(self):
+        """
+        Test overflow with addition.
+        """
+        # pylint: disable=protected-access
+        (carry, res) = Rounding._add([1], 2, 1)
+        assert carry == 1 and res == [0]
+
+    def testExceptions(self):
+        """
+        Test exception.
+        """
+        with self.assertRaises(ConvertError):
+            Rounding.roundFractional(
+               Radix(True, [], [], [], 2),
+               -1,
+               RoundingMethods.ROUND_DOWN
+            )
+        # pylint: disable=protected-access
+        with self.assertRaises(ConvertError):
+            Rounding._increment_unconditional(True, None)
+        with self.assertRaises(ConvertError):
+            Rounding._increment_conditional(True, None, Fraction(1, 2), 0)

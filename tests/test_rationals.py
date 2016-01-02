@@ -41,6 +41,7 @@ class RationalsTestCase(unittest.TestCase):
         Test that functions are inverses of each other.
         """
         result = Rationals.convert_from_rational(value, to_base)
+        assert result.positive or value < 0
         assert Rationals.convert_to_rational(result) == value
 
     def testExceptions(self):
