@@ -282,6 +282,32 @@ class Rounding(object):
         else:
             return (0, part)
 
+    @classmethod
+    def _efficient_add(cls, part, base, increment):
+        """
+        Add ``increment`` to ``part`` in ``base``.
+        Skip conversion and addition if no carry necessary.
+
+        :param part: the part of a Radix to be added.
+        :type part: list of int
+        :param int base: the base
+        :param int increment: the increment
+
+        :returns: result of addition, including a carry digit
+        :rtype: tuple of int * list of int
+        """
+        if increment == 0:
+            return (0, part)
+        else:
+            if part == []:
+                return (increment, part)
+            else:
+                least_significant_digit = part[-1] + increment
+                if least_significant_digit < base:
+                    return (0, part[:-1] + [least_significant_digit])
+                else:
+                    return cls._add(part, base, increment)
+
     @staticmethod
     def _expandFraction(value, precision):
         """
@@ -337,16 +363,13 @@ class Rounding(object):
         carry = 0
         integer_part = value.integer_part
         non_repeating_part = cls._expandFraction(value, precision)
-
         (carry, non_repeating_part) = \
-           cls._add(non_repeating_part, value.base, increment)
-
+            cls._efficient_add(non_repeating_part, value.base, increment)
         padding = (precision - len(non_repeating_part)) * [0]
         non_repeating_part += padding
 
-        if carry != 0:
-            (carry, integer_part) = \
-               cls._add(integer_part, value.base, carry)
+        (carry, integer_part) = \
+           cls._efficient_add(integer_part, value.base, carry)
         if carry != 0:
             integer_part = [carry] + integer_part
 

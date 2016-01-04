@@ -132,6 +132,36 @@ class RoundingTestCase(unittest.TestCase):
         assert result.non_repeating_part == [0, 0, 0]
         assert result.repeating_part == []
 
+    def testLeadingZeros(self):
+        """
+        Require conversion, but do not carry out of repeating_part.
+        """
+        radix = Radix(True, [], [0, 0, 1, 1], [], 2)
+        result = Rounding.roundFractional(
+           radix,
+           3,
+           RoundingMethods.ROUND_UP
+        )
+        assert result.integer_part == []
+        assert result.non_repeating_part == [0, 1, 0]
+        assert result.repeating_part == []
+
+    def testExactLength(self):
+        """
+        Require conversion, but do not carry out of repeating_part.
+        Ensure that the intermediate result is exactly the required
+        precision.
+        """
+        radix = Radix(True, [], [1, 0, 1, 1], [], 2)
+        result = Rounding.roundFractional(
+           radix,
+           3,
+           RoundingMethods.ROUND_UP
+        )
+        assert result.integer_part == []
+        assert result.non_repeating_part == [1, 1, 0]
+        assert result.repeating_part == []
+
     def testAdd(self):
         """
         Test overflow with addition.
