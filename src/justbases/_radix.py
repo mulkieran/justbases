@@ -78,10 +78,10 @@ class Radix(object):
 
     def __str__(self):
         return ('' if self.positive else '-') + \
-           ''.join(str(x) for x in self.integer_part) + \
+           ':'.join(str(x) for x in self.integer_part) + \
            '.' + \
-           ''.join(str(x) for x in self.non_repeating_part) + \
-           '[%s]' % ''.join(str(x) for x in self.repeating_part) + \
+           ':'.join(str(x) for x in self.non_repeating_part) + \
+           '[%s]' % ':'.join(str(x) for x in self.repeating_part) + \
            '_' + \
            str(self.base)
     __repr__ = __str__
