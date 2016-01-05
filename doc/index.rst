@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to justbases's documentation!
-====================================
+Justbases
+=========
 
 Contents:
 
@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    intro
+   usage
    justbases/modules
    tests/modules
 
