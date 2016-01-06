@@ -58,6 +58,17 @@ class RadixTestCase(unittest.TestCase):
         """
         self.assertIsNotNone(Radix(False, [], [], [], 4, False, False))
 
+    def testRepeatingRepeatPart(self):
+        """
+        Repeat part is made up of repeating parts.
+        """
+        radix = Radix(True, [], [], [1, 1], 4)
+        self.assertEqual(radix.repeating_part, [1])
+        radix = Radix(True, [], [], [1, 1, 2], 4)
+        self.assertEqual(radix.repeating_part, [1, 1, 2])
+        radix = Radix(True, [], [], [1, 2, 1, 2, 1, 2], 4)
+        self.assertEqual(radix.repeating_part, [1, 2])
+
 
 class RoundingTestCase(unittest.TestCase):
     """ Tests for rounding Radixes. """
