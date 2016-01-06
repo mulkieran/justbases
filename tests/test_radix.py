@@ -23,7 +23,7 @@ from hypothesis import given
 from hypothesis import strategies
 from hypothesis import Settings
 
-from justbases import ConvertError
+from justbases import BasesError
 from justbases import Radix
 from justbases import Rationals
 from justbases import Rounding
@@ -37,13 +37,13 @@ class RadixTestCase(unittest.TestCase):
         """
         Test exceptions.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [], [], [], 0)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [], [], [2], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [], [-1], [1], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [-300], [1], [1], 2)
 
     def testStr(self):
@@ -174,14 +174,14 @@ class RoundingTestCase(unittest.TestCase):
         """
         Test exception.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Rounding.roundFractional(
                Radix(True, [], [], [], 2),
                -1,
                RoundingMethods.ROUND_DOWN
             )
         # pylint: disable=protected-access
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Rounding._increment_unconditional(True, None)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Rounding._increment_conditional(True, None, Fraction(1, 2), 0)

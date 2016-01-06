@@ -20,7 +20,7 @@ from __future__ import absolute_import
 import fractions
 import itertools
 
-from ._errors import ConvertValueError
+from ._errors import BasesValueError
 from ._nats import Nats
 
 
@@ -97,24 +97,24 @@ class NatDivision(object):
         :raises ConvertError: on invalid values
         """
         if base < 2:
-            raise ConvertValueError(base, "base", "must be at least 2")
+            raise BasesValueError(base, "base", "must be at least 2")
 
         if any(x < 0 or x >= base for x in divisor):
-            raise ConvertValueError(
+            raise BasesValueError(
                divisor,
                "divisor",
                "for all elements, e, 0 <= e < base required"
             )
 
         if any(x < 0 or x >= base for x in dividend):
-            raise ConvertValueError(
+            raise BasesValueError(
                divisor,
                "divisor",
                "for all elements, e, 0 <= e < base required"
             )
 
         if all(x == 0 for x in divisor):
-            raise ConvertValueError(
+            raise BasesValueError(
                divisor,
                "divisor",
                "must be greater than 0"
@@ -158,24 +158,24 @@ class NatDivision(object):
         :rtype: tuple of list of int * list of int
         """
         if base < 2:
-            raise ConvertValueError(base, "base", "must be at least 2")
+            raise BasesValueError(base, "base", "must be at least 2")
 
         if any(x < 0 or x >= base for x in integer_part):
-            raise ConvertValueError(
+            raise BasesValueError(
                integer_part,
                "integer_part",
                "for all elements, e, 0 <= e < base required"
             )
 
         if any(x < 0 or x >= base for x in non_repeating_part):
-            raise ConvertValueError(
+            raise BasesValueError(
                non_repeating_part,
                "non_repeating_part",
                "for all elements, e, 0 <= e < base required"
             )
 
         if any(x < 0 or x >= base for x in repeating_part):
-            raise ConvertValueError(
+            raise BasesValueError(
                repeating_part,
                "repeating_part",
                "for all elements, e, 0 <= e < base required"

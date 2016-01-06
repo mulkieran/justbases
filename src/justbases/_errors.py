@@ -23,11 +23,14 @@ from six import add_metaclass
 
 
 @add_metaclass(abc.ABCMeta)
-class ConvertError(Exception):
-    """ Generic conversion error. """
+class BasesError(Exception):
+    """
+    Supertype of all errors for this package.
+    """
     pass
 
-class ConvertValueError(ConvertError):
+
+class BasesValueError(BasesError):
     """ Raised when a parameter has an unacceptable value.
 
         May also be raised when the parameter has an unacceptable type.

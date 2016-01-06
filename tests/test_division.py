@@ -23,7 +23,7 @@ from hypothesis import given
 from hypothesis import strategies
 from hypothesis import Settings
 
-from justbases import ConvertError
+from justbases import BasesError
 from justbases import NatDivision
 from justbases import Nats
 
@@ -62,28 +62,28 @@ class NatDivisionTestCase(unittest.TestCase):
         """
         Test division exceptions.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.division([1], [1], -2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.division([1], [-1], 3)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.division([-1], [1], 3)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.division([], [1], 3)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.division([0], [1], 3)
 
     def testExceptionsUndivision(self):
         """
         Test undivision exceptions.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.undivision([1], [1], [1], -2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.undivision([1], [1], [-1], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.undivision([1], [-1], [1], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.undivision([-1], [1], [1], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.undivision([2], [1], [1], 2)

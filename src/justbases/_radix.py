@@ -18,7 +18,7 @@ A type for holding a non-integer rational.
 from fractions import Fraction
 
 from ._constants import RoundingMethods
-from ._errors import ConvertValueError
+from ._errors import BasesValueError
 from ._nats import Nats
 
 
@@ -49,29 +49,29 @@ class Radix(object):
         :type repeating_part: list of int
         :param int base: base of the radix, must be at least 2
 
-        :returns: ConvertValueError if invalid values
-        :rtype: ConvertValueError or NoneType
+        :returns: BasesValueError if invalid values
+        :rtype: BasesValueError or NoneType
         """
         if any(x < 0 or x >= base for x in integer_part):
-            return ConvertValueError(
+            return BasesValueError(
                integer_part,
                "integer_part",
                "values must be between 0 and %s" % base
             )
         if any(x < 0 or x >= base for x in non_repeating_part):
-            return ConvertValueError(
+            return BasesValueError(
                non_repeating_part,
                "non_repeating_part",
                "values must be between 0 and %s" % base
             )
         if any(x < 0 or x >= base for x in repeating_part):
-            return ConvertValueError(
+            return BasesValueError(
                repeating_part,
                "repeating_part",
                "values must be between 0 and %s" % base
             )
         if base < 2:
-            return ConvertValueError(base, "base", "must be at least 2")
+            return BasesValueError(base, "base", "must be at least 2")
         return None
 
     @classmethod
@@ -220,7 +220,7 @@ class Rounding(object):
                 return 0
             else:
                 return 1
-        raise ConvertValueError(
+        raise BasesValueError(
             method,
             "method",
             "unknown method"
@@ -244,7 +244,7 @@ class Rounding(object):
             return 0
         if method is RoundingMethods.ROUND_UP:
             return cls._up(positive)
-        raise ConvertValueError(
+        raise BasesValueError(
             method,
             "method",
             "unknown method"
@@ -416,7 +416,7 @@ class Rounding(object):
         """
 
         if precision < 0:
-            raise ConvertValueError(
+            raise BasesValueError(
                precision,
                "precision",
                "must be at least 0"
