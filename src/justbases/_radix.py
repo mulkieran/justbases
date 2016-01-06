@@ -29,6 +29,52 @@ class Radix(object):
     # pylint: disable=too-few-public-methods
 
     @classmethod
+    def _validate( # pylint: disable=too-many-arguments
+        cls,
+        positive, # pylint: disable=unused-argument
+        integer_part,
+        non_repeating_part,
+        repeating_part,
+        base
+    ):
+        """
+        Check if radix is valid.
+
+        :param bool positive: True if value is positive, otherwise False
+        :param integer_part: the part on the left side of the radix
+        :type integer_part: list of int
+        :param non_repeating_part: non repeating part on left side
+        :type non_repeating_part: list of int
+        :param repeating_part: repeating part
+        :type repeating_part: list of int
+        :param int base: base of the radix, must be at least 2
+
+        :returns: ConvertValueError if invalid values
+        :rtype: ConvertValueError or NoneType
+        """
+        if any(x < 0 or x >= base for x in integer_part):
+            return ConvertValueError(
+               integer_part,
+               "integer_part",
+               "values must be between 0 and %s" % base
+            )
+        if any(x < 0 or x >= base for x in non_repeating_part):
+            return ConvertValueError(
+               non_repeating_part,
+               "non_repeating_part",
+               "values must be between 0 and %s" % base
+            )
+        if any(x < 0 or x >= base for x in repeating_part):
+            return ConvertValueError(
+               repeating_part,
+               "repeating_part",
+               "values must be between 0 and %s" % base
+            )
+        if base < 2:
+            return ConvertValueError(base, "base", "must be at least 2")
+        return None
+
+    @classmethod
     def _repeat_length(cls, part):
         """
         The length of the repeated portions of ``part``.
@@ -76,26 +122,15 @@ class Radix(object):
         :type repeating_part: list of int
         :param int base: base of the radix, must be at least 2
         """
-        if any(x < 0 or x >= base for x in integer_part):
-            raise ConvertValueError(
-               integer_part,
-               "integer_part",
-               "values must be between 0 and %s" % base
-            )
-        if any(x < 0 or x >= base for x in non_repeating_part):
-            raise ConvertValueError(
-               non_repeating_part,
-               "non_repeating_part",
-               "values must be between 0 and %s" % base
-            )
-        if any(x < 0 or x >= base for x in repeating_part):
-            raise ConvertValueError(
-               repeating_part,
-               "repeating_part",
-               "values must be between 0 and %s" % base
-            )
-        if base < 2:
-            raise ConvertValueError(base, "base", "must be at least 2")
+        error = self._validate(
+           positive,
+           integer_part,
+           non_repeating_part,
+           repeating_part,
+           base
+        )
+        if error is not None:
+            raise error
 
         if all(x == 0 for x in integer_part):
             integer_part = []
