@@ -28,6 +28,34 @@ class Radix(object):
     """
     # pylint: disable=too-few-public-methods
 
+    @classmethod
+    def _repeat_length(cls, part):
+        """
+        The length of the repeated portions of ``part``.
+
+        :param part: a number
+        :type part: list of int
+        :returns: the first index at which part repeats
+        :rtype: int
+
+        If part does not repeat, result is the length of part.
+        """
+        repeat_len = len(part)
+        if repeat_len == 0:
+            return repeat_len
+
+        first_digit = part[0]
+        limit = repeat_len // 2 + 1
+        indices = (i for i in range(1, limit) if part[i] == first_digit)
+        for index in indices:
+            (quot, rem) = divmod(repeat_len, index)
+            if rem == 0:
+                first_chunk = part[0:index]
+                if all(first_chunk == part[x:x + index] \
+                   for x in range(index, quot * index, index)):
+                    return index
+        return repeat_len
+
     def __init__( # pylint: disable=too-many-arguments
         self,
         positive,
@@ -48,8 +76,6 @@ class Radix(object):
         :type repeating_part: list of int
         :param int base: base of the radix, must be at least 2
         """
-        self.positive = positive
-
         if any(x < 0 or x >= base for x in integer_part):
             raise ConvertValueError(
                integer_part,
@@ -71,6 +97,19 @@ class Radix(object):
         if base < 2:
             raise ConvertValueError(base, "base", "must be at least 2")
 
+        if all(x == 0 for x in integer_part):
+            integer_part = []
+
+        if all(x == 0 for x in repeating_part):
+            repeating_part = []
+
+        if integer_part == [] and repeating_part == [] and \
+           all(x == 0 for x in non_repeating_part):
+            positive = True
+
+        repeating_part = repeating_part[0:self._repeat_length(repeating_part)]
+
+        self.positive = positive
         self.base = base
         self.integer_part = integer_part
         self.non_repeating_part = non_repeating_part
