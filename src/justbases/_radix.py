@@ -108,7 +108,9 @@ class Radix(object):
         integer_part,
         non_repeating_part,
         repeating_part,
-        base
+        base,
+        validate=True,
+        canonicalize=True
     ):
         """
         Initializer.
@@ -121,28 +123,34 @@ class Radix(object):
         :param repeating_part: repeating part
         :type repeating_part: list of int
         :param int base: base of the radix, must be at least 2
+        :param bool validate: if True, validate the arguments
+        :param bool canonicalize: if True, canonicalize
+
+        Validation and canonicalization are expensive and may be omitted.
         """
-        error = self._validate(
-           positive,
-           integer_part,
-           non_repeating_part,
-           repeating_part,
-           base
-        )
-        if error is not None:
-            raise error
+        if validate:
+            error = self._validate(
+               positive,
+               integer_part,
+               non_repeating_part,
+               repeating_part,
+               base
+            )
+            if error is not None:
+                raise error
 
-        if all(x == 0 for x in integer_part):
-            integer_part = []
+        if canonicalize:
+            if all(x == 0 for x in integer_part):
+                integer_part = []
 
-        if all(x == 0 for x in repeating_part):
-            repeating_part = []
+            if all(x == 0 for x in repeating_part):
+                repeating_part = []
 
-        if integer_part == [] and repeating_part == [] and \
-           all(x == 0 for x in non_repeating_part):
-            positive = True
+            if integer_part == [] and repeating_part == [] and \
+               all(x == 0 for x in non_repeating_part):
+                positive = True
 
-        repeating_part = repeating_part[0:self._repeat_length(repeating_part)]
+            repeating_part = repeating_part[0:self._repeat_length(repeating_part)]
 
         self.positive = positive
         self.base = base

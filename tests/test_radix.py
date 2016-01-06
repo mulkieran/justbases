@@ -52,6 +52,12 @@ class RadixTestCase(unittest.TestCase):
         """
         assert str(Radix(True, [1], [2], [3], 4)) != ''
 
+    def testOptions(self):
+        """
+        Skip validation and canonicalization.
+        """
+        self.assertIsNotNone(Radix(False, [], [], [], 4, False, False))
+
 
 class RoundingTestCase(unittest.TestCase):
     """ Tests for rounding Radixes. """
