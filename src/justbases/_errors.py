@@ -23,11 +23,32 @@ from six import add_metaclass
 
 
 @add_metaclass(abc.ABCMeta)
-class ConvertError(Exception):
-    """ Generic conversion error. """
+class BasesError(Exception):
+    """
+    Supertype of all errors for this package.
+    """
     pass
 
-class ConvertValueError(ConvertError):
+
+class BasesInvalidOperationError(BasesError): # pragma: no cover
+    """
+    Invalid operation.
+    """
+
+    def __init__(self, op, other=None):
+        # pylint: disable=super-init-not-called
+        self._operator = op
+        self._other = other
+
+    def __str__(self):
+        if self._other is None:
+            return "invalid operation for Radix: %s" % self._operator
+        else:
+            return "invalid operation %s for Radix and %s" % \
+               (self._operator, type(self._other).__name__)
+
+
+class BasesValueError(BasesError):
     """ Raised when a parameter has an unacceptable value.
 
         May also be raised when the parameter has an unacceptable type.

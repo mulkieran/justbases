@@ -17,7 +17,7 @@ Methods dealing with rationals.
 from fractions import Fraction
 
 from ._division import NatDivision
-from ._errors import ConvertValueError
+from ._errors import BasesValueError
 from ._nats import Nats
 from ._radix import Radix
 
@@ -75,10 +75,10 @@ class Rationals(object):
         :param int to_base: base of result, must be at least 2
         :returns: the conversion result
         :rtype: Radix
-        :raises ConvertValueError: if to_base is less than 2
+        :raises BasesValueError: if to_base is less than 2
         """
         if to_base < 2:
-            raise ConvertValueError(to_base, "to_base", "must be at least 2")
+            raise BasesValueError(to_base, "to_base", "must be at least 2")
 
         positive = True if value >= 0 else False
         value = abs(value)

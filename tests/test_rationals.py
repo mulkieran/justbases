@@ -23,7 +23,7 @@ from hypothesis import given
 from hypothesis import strategies
 from hypothesis import Settings
 
-from justbases import ConvertError
+from justbases import BasesError
 from justbases import Radix
 from justbases import Rationals
 
@@ -48,7 +48,7 @@ class RationalsTestCase(unittest.TestCase):
         """
         Test exceptions.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Rationals.convert_from_rational(Fraction(1, 2), 0)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Rationals.convert(Radix(True, [], [], [], 2), 0)

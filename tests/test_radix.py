@@ -23,7 +23,7 @@ from hypothesis import given
 from hypothesis import strategies
 from hypothesis import Settings
 
-from justbases import ConvertError
+from justbases import BasesError
 from justbases import Radix
 from justbases import Rationals
 from justbases import Rounding
@@ -37,13 +37,13 @@ class RadixTestCase(unittest.TestCase):
         """
         Test exceptions.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [], [], [], 0)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [], [], [2], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [], [-1], [1], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [-300], [1], [1], 2)
 
     def testStr(self):
@@ -51,6 +51,72 @@ class RadixTestCase(unittest.TestCase):
         Make sure that __str__ executes.
         """
         assert str(Radix(True, [1], [2], [3], 4)) != ''
+
+    def testOptions(self):
+        """
+        Skip validation and canonicalization.
+        """
+        self.assertIsNotNone(Radix(False, [], [], [], 4, False, False))
+
+    def testEquality(self):
+        """
+        Test == operator.
+        """
+        self.assertEqual(
+           Radix(True, [1], [], [], 2),
+           Radix(True, [1], [], [], 2),
+        )
+
+    def testInEquality(self):
+        """
+        Test != operator.
+        """
+        self.assertNotEqual(
+           Radix(False, [], [], [], 3),
+           Radix(True, [], [], [], 2),
+        )
+
+    def testOperatorExceptions(self):
+        """
+        Test that comparsion operators yield exceptions.
+        """
+        radix1 = Radix(False, [], [], [], 3)
+        radix2 = Radix(False, [], [], [], 2)
+        # pylint: disable=pointless-statement
+        with self.assertRaises(BasesError):
+            radix1 > radix2
+        with self.assertRaises(BasesError):
+            radix1 < radix2
+        with self.assertRaises(BasesError):
+            radix1 <= radix2
+        with self.assertRaises(BasesError):
+            radix1 >= radix2
+        with self.assertRaises(BasesError):
+            radix1 >= 1
+        with self.assertRaises(BasesError):
+            radix1 == 1
+        with self.assertRaises(BasesError):
+            radix1 != 1
+
+    def testRepeatingRepeatPart(self):
+        """
+        Repeat part is made up of repeating parts.
+        """
+        radix = Radix(True, [], [], [1, 1], 4)
+        self.assertEqual(radix.repeating_part, [1])
+        radix = Radix(True, [], [], [1, 1, 2], 4)
+        self.assertEqual(radix.repeating_part, [1, 1, 2])
+        radix = Radix(True, [], [], [1, 2, 1, 2, 1, 2], 4)
+        self.assertEqual(radix.repeating_part, [1, 2])
+        radix = Radix(True, [], [3, 1, 2, 1, 2], [1, 2], 4)
+        self.assertEqual(radix.non_repeating_part, [3])
+        self.assertEqual(radix.repeating_part, [1, 2])
+        radix = Radix(True, [], [3, 2, 1, 2, 1, 2], [1, 2], 4)
+        self.assertEqual(radix.non_repeating_part, [3])
+        self.assertEqual(radix.repeating_part, [2, 1])
+        radix = Radix(True, [], [3, 3, 2, 3, 1, 2, 3, 1, 2, 3], [1, 2, 3], 4)
+        self.assertEqual(radix.non_repeating_part, [3, 3])
+        self.assertEqual(radix.repeating_part, [2, 3, 1])
 
 
 class RoundingTestCase(unittest.TestCase):
@@ -174,14 +240,14 @@ class RoundingTestCase(unittest.TestCase):
         """
         Test exception.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Rounding.roundFractional(
                Radix(True, [], [], [], 2),
                -1,
                RoundingMethods.ROUND_DOWN
             )
         # pylint: disable=protected-access
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Rounding._increment_unconditional(True, None)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Rounding._increment_conditional(True, None, Fraction(1, 2), 0)

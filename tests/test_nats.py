@@ -21,7 +21,7 @@ import random
 from hypothesis import given
 from hypothesis import strategies
 
-from justbases import ConvertError
+from justbases import BasesError
 from justbases import Nats
 
 class NatsTestCase(unittest.TestCase):
@@ -52,15 +52,15 @@ class NatsTestCase(unittest.TestCase):
 
     def testExceptions(self):
         """ Test throwing exception. """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Nats.convert_from_int(-32, 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Nats.convert_from_int(32, -2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Nats.convert([1], 1, 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Nats.convert([1], 2, 1)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Nats.convert_to_int([1], 1)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Nats.convert_to_int([-1], 2)
