@@ -102,6 +102,46 @@ class Radix(object):
                     return index
         return repeat_len
 
+    @classmethod
+    def _canonicalize_fraction(cls, non_repeating, repeating):
+        """
+        If the same fractional value can be represented by stripping repeating
+        part from ``non_repeating``, do it.
+
+        :param non_repeating: non repeating part of fraction
+        :type non_repeating: list of int
+        :param repeating: repeating part of fraction
+        :type repeating: list of int
+        :returns: new non_repeating and repeating parts
+        :rtype: tuple of list of int * list of int
+        """
+        if repeating == []:
+            return (non_repeating, repeating)
+
+        repeat_len = len(repeating)
+
+        # strip all exact matches:
+        # * for [6, 1, 2, 1, 2], [1,2] end is 1
+        # * for [1, 2, 1, 2], [1,2] end is 0
+        # * for [6, 2, 1, 2], [1,2] end is 2
+        indices = range(len(non_repeating), -1, -repeat_len)
+        end = next( # pragma: no cover
+           i for i in indices if non_repeating[(i - repeat_len):i] != repeating
+        )
+
+        # for remaining, find partial match and shift repeating
+        # * for [6, 2, 1, 2], [1, 2] initial end is 2, result is [6], [2, 1]
+        indices = range(min(repeat_len - 1, end), 0, -1)
+        index = next(
+           (i for i in indices \
+              if repeating[-i:] == non_repeating[(end-i):end]),
+           0
+        )
+        return (
+           non_repeating[:(end - index)],
+           repeating[-index:] + repeating[:-index]
+        )
+
     def __init__( # pylint: disable=too-many-arguments
         self,
         positive,
@@ -151,6 +191,8 @@ class Radix(object):
                 positive = True
 
             repeating_part = repeating_part[0:self._repeat_length(repeating_part)]
+            (non_repeating_part, repeating_part) = \
+                self._canonicalize_fraction(non_repeating_part, repeating_part)
 
         self.positive = positive
         self.base = base

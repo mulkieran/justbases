@@ -68,6 +68,15 @@ class RadixTestCase(unittest.TestCase):
         self.assertEqual(radix.repeating_part, [1, 1, 2])
         radix = Radix(True, [], [], [1, 2, 1, 2, 1, 2], 4)
         self.assertEqual(radix.repeating_part, [1, 2])
+        radix = Radix(True, [], [3, 1, 2, 1, 2], [1, 2], 4)
+        self.assertEqual(radix.non_repeating_part, [3])
+        self.assertEqual(radix.repeating_part, [1, 2])
+        radix = Radix(True, [], [3, 2, 1, 2, 1, 2], [1, 2], 4)
+        self.assertEqual(radix.non_repeating_part, [3])
+        self.assertEqual(radix.repeating_part, [2, 1])
+        radix = Radix(True, [], [3, 3, 2, 3, 1, 2, 3, 1, 2, 3], [1, 2, 3], 4)
+        self.assertEqual(radix.non_repeating_part, [3, 3])
+        self.assertEqual(radix.repeating_part, [2, 3, 1])
 
 
 class RoundingTestCase(unittest.TestCase):
