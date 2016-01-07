@@ -18,6 +18,7 @@ A type for holding a non-integer rational.
 from fractions import Fraction
 
 from ._constants import RoundingMethods
+from ._errors import BasesInvalidOperationError
 from ._errors import BasesValueError
 from ._nats import Nats
 
@@ -25,6 +26,8 @@ from ._nats import Nats
 class Radix(object):
     """
     An object containing information about a rational representation.
+
+    Such values can not be ordered, but can be compared for equality.
     """
     # pylint: disable=too-few-public-methods
 
@@ -209,6 +212,36 @@ class Radix(object):
            '_' + \
            str(self.base)
     __repr__ = __str__
+
+    def __eq__(self, other):
+        if not isinstance(other, Radix):
+            raise BasesInvalidOperationError("!=", other)
+        return self.positive == other.positive and \
+           self.integer_part == other.integer_part and \
+           self.non_repeating_part == other.non_repeating_part and \
+           self.repeating_part == other.repeating_part and \
+           self.base == other.base
+
+    def __ne__(self, other):
+        if not isinstance(other, Radix):
+            raise BasesInvalidOperationError("!=", other)
+        return self.positive != other.positive or \
+           self.integer_part != other.integer_part or \
+           self.non_repeating_part != other.non_repeating_part or \
+           self.repeating_part != other.repeating_part or \
+           self.base != other.base
+
+    def __lt__(self, other):
+        raise BasesInvalidOperationError("<")
+
+    def __gt__(self, other):
+        raise BasesInvalidOperationError(">")
+
+    def __le__(self, other):
+        raise BasesInvalidOperationError("<=")
+
+    def __ge__(self, other):
+        raise BasesInvalidOperationError(">=")
 
 
 class Rounding(object):

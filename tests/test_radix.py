@@ -58,6 +58,46 @@ class RadixTestCase(unittest.TestCase):
         """
         self.assertIsNotNone(Radix(False, [], [], [], 4, False, False))
 
+    def testEquality(self):
+        """
+        Test == operator.
+        """
+        self.assertEqual(
+           Radix(True, [1], [], [], 2),
+           Radix(True, [1], [], [], 2),
+        )
+
+    def testInEquality(self):
+        """
+        Test != operator.
+        """
+        self.assertNotEqual(
+           Radix(False, [], [], [], 3),
+           Radix(True, [], [], [], 2),
+        )
+
+    def testOperatorExceptions(self):
+        """
+        Test that comparsion operators yield exceptions.
+        """
+        radix1 = Radix(False, [], [], [], 3)
+        radix2 = Radix(False, [], [], [], 2)
+        # pylint: disable=pointless-statement
+        with self.assertRaises(BasesError):
+            radix1 > radix2
+        with self.assertRaises(BasesError):
+            radix1 < radix2
+        with self.assertRaises(BasesError):
+            radix1 <= radix2
+        with self.assertRaises(BasesError):
+            radix1 >= radix2
+        with self.assertRaises(BasesError):
+            radix1 >= 1
+        with self.assertRaises(BasesError):
+            radix1 == 1
+        with self.assertRaises(BasesError):
+            radix1 != 1
+
     def testRepeatingRepeatPart(self):
         """
         Repeat part is made up of repeating parts.
