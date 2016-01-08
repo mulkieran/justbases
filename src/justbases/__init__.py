@@ -44,6 +44,7 @@ from ._errors import BasesError
 from ._nats import Nats
 from ._radix import Radix
 from ._radix import Rounding
+
 from ._rationals import Rationals
 
 from .version import __version__
