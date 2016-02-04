@@ -30,7 +30,7 @@ class NatDivision(object):
     """
 
     @staticmethod
-    def _fractional_division(divisor, remainder, base):
+    def _fractional_division(divisor, remainder, base, precision=None):
         """
         Get the repeating and non-repeating part.
 
@@ -41,11 +41,15 @@ class NatDivision(object):
         :returns: non_repeating and repeating parts
         :rtype: tuple of list of int * list of int
         """
+        indices = itertools.count() if precision is None else range(precision)
+
         quotient = []
         remainders = []
 
         remainder = remainder * base
-        while remainder != 0 and remainder not in remainders:
+        for _ in indices:
+            if remainder == 0 or remainder in remainders:
+                break
             remainders.append(remainder)
             (quot, rem) = divmod(remainder, divisor)
             quotient.append(quot)
@@ -56,9 +60,11 @@ class NatDivision(object):
 
         if remainder == 0:
             return (quotient, [])
-        else:
+        elif remainder in remainders:
             start = remainders.index(remainder)
             return (quotient[:start], quotient[start:])
+        else:
+            return (quotient, [])
 
     @staticmethod
     def _division(divisor, dividend, remainder, base):
@@ -84,7 +90,7 @@ class NatDivision(object):
         return (quotient, remainder)
 
     @classmethod
-    def division(cls, divisor, dividend, base):
+    def division(cls, divisor, dividend, base, precision=None):
         """
         Division of natural numbers.
 
@@ -92,12 +98,17 @@ class NatDivision(object):
         :type divisor: list of int
         :param dividend: the dividend
         :type dividend: list of int
+        :param precision: maximum number of fractional digits
+        :type precision: int or NoneType
         :returns: the result
         :rtype: tuple of list of int * list of int * list of int
         :raises ConvertError: on invalid values
         """
         if base < 2:
             raise BasesValueError(base, "base", "must be at least 2")
+
+        if precision is not None and precision < 0:
+            raise BasesValueError(precision, "precision", "must be at least 0")
 
         if any(x < 0 or x >= base for x in divisor):
             raise BasesValueError(
@@ -126,7 +137,8 @@ class NatDivision(object):
         (non_repeating_part, repeating_part) = cls._fractional_division(
            divisor,
            rem,
-           base
+           base,
+           precision
         )
 
         return (
