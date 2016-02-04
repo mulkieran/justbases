@@ -20,8 +20,8 @@ import unittest
 
 from hypothesis import example
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies
-from hypothesis import Settings
 
 from justbases import BasesError
 from justbases import NatDivision
@@ -34,9 +34,9 @@ class NatDivisionTestCase(unittest.TestCase):
     @given(
        strategies.integers(min_value=1, max_value=2 ** 16),
        strategies.integers(min_value=0, max_value=2 ** 64),
-       strategies.integers(min_value=3),
-       settings=Settings(max_examples=50)
+       strategies.integers(min_value=3)
     )
+    @settings(max_examples=50)
     @example(divisor=2**17, dividend=2, base=2)
     def testInverses(self, divisor, dividend, base):
         """
