@@ -22,8 +22,8 @@ import unittest
 import six
 
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies
-from hypothesis import Settings
 
 from justbases import BasesError
 from justbases import Radix
@@ -34,11 +34,8 @@ from justbases import RoundingMethods
 class RationalsTestCase(unittest.TestCase):
     """ Tests for rationals. """
 
-    @given(
-       strategies.fractions(),
-       strategies.integers(min_value=2),
-       settings=Settings(max_examples=50)
-    )
+    @given(strategies.fractions(), strategies.integers(min_value=2))
+    @settings(max_examples=50)
     def testInverses(self, value, to_base):
         """
         Test that functions are inverses of each other.
@@ -58,9 +55,9 @@ class RationalsTestCase(unittest.TestCase):
 
     @given(
        strategies.fractions(),
-       strategies.sampled_from(RoundingMethods.METHODS()),
-       settings=Settings(max_examples=50)
+       strategies.sampled_from(RoundingMethods.METHODS())
     )
+    @settings(max_examples=50)
     def testRounding(self, value, method):
         """
         Test rounding to int.
@@ -74,10 +71,8 @@ class RationalsTestCase(unittest.TestCase):
            (result <= value and value <= upper)
         )
 
-    @given(
-       strategies.integers(min_value=1, max_value=9),
-       settings=Settings(max_examples=20)
-    )
+    @given(strategies.integers(min_value=1, max_value=9))
+    @settings(max_examples=20)
     def testRoundingPrecise(self, numerator):
         """
         Test with predicted value.

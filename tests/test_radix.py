@@ -20,8 +20,8 @@ from fractions import Fraction
 import unittest
 
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies
-from hypothesis import Settings
 
 from justbases import BasesError
 from justbases import Radix
@@ -126,9 +126,9 @@ class RoundingTestCase(unittest.TestCase):
        strategies.fractions(),
        strategies.integers(min_value=2),
        strategies.integers(min_value=0),
-       strategies.sampled_from(RoundingMethods.METHODS()),
-       settings=Settings(max_examples=50)
+       strategies.sampled_from(RoundingMethods.METHODS())
     )
+    @settings(max_examples=50)
     def testRoundFraction(self, value, base, precision, method):
         """
         Test that rounding yields the correct number of digits.
@@ -147,9 +147,9 @@ class RoundingTestCase(unittest.TestCase):
     @given(
        strategies.fractions(),
        strategies.integers(min_value=2),
-       strategies.integers(min_value=0),
-       settings=Settings(max_examples=50)
+       strategies.integers(min_value=0)
     )
+    @settings(max_examples=50)
     def testExpandFraction(self, value, base, precision):
         """
         Test that the expanded fraction has the correct length.
