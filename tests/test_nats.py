@@ -15,6 +15,7 @@
 
 from __future__ import absolute_import
 
+import itertools
 import unittest
 import random
 
@@ -64,3 +65,39 @@ class NatsTestCase(unittest.TestCase):
             Nats.convert_to_int([1], 1)
         with self.assertRaises(BasesError):
             Nats.convert_to_int([-1], 2)
+        with self.assertRaises(BasesError):
+            Nats.carry_in([-1], 1, 2)
+        with self.assertRaises(BasesError):
+            Nats.carry_in([1], -1, 2)
+        with self.assertRaises(BasesError):
+            Nats.carry_in([1], 1, 1)
+
+    @given(
+       strategies.lists(strategies.integers(min_value=0)),
+       strategies.integers(min_value=0)
+    )
+    def testCarryIn(self, value, carry):
+        """
+        Test carry_in.
+
+        :param value: the value
+        :type value: list of int
+        :param int carry: the carry (>= 0)
+        """
+        value = list(itertools.dropwhile(lambda x: x == 0, value))
+
+        base = max(max(value + [carry]) + 1, 2)
+        (carry_out, result) = Nats.carry_in(value, carry, base)
+        assert len(result) == len(value)
+
+        result2 = Nats.convert_from_int(
+           Nats.convert_to_int(value, base) + carry,
+           base
+        )
+
+        assert len(result2) >= len(result)
+
+        assert (len(result2) == len(result)) or \
+           result2[0] == carry_out and result2[1:] == result
+
+        assert not (len(result2) == len(result)) or result2 == result
