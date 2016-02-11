@@ -30,11 +30,13 @@ class NatDivision(object):
     Methods for division in arbitrary bases.
     """
 
-    @staticmethod
+    @classmethod
     def _round(
+       cls,
        quotient,
        divisor,
        remainder,
+       remainders,
        base,
        method=RoundingMethods.ROUND_DOWN
     ):
@@ -48,8 +50,12 @@ class NatDivision(object):
         :param int base: the base
         :param method: the rounding method
         :raises BasesValueError:
+
+        :returns: carry-out digit, non_repeating and repeating parts
+        :rtype: tuple of int * list of int * list of int
         """
         # pylint: disable=too-many-return-statements
+        # pylint: disable=too-many-arguments
         if method not in RoundingMethods.METHODS():
             raise BasesValueError(
                method,
@@ -65,21 +71,30 @@ class NatDivision(object):
             (carry, quotient) = Nats.carry_in(quotient, 1, base)
             return (carry, quotient, [])
         else:
-            quot = remainder / divisor
+            remainder = cls._divide(
+               divisor,
+               remainder,
+               quotient,
+               remainders,
+               base,
+               1
+            )
+            quot = quotient[-1]
+            result = quotient[:-1]
             middle = fractions.Fraction(base, 2)
             if quot < middle:
-                return (0, quotient, [])
+                return (0, result, [])
             elif quot > middle:
-                (carry, quotient) = Nats.carry_in(quotient, 1, base)
-                return (carry, quotient, [])
+                (carry, result) = Nats.carry_in(result, 1, base)
+                return (carry, result, [])
             else:
                 if method is RoundingMethods.ROUND_HALF_UP:
-                    (carry, quotient) = Nats.carry_in(quotient, 1, base)
-                    return (carry, quotient, [])
+                    (carry, result) = Nats.carry_in(result, 1, base)
+                    return (carry, result, [])
                 elif method is RoundingMethods.ROUND_HALF_DOWN:
-                    return (0, quotient, [])
+                    return (0, result, [])
                 elif method is RoundingMethods.ROUND_HALF_ZERO:
-                    return (0, quotient, [])
+                    return (0, result, [])
         raise BasesValueError( # pragma: no cover
            method,
            "method",
@@ -94,7 +109,7 @@ class NatDivision(object):
         :param int divisor: the divisor
         :param int remainder: the remainder
         :param int base: the base
-        :param precision: maximum number of fractional digits
+        :param precision: maximum number of fractional digits to compute
         :type precision: int or NoneType
 
         :returns: the remainder
@@ -161,7 +176,14 @@ class NatDivision(object):
             start = remainders.index(remainder)
             return (0, quotient[:start], quotient[start:])
         else:
-            return cls._round(quotient, divisor, remainder, base, method)
+            return cls._round(
+               quotient,
+               divisor,
+               remainder,
+               remainders,
+               base,
+               method
+            )
 
     @staticmethod
     def _division(divisor, dividend, remainder, base):
