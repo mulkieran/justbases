@@ -88,12 +88,12 @@ class NatDivision(object):
                 (carry, result) = Nats.carry_in(result, 1, base)
                 return (carry, result, [])
             else:
-                if method is RoundingMethods.ROUND_HALF_UP:
+                if method is RoundingMethods.ROUND_HALF_UP or remainder != 0:
                     (carry, result) = Nats.carry_in(result, 1, base)
                     return (carry, result, [])
-                elif method is RoundingMethods.ROUND_HALF_DOWN:
-                    return (0, result, [])
-                elif method is RoundingMethods.ROUND_HALF_ZERO:
+                elif method in \
+                   (RoundingMethods.ROUND_HALF_DOWN,
+                    RoundingMethods.ROUND_HALF_ZERO):
                     return (0, result, [])
         raise BasesValueError( # pragma: no cover
            method,
