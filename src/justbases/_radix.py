@@ -15,6 +15,8 @@
 A type for holding a non-integer rational.
 """
 
+import itertools
+
 from fractions import Fraction
 
 from ._constants import RoundingMethods
@@ -250,243 +252,46 @@ class Rounding(object):
     """
     # pylint: disable=too-few-public-methods
 
-    @staticmethod
-    def _down(positive):
-        """
-        Amount to add if rounding down.
-
-        :param bool positive: True if the actual value is positive, else False
-        :returns: the increment value
-        :rtype: int
-        """
-        return 0 if positive else 1
 
     @staticmethod
-    def _up(positive):
+    def _conditional_toward_zero(method, positive):
         """
-        Amount to add if round up.
+        Whether to round toward zero.
 
-        :param bool positive: True if the actual value is positive, else False
-        :returns: the increment value
-        :rtype: int
+        :param method: rounding method
+        :type method: element of RoundingMethods.METHODS()
+        :bool positive: if value is positive
         """
-        return 1 if positive else 0
-
-    @classmethod
-    def _increment_conditional(cls, positive, method, middle, breaker):
-        """
-        The amount by which to increment if incrementing at all.
-        Note that the number being operated on is always non-negative.
-
-        :param bool positive: if the number is positive
-        :param method: rounding method, HALF kind
-        :param Fraction middle: the middle value
-        :type middle: Fraction or NoneType
-        :param breaker: the non-middle value found
-        :type breaker: int or NoneType
-
-        :returns: amount by which to increment
-        :rtype: int (1 or 0)
-        """
-        if method is RoundingMethods.ROUND_HALF_DOWN:
-            if breaker is None or breaker <= middle:
-                return 0
-            else:
-                return cls._up(positive)
-        if method is RoundingMethods.ROUND_HALF_UP:
-            if breaker is None or breaker >= middle:
-                return cls._up(positive)
-            else:
-                return 0
-        if method is RoundingMethods.ROUND_HALF_ZERO:
-            if breaker is None or breaker <= middle:
-                return 0
-            else:
-                return 1
-        raise BasesValueError(
-            method,
-            "method",
-            "unknown method"
-        )
-
-    @classmethod
-    def _increment_unconditional(cls, positive, method):
-        """
-        The amount by which to increment if incrementing at all.
-        Note that the number being operated on is always non-negative.
-
-        :param bool positive: if the number is positive
-        :param method: rounding method, absolute kind
-
-        :returns: amount by which to increment
-        :rtype: int (1 or 0)
-        """
-        if method is RoundingMethods.ROUND_DOWN:
-            return cls._down(positive)
-        if method is RoundingMethods.ROUND_TO_ZERO:
-            return 0
-        if method is RoundingMethods.ROUND_UP:
-            return cls._up(positive)
-        raise BasesValueError(
-            method,
-            "method",
-            "unknown method"
-        )
+        return method is RoundingMethods.ROUND_HALF_ZERO or \
+           (method is RoundingMethods.ROUND_HALF_DOWN and positive) or \
+           (method is RoundingMethods.ROUND_HALF_UP and not positive)
 
     @staticmethod
-    def _tieBreaker(
-       middle,
-       start,
-       integer_part,
-       non_repeating_part,
-       repeating_part
-    ):
+    def _increment(positive, integer_part, non_repeating_part, base):
         """
-        Find the first tie-breaking digit in the number.
+        Return an increment radix.
 
-        :param Fraction middle: the middle value for the base
-        :param int start: where to start looking
-        :param integer_part: the integer part of the number
+        :param bool positive: positive if Radix is positive
+        :param integer_part: the integer part
         :type integer_part: list of int
-        :param non_repeating_part: the integer part of the number
+        :param non_repeating_part: the fractional part
         :type non_repeating_part: list of int
-        :param repeating_part: the integer part of the number
-        :type repeating_part: list of int
-        :returns: first tie breaking digit or None if none found
-        :rtype: int or NoneType
-        """
-        number = integer_part + non_repeating_part + repeating_part
-        if start > len(number):
-            start = (start - len(number)) % len(repeating_part)
-            value = repeating_part[start:] + repeating_part[:start]
-        else:
-            value = number[start:]
-        return next((x for x in value if x != middle), None)
-
-    @staticmethod
-    def _exact(
-       start,
-       integer_part,
-       non_repeating_part,
-       repeating_part
-    ):
-        """
-        Whether the value is exact.
-
-        :returns: True if exact, otherwise False
-        :rtype: bool
-        """
-        number = integer_part + non_repeating_part
-        return all(x == 0 for x in number[start:]) and \
-           all(x == 0 for x in repeating_part)
-
-    @classmethod
-    def _increment(
-       cls,
-       positive,
-       method,
-       middle,
-       start,
-       integer_part,
-       non_repeating_part,
-       repeating_part
-    ): # pylint: disable=too-many-arguments
-        """
-        Amount to increment.
-
-        :returns: the amount to increment
-        :rtype: int
-        """
-        if cls._exact(start, integer_part, non_repeating_part, repeating_part):
-            return 0
-
-        if method in RoundingMethods.CONDITIONAL_METHODS():
-            breaker = cls._tieBreaker(
-               middle,
-               start,
-               integer_part,
-               non_repeating_part,
-               repeating_part
-            )
-            return cls._increment_conditional(positive, method, middle, breaker)
-        else:
-            return cls._increment_unconditional(positive, method)
-
-    @staticmethod
-    def _add(part, base, increment):
-        """
-        Add ``increment`` to ``part`` in ``base``.
-
-        :param part: the part of a Radix to be added.
-        :type part: list of int
         :param int base: the base
-        :param int increment: the increment
 
-        :returns: result of addition, including a carry digit
-        :rtype: tuple of int * list of int
+        :returns: a Radix object with ``non_repeating_part`` rounded up
+        :rtype: Radix
         """
-        length = len(part)
-        part = Nats.convert_from_int(
-           Nats.convert_to_int(part, base) + increment,
+        (carry, non_repeating_part) = \
+           Nats.carry_in(non_repeating_part, 1, base)
+        (carry, integer_part) = \
+           Nats.carry_in(integer_part, carry, base)
+        return Radix(
+           positive,
+           integer_part if carry == 0 else [carry] + integer_part,
+           non_repeating_part,
+           [],
            base
         )
-
-        if len(part) < length:
-            return (0, (length - len(part)) * [0] + part)
-
-        if len(part) > length:
-            return (part[0], part[1:])
-        else:
-            return (0, part)
-
-    @classmethod
-    def _efficient_add(cls, part, base, increment):
-        """
-        Add ``increment`` to ``part`` in ``base``.
-        Skip conversion and addition if no carry necessary.
-
-        :param part: the part of a Radix to be added.
-        :type part: list of int
-        :param int base: the base
-        :param int increment: the increment
-
-        :returns: result of addition, including a carry digit
-        :rtype: tuple of int * list of int
-        """
-        if increment == 0:
-            return (0, part)
-        else:
-            if part == []:
-                return (increment, part)
-            else:
-                least_significant_digit = part[-1] + increment
-                if least_significant_digit < base:
-                    return (0, part[:-1] + [least_significant_digit])
-                else:
-                    return cls._add(part, base, increment)
-
-    @staticmethod
-    def _expandFraction(value, precision):
-        """
-        Expand fractional part of ``value`` to ``precision``.
-
-        :param Radix value: the value
-        :param int precision: precision
-        :returns: the value of the expanded fractional part
-        :rtype: list of int
-        """
-        result = value.non_repeating_part[:precision]
-        precision = precision - len(value.non_repeating_part)
-        if precision <= 0:
-            return result
-
-        if value.repeating_part == []:
-            return result + [0] * precision
-
-        (quot, rem) = divmod(precision, len(value.repeating_part))
-        return result + \
-           (quot * value.repeating_part) + value.repeating_part[:rem]
-
 
     @classmethod
     def roundFractional(cls, value, precision, method):
@@ -497,6 +302,8 @@ class Rounding(object):
         :param int precision: number of digits in total
         :param method: rounding method
         """
+        # pylint: disable=too-many-return-statements
+        # pylint: disable=too-many-branches
 
         if precision < 0:
             raise BasesValueError(
@@ -505,35 +312,95 @@ class Rounding(object):
                "must be at least 0"
             )
 
-        middle = Fraction(value.base, 2)
+        if method not in RoundingMethods.METHODS():
+            raise BasesValueError(
+               method,
+               "method",
+               "must be one of RoundingMethod.METHODS()"
+            )
 
-        increment = cls._increment(
-           value.positive,
-           method,
-           middle,
-           precision + len(value.integer_part),
-           value.integer_part,
+        digits = itertools.chain(
            value.non_repeating_part,
-           value.repeating_part
+           itertools.cycle(value.repeating_part)
         )
+        non_repeating_part = list(itertools.islice(digits, 0, precision))
+        non_repeating_part += (precision - len(non_repeating_part)) * [0]
 
-        carry = 0
-        integer_part = value.integer_part
-        non_repeating_part = cls._expandFraction(value, precision)
-        (carry, non_repeating_part) = \
-            cls._efficient_add(non_repeating_part, value.base, increment)
-        padding = (precision - len(non_repeating_part)) * [0]
-        non_repeating_part += padding
+        # pylint: disable=too-many-boolean-expressions
+        if method is RoundingMethods.ROUND_TO_ZERO or \
+           (all(x == 0 for x in value.non_repeating_part[precision:]) and \
+            len(value.repeating_part) == 0) or \
+           (method is RoundingMethods.ROUND_DOWN and value.positive) or \
+           (method is RoundingMethods.ROUND_UP and not value.positive):
+            return Radix(
+               value.positive,
+               value.integer_part,
+               non_repeating_part,
+               [],
+               value.base
+            )
 
-        (carry, integer_part) = \
-           cls._efficient_add(integer_part, value.base, carry)
-        if carry != 0:
-            integer_part = [carry] + integer_part
+        if method in (
+           RoundingMethods.ROUND_DOWN,
+           RoundingMethods.ROUND_UP
+        ):
+            return cls._increment(
+               value.positive,
+               value.integer_part,
+               non_repeating_part,
+               value.base
+            )
 
-        return Radix(
-           value.positive,
-           integer_part,
-           non_repeating_part,
-           [],
-           value.base
+        middle = Fraction(value.base, 2)
+        next_digit = list(itertools.islice(digits, 1))[0]
+        if next_digit < middle:
+            return Radix(
+               value.positive,
+               value.integer_part,
+               non_repeating_part,
+               [],
+               value.base
+            )
+        elif next_digit > middle:
+            return cls._increment(
+               value.positive,
+               value.integer_part,
+               non_repeating_part,
+               value.base
+            )
+        else:
+            next_digits = \
+               itertools.islice(
+                  digits,
+                  max((len(value.non_repeating_part) - precision), 0) + \
+                  len(value.repeating_part)
+               )
+            if all(x == 0 for x in next_digits):
+                if cls._conditional_toward_zero(method, value.positive):
+                    return Radix(
+                       value.positive,
+                       value.integer_part,
+                       non_repeating_part,
+                       [],
+                       value.base
+                    )
+                else:
+                    return cls._increment(
+                       value.positive,
+                       value.integer_part,
+                       non_repeating_part,
+                       value.base
+                    )
+            else:
+                return cls._increment(
+                   value.positive,
+                   value.integer_part,
+                   non_repeating_part,
+                   value.base
+                )
+
+        raise BasesValueError(
+           method,
+           "method",
+           "must be one of RoundingMethod.METHODS()"
         )

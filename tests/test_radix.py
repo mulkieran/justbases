@@ -150,25 +150,38 @@ class RoundingTestCase(unittest.TestCase):
        strategies.integers(min_value=0)
     )
     @settings(max_examples=50)
-    def testExpandFraction(self, value, base, precision):
+    def testRoundRelation(self, value, base, precision):
         """
-        Test that the expanded fraction has the correct length.
-
-        Test some values in the expanded fraction.
+        Test that all results have the correct relation.
         """
-        # pylint: disable=protected-access
         radix = Rationals.convert_from_rational(value, base)
-        result = Rounding._expandFraction(radix, precision)
-        assert len(result) == precision
 
-        start = radix.non_repeating_part[:precision]
-        assert start == result[:len(start)]
 
-        nr_length = len(radix.non_repeating_part)
-        assert precision <= nr_length or \
-           (radix.repeating_part == [] and result[nr_length] == 0) or \
-           (radix.repeating_part != [] and \
-              result[nr_length] == radix.repeating_part[0])
+        results = dict(
+           (method, Rounding.roundFractional(radix, precision, method)) for \
+              method in RoundingMethods.METHODS()
+        )
+
+        if radix.positive is True:
+            assert results[RoundingMethods.ROUND_DOWN] == \
+               results[RoundingMethods.ROUND_TO_ZERO]
+            assert results[RoundingMethods.ROUND_HALF_DOWN] == \
+               results[RoundingMethods.ROUND_HALF_ZERO]
+        else:
+            assert results[RoundingMethods.ROUND_UP] == \
+               results[RoundingMethods.ROUND_TO_ZERO]
+            assert results[RoundingMethods.ROUND_HALF_UP] == \
+               results[RoundingMethods.ROUND_HALF_ZERO]
+
+        order = [
+           RoundingMethods.ROUND_UP,
+           RoundingMethods.ROUND_HALF_UP,
+           RoundingMethods.ROUND_HALF_DOWN,
+           RoundingMethods.ROUND_DOWN
+        ]
+        for index in range(len(order) - 1):
+            assert Rationals.convert_to_rational(results[order[index]]) >= \
+               Rationals.convert_to_rational(results[order[index + 1]])
 
     def testOverflow(self):
         """
@@ -228,14 +241,6 @@ class RoundingTestCase(unittest.TestCase):
         assert result.non_repeating_part == [1, 1, 0]
         assert result.repeating_part == []
 
-    def testAdd(self):
-        """
-        Test overflow with addition.
-        """
-        # pylint: disable=protected-access
-        (carry, res) = Rounding._add([1], 2, 1)
-        assert carry == 1 and res == [0]
-
     def testExceptions(self):
         """
         Test exception.
@@ -246,8 +251,3 @@ class RoundingTestCase(unittest.TestCase):
                -1,
                RoundingMethods.ROUND_DOWN
             )
-        # pylint: disable=protected-access
-        with self.assertRaises(BasesError):
-            Rounding._increment_unconditional(True, None)
-        with self.assertRaises(BasesError):
-            Rounding._increment_conditional(True, None, Fraction(1, 2), 0)
