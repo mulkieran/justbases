@@ -86,6 +86,38 @@ class NatDivision(object):
            "must be one of RoundingMethods.METHODS"
         )
 
+    @staticmethod
+    def _divide(divisor, remainder, quotient, remainders, base, precision=None):
+        """
+        Given a divisor and dividend, continue until precision in is reached.
+
+        :param int divisor: the divisor
+        :param int remainder: the remainder
+        :param int base: the base
+        :param precision: maximum number of fractional digits
+        :type precision: int or NoneType
+
+        :returns: the remainder
+        :rtype: int
+
+        ``quotient`` and ``remainders`` are set by side effects
+        """
+        # pylint: disable=too-many-arguments
+
+        indices = itertools.count() if precision is None else range(precision)
+
+        for _ in indices:
+            if remainder == 0 or remainder in remainders:
+                break
+            remainders.append(remainder)
+            (quot, rem) = divmod(remainder, divisor)
+            quotient.append(quot)
+            if quot > 0:
+                remainder = rem * base
+            else:
+                remainder = remainder * base
+        return remainder
+
     @classmethod
     def _fractional_division(
        cls,
@@ -112,22 +144,16 @@ class NatDivision(object):
         :raises BasesValueError:
         """
         # pylint: disable=too-many-arguments
-        indices = itertools.count() if precision is None else range(precision)
-
         quotient = []
         remainders = []
-
-        remainder = remainder * base
-        for _ in indices:
-            if remainder == 0 or remainder in remainders:
-                break
-            remainders.append(remainder)
-            (quot, rem) = divmod(remainder, divisor)
-            quotient.append(quot)
-            if quot > 0:
-                remainder = rem * base
-            else:
-                remainder = remainder * base
+        remainder = cls._divide(
+           divisor,
+           remainder * base,
+           quotient,
+           remainders,
+           base,
+           precision
+        )
 
         if remainder == 0:
             return (0, quotient, [])
