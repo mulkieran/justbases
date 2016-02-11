@@ -63,6 +63,9 @@ class NatDivision(object):
                "must be one of RoundingMethods.METHODS"
             )
 
+        if remainder == 0: # pragma: no cover
+            return (0, quotient, [])
+
         if method is RoundingMethods.ROUND_DOWN:
             return (0, quotient, [])
         elif method is RoundingMethods.ROUND_TO_ZERO:
