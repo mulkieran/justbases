@@ -251,3 +251,45 @@ class RoundingTestCase(unittest.TestCase):
                -1,
                RoundingMethods.ROUND_DOWN
             )
+        with self.assertRaises(BasesError):
+            Rounding.roundFractional(
+               Radix(True, [], [], [], 2),
+               0,
+               None
+            )
+
+    def testFiveEighths(self):
+        """
+        Test 5/8 in base 3.
+        """
+        value = Fraction(5, 8)
+        radix = Rationals.convert_from_rational(value, 3)
+        rounded = Rounding.roundFractional(
+           radix,
+           0,
+           RoundingMethods.ROUND_HALF_UP
+        )
+
+        assert Rationals.convert_to_rational(rounded) == 1
+
+    def testOneHalf(self):
+        """
+        Test 1/2 in base 3.
+        """
+        value = Fraction(1, 2)
+        radix = Rationals.convert_from_rational(value, 3)
+        rounded = Rounding.roundFractional(
+           radix,
+           0,
+           RoundingMethods.ROUND_HALF_UP
+        )
+
+        assert Rationals.convert_to_rational(rounded) == 1
+
+        rounded = Rounding.roundFractional(
+           radix,
+           0,
+           RoundingMethods.ROUND_HALF_DOWN
+        )
+
+        assert Rationals.convert_to_rational(rounded) == 0

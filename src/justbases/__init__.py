@@ -42,9 +42,9 @@ from ._division import NatDivision
 from ._errors import BasesError
 
 from ._nats import Nats
-from ._radix import Radix
-from ._radix import Rounding
 
+from ._rationals import Radix
 from ._rationals import Rationals
+from ._rationals import Rounding
 
 from .version import __version__
