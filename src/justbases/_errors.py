@@ -73,3 +73,9 @@ class BasesValueError(BasesError):
             return fmt_str % (self._value, self._param, self._msg)
         else:
             return self._FMT_STR % (self._value, self._param)
+
+
+class BasesAssertError(BasesError):
+    """
+    For assertion failures.
+    """
