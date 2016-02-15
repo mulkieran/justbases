@@ -20,12 +20,13 @@ import unittest
 
 from hypothesis import example
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies
-from hypothesis import Settings
 
-from justbases import ConvertError
+from justbases import BasesError
 from justbases import NatDivision
 from justbases import Nats
+from justbases import RoundingMethods
 
 
 class NatDivisionTestCase(unittest.TestCase):
@@ -34,9 +35,9 @@ class NatDivisionTestCase(unittest.TestCase):
     @given(
        strategies.integers(min_value=1, max_value=2 ** 16),
        strategies.integers(min_value=0, max_value=2 ** 64),
-       strategies.integers(min_value=3),
-       settings=Settings(max_examples=50)
+       strategies.integers(min_value=3)
     )
+    @settings(max_examples=50)
     @example(divisor=2**17, dividend=2, base=2)
     def testInverses(self, divisor, dividend, base):
         """
@@ -62,28 +63,136 @@ class NatDivisionTestCase(unittest.TestCase):
         """
         Test division exceptions.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.division([1], [1], -2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.division([1], [-1], 3)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.division([-1], [1], 3)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.division([], [1], 3)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.division([0], [1], 3)
+        with self.assertRaises(BasesError):
+            NatDivision.division([2], [1], 3, -1)
+        with self.assertRaises(BasesError):
+            NatDivision.division([3], [1], 10, 0, None)
 
     def testExceptionsUndivision(self):
         """
         Test undivision exceptions.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.undivision([1], [1], [1], -2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.undivision([1], [1], [-1], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.undivision([1], [-1], [1], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.undivision([-1], [1], [1], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             NatDivision.undivision([2], [1], [1], 2)
+
+    @given(
+       strategies.integers(min_value=1, max_value=2 ** 16),
+       strategies.integers(min_value=0, max_value=2 ** 64),
+       strategies.integers(min_value=3),
+       strategies.integers(min_value=0, max_value=32)
+    )
+    @settings(max_examples=50)
+    def testTruncation(self, divisor, dividend, base, precision):
+        """
+        Test just truncating division result to some precision.
+
+        Integer parts of truncated and non-truncated are always the same.
+
+        The length of repeating and non-repeating is always less than the
+        precision.
+
+        If precision limit was reached before repeating portion was
+        calculated, then the non-repeating portion has ``precision`` digits
+        and is a prefix of non-repeating-part + repeating part when
+        precision is not bounded.
+        """
+        divisor = Nats.convert_from_int(divisor, base)
+        dividend = Nats.convert_from_int(dividend, base)
+        (integer_part, non_repeating_part, repeating_part) = \
+           NatDivision.division(divisor, dividend, base, precision)
+        (integer_part_2, non_repeating_part_2, repeating_part_2) = \
+           NatDivision.division(divisor, dividend, base, None)
+
+        assert integer_part == integer_part_2
+        assert len(repeating_part) + len(non_repeating_part) <= precision
+
+        assert not(repeating_part_2 != [] and repeating_part == []) or \
+           (len(non_repeating_part) == precision and \
+            non_repeating_part == \
+            (non_repeating_part_2 + repeating_part_2)[:precision])
+
+    @given(
+       strategies.integers(min_value=1, max_value=2 ** 16),
+       strategies.integers(min_value=0, max_value=2 ** 64),
+       strategies.integers(min_value=3),
+       strategies.integers(min_value=0, max_value=32)
+    )
+    @example(200, 10, 10, 1)
+    @settings(max_examples=50)
+    def testUpDown(self, divisor, dividend, base, precision):
+        """
+        Test that rounding up and rounding down have the right relationship.
+        """
+        # pylint: disable=too-many-locals
+        divisor = Nats.convert_from_int(divisor, base)
+        dividend = Nats.convert_from_int(dividend, base)
+        (integer_part, non_repeating_part, repeating_part) = \
+           NatDivision.division(
+              divisor,
+              dividend,
+              base,
+              precision,
+              RoundingMethods.ROUND_UP
+           )
+        (integer_part_2, non_repeating_part_2, repeating_part_2) = \
+           NatDivision.division(
+              divisor,
+              dividend,
+              base,
+              precision,
+              RoundingMethods.ROUND_DOWN
+           )
+        (integer_part_3, non_repeating_part_3, repeating_part_3) = \
+           NatDivision.division(
+              divisor,
+              dividend,
+              base,
+              precision,
+              RoundingMethods.ROUND_TO_ZERO
+           )
+
+        assert integer_part_2 == integer_part_3 and \
+           non_repeating_part_2 == non_repeating_part_3 and \
+           repeating_part_2 == repeating_part_3
+
+        assert repeating_part != [] or repeating_part_2 == []
+
+        round_up_int = \
+           Nats.convert_to_int(integer_part + non_repeating_part, base)
+        round_down_int = \
+           Nats.convert_to_int(integer_part_2 + non_repeating_part_2, base)
+
+        assert repeating_part != [] or \
+           (round_up_int - round_down_int in (0, 1))
+
+        for method in RoundingMethods.CONDITIONAL_METHODS():
+            (integer_part_c, non_repeating_part_c, _) = \
+               NatDivision.division(
+                  divisor,
+                  dividend,
+                  base,
+                  precision,
+                  method
+               )
+            rounded_int = \
+               Nats.convert_to_int(integer_part_c + non_repeating_part_c, base)
+            assert repeating_part != [] or \
+               rounded_int <= round_up_int and rounded_int >= round_down_int

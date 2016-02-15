@@ -45,6 +45,9 @@ setuptools.setup(
         'Topic :: Software Development :: Libraries',
         'Topic :: Scientific/Engineering :: Mathematics',
         ],
+    install_requires = [
+        'six'
+    ],
     package_dir={"": "src"},
     packages=setuptools.find_packages("src"),
     )

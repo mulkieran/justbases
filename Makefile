@@ -28,3 +28,7 @@ archive:
 .PHONY: upload-release
 upload-release:
 	python setup.py register sdist upload
+
+.PHONY: docs
+docs:
+	cd doc/_build/html; zip -r ../../../docs *

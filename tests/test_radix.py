@@ -20,10 +20,10 @@ from fractions import Fraction
 import unittest
 
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies
-from hypothesis import Settings
 
-from justbases import ConvertError
+from justbases import BasesError
 from justbases import Radix
 from justbases import Rationals
 from justbases import Rounding
@@ -37,13 +37,13 @@ class RadixTestCase(unittest.TestCase):
         """
         Test exceptions.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [], [], [], 0)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [], [], [2], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [], [-1], [1], 2)
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Radix(True, [-300], [1], [1], 2)
 
     def testStr(self):
@@ -51,6 +51,72 @@ class RadixTestCase(unittest.TestCase):
         Make sure that __str__ executes.
         """
         assert str(Radix(True, [1], [2], [3], 4)) != ''
+
+    def testOptions(self):
+        """
+        Skip validation and canonicalization.
+        """
+        self.assertIsNotNone(Radix(False, [], [], [], 4, False, False))
+
+    def testEquality(self):
+        """
+        Test == operator.
+        """
+        self.assertEqual(
+           Radix(True, [1], [], [], 2),
+           Radix(True, [1], [], [], 2),
+        )
+
+    def testInEquality(self):
+        """
+        Test != operator.
+        """
+        self.assertNotEqual(
+           Radix(False, [], [], [], 3),
+           Radix(True, [], [], [], 2),
+        )
+
+    def testOperatorExceptions(self):
+        """
+        Test that comparsion operators yield exceptions.
+        """
+        radix1 = Radix(False, [], [], [], 3)
+        radix2 = Radix(False, [], [], [], 2)
+        # pylint: disable=pointless-statement
+        with self.assertRaises(BasesError):
+            radix1 > radix2
+        with self.assertRaises(BasesError):
+            radix1 < radix2
+        with self.assertRaises(BasesError):
+            radix1 <= radix2
+        with self.assertRaises(BasesError):
+            radix1 >= radix2
+        with self.assertRaises(BasesError):
+            radix1 >= 1
+        with self.assertRaises(BasesError):
+            radix1 == 1
+        with self.assertRaises(BasesError):
+            radix1 != 1
+
+    def testRepeatingRepeatPart(self):
+        """
+        Repeat part is made up of repeating parts.
+        """
+        radix = Radix(True, [], [], [1, 1], 4)
+        self.assertEqual(radix.repeating_part, [1])
+        radix = Radix(True, [], [], [1, 1, 2], 4)
+        self.assertEqual(radix.repeating_part, [1, 1, 2])
+        radix = Radix(True, [], [], [1, 2, 1, 2, 1, 2], 4)
+        self.assertEqual(radix.repeating_part, [1, 2])
+        radix = Radix(True, [], [3, 1, 2, 1, 2], [1, 2], 4)
+        self.assertEqual(radix.non_repeating_part, [3])
+        self.assertEqual(radix.repeating_part, [1, 2])
+        radix = Radix(True, [], [3, 2, 1, 2, 1, 2], [1, 2], 4)
+        self.assertEqual(radix.non_repeating_part, [3])
+        self.assertEqual(radix.repeating_part, [2, 1])
+        radix = Radix(True, [], [3, 3, 2, 3, 1, 2, 3, 1, 2, 3], [1, 2, 3], 4)
+        self.assertEqual(radix.non_repeating_part, [3, 3])
+        self.assertEqual(radix.repeating_part, [2, 3, 1])
 
 
 class RoundingTestCase(unittest.TestCase):
@@ -60,9 +126,9 @@ class RoundingTestCase(unittest.TestCase):
        strategies.fractions(),
        strategies.integers(min_value=2),
        strategies.integers(min_value=0),
-       strategies.sampled_from(RoundingMethods.METHODS()),
-       settings=Settings(max_examples=50)
+       strategies.sampled_from(RoundingMethods.METHODS())
     )
+    @settings(max_examples=50)
     def testRoundFraction(self, value, base, precision, method):
         """
         Test that rounding yields the correct number of digits.
@@ -81,28 +147,41 @@ class RoundingTestCase(unittest.TestCase):
     @given(
        strategies.fractions(),
        strategies.integers(min_value=2),
-       strategies.integers(min_value=0),
-       settings=Settings(max_examples=50)
+       strategies.integers(min_value=0)
     )
-    def testExpandFraction(self, value, base, precision):
+    @settings(max_examples=50)
+    def testRoundRelation(self, value, base, precision):
         """
-        Test that the expanded fraction has the correct length.
-
-        Test some values in the expanded fraction.
+        Test that all results have the correct relation.
         """
-        # pylint: disable=protected-access
         radix = Rationals.convert_from_rational(value, base)
-        result = Rounding._expandFraction(radix, precision)
-        assert len(result) == precision
 
-        start = radix.non_repeating_part[:precision]
-        assert start == result[:len(start)]
 
-        nr_length = len(radix.non_repeating_part)
-        assert precision <= nr_length or \
-           (radix.repeating_part == [] and result[nr_length] == 0) or \
-           (radix.repeating_part != [] and \
-              result[nr_length] == radix.repeating_part[0])
+        results = dict(
+           (method, Rounding.roundFractional(radix, precision, method)) for \
+              method in RoundingMethods.METHODS()
+        )
+
+        if radix.positive is True:
+            assert results[RoundingMethods.ROUND_DOWN] == \
+               results[RoundingMethods.ROUND_TO_ZERO]
+            assert results[RoundingMethods.ROUND_HALF_DOWN] == \
+               results[RoundingMethods.ROUND_HALF_ZERO]
+        else:
+            assert results[RoundingMethods.ROUND_UP] == \
+               results[RoundingMethods.ROUND_TO_ZERO]
+            assert results[RoundingMethods.ROUND_HALF_UP] == \
+               results[RoundingMethods.ROUND_HALF_ZERO]
+
+        order = [
+           RoundingMethods.ROUND_UP,
+           RoundingMethods.ROUND_HALF_UP,
+           RoundingMethods.ROUND_HALF_DOWN,
+           RoundingMethods.ROUND_DOWN
+        ]
+        for index in range(len(order) - 1):
+            assert Rationals.convert_to_rational(results[order[index]]) >= \
+               Rationals.convert_to_rational(results[order[index + 1]])
 
     def testOverflow(self):
         """
@@ -162,26 +241,13 @@ class RoundingTestCase(unittest.TestCase):
         assert result.non_repeating_part == [1, 1, 0]
         assert result.repeating_part == []
 
-    def testAdd(self):
-        """
-        Test overflow with addition.
-        """
-        # pylint: disable=protected-access
-        (carry, res) = Rounding._add([1], 2, 1)
-        assert carry == 1 and res == [0]
-
     def testExceptions(self):
         """
         Test exception.
         """
-        with self.assertRaises(ConvertError):
+        with self.assertRaises(BasesError):
             Rounding.roundFractional(
                Radix(True, [], [], [], 2),
                -1,
                RoundingMethods.ROUND_DOWN
             )
-        # pylint: disable=protected-access
-        with self.assertRaises(ConvertError):
-            Rounding._increment_unconditional(True, None)
-        with self.assertRaises(ConvertError):
-            Rounding._increment_conditional(True, None, Fraction(1, 2), 0)

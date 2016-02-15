@@ -23,7 +23,7 @@ Contents:
 
   * RoundingMethods -- a list of available rounding methods
   * NatDivision -- long division of natural numbers and its inverse
-  * ConvertError -- error raised by conversion functions
+  * BasesError -- supertype of errors raised by package methods
   * Nats
 
     - conversion between non-negative ints and sequences
@@ -38,10 +38,13 @@ Contents:
 
 from ._constants import RoundingMethods
 from ._division import NatDivision
-from ._errors import ConvertError
+
+from ._errors import BasesError
+
 from ._nats import Nats
 from ._radix import Radix
 from ._radix import Rounding
+
 from ._rationals import Rationals
 
 from .version import __version__

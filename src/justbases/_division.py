@@ -20,7 +20,8 @@ from __future__ import absolute_import
 import fractions
 import itertools
 
-from ._errors import ConvertValueError
+from ._constants import RoundingMethods
+from ._errors import BasesValueError
 from ._nats import Nats
 
 
@@ -29,23 +30,103 @@ class NatDivision(object):
     Methods for division in arbitrary bases.
     """
 
-    @staticmethod
-    def _fractional_division(divisor, remainder, base):
+    @classmethod
+    def _round(
+       cls,
+       quotient,
+       divisor,
+       remainder,
+       remainders,
+       base,
+       method=RoundingMethods.ROUND_DOWN
+    ):
         """
-        Get the repeating and non-repeating part.
+        Round the quotient.
+
+        :param quotient: current quotient
+        :type quotient: list of int
+        :param int divisor: the divisor
+        :param int remainder: the remainder
+        :param int base: the base
+        :param method: the rounding method
+        :raises BasesValueError:
+
+        :returns: carry-out digit, non_repeating and repeating parts
+        :rtype: tuple of int * list of int * list of int
+        """
+        # pylint: disable=too-many-return-statements
+        # pylint: disable=too-many-arguments
+        if method not in RoundingMethods.METHODS():
+            raise BasesValueError(
+               method,
+               "method",
+               "must be one of RoundingMethods.METHODS"
+            )
+
+        if remainder == 0: # pragma: no cover
+            return (0, quotient, [])
+
+        if method is RoundingMethods.ROUND_DOWN:
+            return (0, quotient, [])
+        elif method is RoundingMethods.ROUND_TO_ZERO:
+            return (0, quotient, [])
+        elif method is RoundingMethods.ROUND_UP:
+            (carry, quotient) = Nats.carry_in(quotient, 1, base)
+            return (carry, quotient, [])
+        else:
+            remainder = cls._divide(
+               divisor,
+               remainder,
+               quotient,
+               remainders,
+               base,
+               1
+            )
+            quot = quotient[-1]
+            result = quotient[:-1]
+            middle = fractions.Fraction(base, 2)
+            if quot < middle:
+                return (0, result, [])
+            elif quot > middle:
+                (carry, result) = Nats.carry_in(result, 1, base)
+                return (carry, result, [])
+            else:
+                if method is RoundingMethods.ROUND_HALF_UP or remainder != 0:
+                    (carry, result) = Nats.carry_in(result, 1, base)
+                    return (carry, result, [])
+                elif method in \
+                   (RoundingMethods.ROUND_HALF_DOWN,
+                    RoundingMethods.ROUND_HALF_ZERO):
+                    return (0, result, [])
+        raise BasesValueError( # pragma: no cover
+           method,
+           "method",
+           "must be one of RoundingMethods.METHODS"
+        )
+
+    @staticmethod
+    def _divide(divisor, remainder, quotient, remainders, base, precision=None):
+        """
+        Given a divisor and dividend, continue until precision in is reached.
 
         :param int divisor: the divisor
         :param int remainder: the remainder
         :param int base: the base
+        :param precision: maximum number of fractional digits to compute
+        :type precision: int or NoneType
 
-        :returns: non_repeating and repeating parts
-        :rtype: tuple of list of int * list of int
+        :returns: the remainder
+        :rtype: int
+
+        ``quotient`` and ``remainders`` are set by side effects
         """
-        quotient = []
-        remainders = []
+        # pylint: disable=too-many-arguments
 
-        remainder = remainder * base
-        while remainder != 0 and remainder not in remainders:
+        indices = itertools.count() if precision is None else range(precision)
+
+        for _ in indices:
+            if remainder == 0 or remainder in remainders:
+                break
             remainders.append(remainder)
             (quot, rem) = divmod(remainder, divisor)
             quotient.append(quot)
@@ -53,12 +134,59 @@ class NatDivision(object):
                 remainder = rem * base
             else:
                 remainder = remainder * base
+        return remainder
+
+    @classmethod
+    def _fractional_division(
+       cls,
+       divisor,
+       remainder,
+       base,
+       precision=None,
+       method=RoundingMethods.ROUND_DOWN
+    ):
+        """
+        Get the repeating and non-repeating part.
+
+        :param int divisor: the divisor
+        :param int remainder: the remainder
+        :param int base: the base
+        :param precision: maximum number of fractional digits
+        :type precision: int or NoneType
+        :param method: rounding method
+        :type method: element of RoundignMethods.METHODS
+
+        :returns: carry-out digit, non_repeating and repeating parts
+        :rtype: tuple of int * list of int * list of int
+
+        :raises BasesValueError:
+        """
+        # pylint: disable=too-many-arguments
+        quotient = []
+        remainders = []
+        remainder = cls._divide(
+           divisor,
+           remainder * base,
+           quotient,
+           remainders,
+           base,
+           precision
+        )
 
         if remainder == 0:
-            return (quotient, [])
-        else:
+            return (0, quotient, [])
+        elif remainder in remainders:
             start = remainders.index(remainder)
-            return (quotient[:start], quotient[start:])
+            return (0, quotient[:start], quotient[start:])
+        else:
+            return cls._round(
+               quotient,
+               divisor,
+               remainder,
+               remainders,
+               base,
+               method
+            )
 
     @staticmethod
     def _division(divisor, dividend, remainder, base):
@@ -84,7 +212,14 @@ class NatDivision(object):
         return (quotient, remainder)
 
     @classmethod
-    def division(cls, divisor, dividend, base):
+    def division(
+       cls,
+       divisor,
+       dividend,
+       base,
+       precision=None,
+       method=RoundingMethods.ROUND_DOWN
+      ):
         """
         Division of natural numbers.
 
@@ -92,29 +227,38 @@ class NatDivision(object):
         :type divisor: list of int
         :param dividend: the dividend
         :type dividend: list of int
+        :param precision: maximum number of fractional digits
+        :type precision: int or NoneType
+        :param method: rounding method
+        :type method: element of RoundignMethods.METHODS
         :returns: the result
         :rtype: tuple of list of int * list of int * list of int
         :raises ConvertError: on invalid values
         """
+        # pylint: disable=too-many-arguments
+
         if base < 2:
-            raise ConvertValueError(base, "base", "must be at least 2")
+            raise BasesValueError(base, "base", "must be at least 2")
+
+        if precision is not None and precision < 0:
+            raise BasesValueError(precision, "precision", "must be at least 0")
 
         if any(x < 0 or x >= base for x in divisor):
-            raise ConvertValueError(
+            raise BasesValueError(
                divisor,
                "divisor",
                "for all elements, e, 0 <= e < base required"
             )
 
         if any(x < 0 or x >= base for x in dividend):
-            raise ConvertValueError(
+            raise BasesValueError(
                divisor,
                "divisor",
                "for all elements, e, 0 <= e < base required"
             )
 
         if all(x == 0 for x in divisor):
-            raise ConvertValueError(
+            raise BasesValueError(
                divisor,
                "divisor",
                "must be greater than 0"
@@ -123,14 +267,19 @@ class NatDivision(object):
         divisor = Nats.convert_to_int(divisor, base)
 
         (integer_part, rem) = cls._division(divisor, dividend, 0, base)
-        (non_repeating_part, repeating_part) = cls._fractional_division(
-           divisor,
-           rem,
-           base
-        )
+        (carry, non_repeating_part, repeating_part) = \
+           cls._fractional_division(
+              divisor,
+              rem,
+              base,
+              precision,
+              method
+           )
+
+        (carry, integer_part) = Nats.carry_in(integer_part, carry, base)
 
         return (
-           list(itertools.dropwhile(lambda x: x == 0, integer_part)),
+           list(itertools.dropwhile(lambda x: x == 0, [carry] + integer_part)),
            non_repeating_part,
            repeating_part
         )
@@ -158,24 +307,24 @@ class NatDivision(object):
         :rtype: tuple of list of int * list of int
         """
         if base < 2:
-            raise ConvertValueError(base, "base", "must be at least 2")
+            raise BasesValueError(base, "base", "must be at least 2")
 
         if any(x < 0 or x >= base for x in integer_part):
-            raise ConvertValueError(
+            raise BasesValueError(
                integer_part,
                "integer_part",
                "for all elements, e, 0 <= e < base required"
             )
 
         if any(x < 0 or x >= base for x in non_repeating_part):
-            raise ConvertValueError(
+            raise BasesValueError(
                non_repeating_part,
                "non_repeating_part",
                "for all elements, e, 0 <= e < base required"
             )
 
         if any(x < 0 or x >= base for x in repeating_part):
-            raise ConvertValueError(
+            raise BasesValueError(
                repeating_part,
                "repeating_part",
                "for all elements, e, 0 <= e < base required"

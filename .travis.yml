@@ -5,6 +5,7 @@ os:
 
 branches:
   only:
+    - develop-0.1
     - master
 language: python
 

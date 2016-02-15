@@ -16,8 +16,9 @@ Methods dealing with rationals.
 """
 from fractions import Fraction
 
+from ._constants import RoundingMethods
 from ._division import NatDivision
-from ._errors import ConvertValueError
+from ._errors import BasesValueError
 from ._nats import Nats
 from ._radix import Radix
 
@@ -75,10 +76,10 @@ class Rationals(object):
         :param int to_base: base of result, must be at least 2
         :returns: the conversion result
         :rtype: Radix
-        :raises ConvertValueError: if to_base is less than 2
+        :raises BasesValueError: if to_base is less than 2
         """
         if to_base < 2:
-            raise ConvertValueError(to_base, "to_base", "must be at least 2")
+            raise BasesValueError(to_base, "to_base", "must be at least 2")
 
         positive = True if value >= 0 else False
         value = abs(value)
@@ -96,3 +97,50 @@ class Rationals(object):
            repeating_part,
            to_base
         )
+
+
+    @staticmethod
+    def round_to_int(value, method):
+        """
+        Round ``value`` to an int according to ``method``.
+
+        :param Rational value: the value to round
+        :param method: the rounding method (of RoundingMethods.METHODS())
+
+        :returns: rounded value
+        :rtype: int
+        """
+        # pylint: disable=too-many-return-statements
+        if value.denominator == 1:
+            return value.numerator
+
+        int_value = int(value)
+        if int_value < value:
+            (lower, upper) = (int_value, int_value + 1)
+        else:
+            (lower, upper) = (int_value - 1, int_value)
+
+        if method is RoundingMethods.ROUND_DOWN:
+            return lower
+
+        if method is RoundingMethods.ROUND_UP:
+            return upper
+
+        if method is RoundingMethods.ROUND_TO_ZERO:
+            return upper if lower < 0 else lower
+
+        delta = value - lower
+
+        if method is RoundingMethods.ROUND_HALF_UP:
+            return upper if delta >= Fraction(1, 2) else lower
+
+        if method is RoundingMethods.ROUND_HALF_DOWN:
+            return lower if delta <= Fraction(1, 2) else upper
+
+        if method is RoundingMethods.ROUND_HALF_ZERO:
+            if lower < 0:
+                return upper if delta >= Fraction(1, 2) else lower
+            else:
+                return lower if delta <= Fraction(1, 2) else upper
+
+        raise BasesValueError(method, "method")
