@@ -124,7 +124,7 @@ class RoundingTestCase(unittest.TestCase):
 
     @given(
        strategies.fractions(),
-       strategies.integers(min_value=2),
+       strategies.integers(min_value=2, max_value=64),
        strategies.integers(min_value=0, max_value=64),
        strategies.sampled_from(RoundingMethods.METHODS())
     )
@@ -146,7 +146,7 @@ class RoundingTestCase(unittest.TestCase):
 
     @given(
        strategies.fractions(),
-       strategies.integers(min_value=2),
+       strategies.integers(min_value=2, max_value=64),
        strategies.integers(min_value=0, max_value=64)
     )
     @settings(max_examples=50)
