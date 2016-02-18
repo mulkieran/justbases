@@ -41,8 +41,8 @@ class NatsTestCase(unittest.TestCase):
 
     @given(
        strategies.integers(min_value=1, max_value=63),
-       strategies.integers(min_value=2),
-       strategies.integers(min_value=2)
+       strategies.integers(min_value=2, max_value=64),
+       strategies.integers(min_value=2, max_value=64)
     )
     def testFromOther(self, length, from_base, to_base):
         """ Test roundtrip from number in arbitrary base. """
