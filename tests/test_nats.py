@@ -17,13 +17,26 @@ from __future__ import absolute_import
 
 import itertools
 import unittest
-import random
 
 from hypothesis import given
 from hypothesis import strategies
 
 from justbases import BasesError
 from justbases import Nats
+
+def build_nat(base, max_len):
+    """
+    Build a well-formed nat strategy from ``base``.
+    """
+    ints = strategies.integers(min_value=0, max_value=(base - 1))
+    nats = strategies.lists(ints, min_size=1, max_size=max_len)
+    nats = \
+       nats.map(lambda l: list(itertools.dropwhile(lambda x: x == 0, l)))
+    return nats.filter(lambda l: len(l) > 0)
+
+_NATS_STRATEGY = strategies.integers(min_value=2).flatmap(
+   lambda n: strategies.tuples(build_nat(n, 64), strategies.just(n))
+)
 
 class NatsTestCase(unittest.TestCase):
     """ Tests for ints. """
@@ -40,13 +53,12 @@ class NatsTestCase(unittest.TestCase):
         assert Nats.convert_to_int(result, to_base) == value
 
     @given(
-       strategies.integers(min_value=1, max_value=63),
-       strategies.integers(min_value=2, max_value=64),
+       _NATS_STRATEGY,
        strategies.integers(min_value=2, max_value=64)
     )
-    def testFromOther(self, length, from_base, to_base):
+    def testFromOther(self, nat, to_base):
         """ Test roundtrip from number in arbitrary base. """
-        subject = [random.randint(0, from_base - 1) for _ in range(length)]
+        (subject, from_base) = nat
         result = Nats.convert(subject, from_base, to_base)
         assert Nats.convert_to_int(result, to_base) == \
             Nats.convert_to_int(subject, from_base)
@@ -72,21 +84,21 @@ class NatsTestCase(unittest.TestCase):
         with self.assertRaises(BasesError):
             Nats.carry_in([1], 1, 1)
 
-    @given(
-       strategies.lists(strategies.integers(min_value=0)),
-       strategies.integers(min_value=0)
+    _CARRY_STRATEGY = strategies.integers(min_value=2).flatmap(
+       lambda n: strategies.tuples(
+          build_nat(n, 64),
+          strategies.integers(min_value=1, max_value=(n - 1)),
+          strategies.just(n)
+       )
     )
-    def testCarryIn(self, value, carry):
+    @given(_CARRY_STRATEGY)
+    def testCarryIn(self, strategy):
         """
         Test carry_in.
 
-        :param value: the value
-        :type value: list of int
-        :param int carry: the carry (>= 0)
+        :param strategy: the strategy (tuple of value, carry, base)
         """
-        value = list(itertools.dropwhile(lambda x: x == 0, value))
-
-        base = max(max(value + [carry]) + 1, 2)
+        (value, carry, base) = strategy
         (carry_out, result) = Nats.carry_in(value, carry, base)
         assert len(result) == len(value)
 
