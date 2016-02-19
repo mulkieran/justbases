@@ -15,7 +15,6 @@
 
 from __future__ import absolute_import
 
-import itertools
 import unittest
 
 from hypothesis import given
@@ -24,15 +23,8 @@ from hypothesis import strategies
 from justbases import BasesError
 from justbases import Nats
 
-def build_nat(base, max_len):
-    """
-    Build a well-formed nat strategy from ``base``.
-    """
-    ints = strategies.integers(min_value=0, max_value=(base - 1))
-    nats = strategies.lists(ints, min_size=1, max_size=max_len)
-    nats = \
-       nats.map(lambda l: list(itertools.dropwhile(lambda x: x == 0, l)))
-    return nats.filter(lambda l: len(l) > 0)
+from ._utils import build_nat
+
 
 _NATS_STRATEGY = strategies.integers(min_value=2).flatmap(
    lambda n: strategies.tuples(build_nat(n, 64), strategies.just(n))
