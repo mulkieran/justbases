@@ -33,7 +33,7 @@ from ._utils import build_nat
 
 _DIVISION_STRATEGY = strategies.integers(min_value=2, max_value=17).flatmap(
    lambda n: strategies.tuples(
-      build_nat(n, 4),
+      build_nat(n, 4).filter(lambda l: len(l) > 0),
       build_nat(n, 4),
       strategies.just(n)
    )
