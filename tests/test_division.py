@@ -28,24 +28,27 @@ from justbases import NatDivision
 from justbases import Nats
 from justbases import RoundingMethods
 
+from ._utils import build_nat
+
+
+_DIVISION_STRATEGY = strategies.integers(min_value=2, max_value=17).flatmap(
+   lambda n: strategies.tuples(
+      build_nat(n, 4),
+      build_nat(n, 4),
+      strategies.just(n)
+   )
+)
 
 class NatDivisionTestCase(unittest.TestCase):
     """ Tests for division. """
 
-    @given(
-       strategies.integers(min_value=1, max_value=2 ** 16),
-       strategies.integers(min_value=0, max_value=2 ** 64),
-       strategies.integers(min_value=3)
-    )
+    @given(_DIVISION_STRATEGY)
     @settings(max_examples=50)
-    @example(divisor=2**17, dividend=2, base=2)
-    def testInverses(self, divisor, dividend, base):
+    def testInverses(self, strategy):
         """
         Test that division and undivision are inverses.
         """
-        frac = fractions.Fraction(dividend, divisor)
-        divisor = Nats.convert_from_int(divisor, base)
-        dividend = Nats.convert_from_int(dividend, base)
+        (divisor, dividend, base) = strategy
         (integer_part, non_repeating_part, repeating_part) = \
            NatDivision.division(divisor, dividend, base)
         (denominator, numerator) = NatDivision.undivision(
@@ -54,10 +57,16 @@ class NatDivisionTestCase(unittest.TestCase):
            repeating_part,
            base
         )
-        assert frac == fractions.Fraction(
+        original = fractions.Fraction(
+           Nats.convert_to_int(dividend, base),
+           Nats.convert_to_int(divisor, base)
+        )
+        result = fractions.Fraction(
            Nats.convert_to_int(numerator, base),
            Nats.convert_to_int(denominator, base)
         )
+
+        assert original == result
 
     def testExceptionsDivision(self):
         """
@@ -94,13 +103,11 @@ class NatDivisionTestCase(unittest.TestCase):
             NatDivision.undivision([2], [1], [1], 2)
 
     @given(
-       strategies.integers(min_value=1, max_value=2 ** 16),
-       strategies.integers(min_value=0, max_value=2 ** 64),
-       strategies.integers(min_value=3),
+       _DIVISION_STRATEGY,
        strategies.integers(min_value=0, max_value=32)
     )
     @settings(max_examples=50)
-    def testTruncation(self, divisor, dividend, base, precision):
+    def testTruncation(self, strategy, precision):
         """
         Test just truncating division result to some precision.
 
@@ -114,8 +121,7 @@ class NatDivisionTestCase(unittest.TestCase):
         and is a prefix of non-repeating-part + repeating part when
         precision is not bounded.
         """
-        divisor = Nats.convert_from_int(divisor, base)
-        dividend = Nats.convert_from_int(dividend, base)
+        (divisor, dividend, base) = strategy
         (integer_part, non_repeating_part, repeating_part) = \
            NatDivision.division(divisor, dividend, base, precision)
         (integer_part_2, non_repeating_part_2, repeating_part_2) = \
