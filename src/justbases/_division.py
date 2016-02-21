@@ -53,6 +53,8 @@ class NatDivision(object):
 
         :returns: carry-out digit, non_repeating and repeating parts
         :rtype: tuple of int * list of int * list of int
+
+        Complexity: O(len(quotient))
         """
         # pylint: disable=too-many-return-statements
         # pylint: disable=too-many-arguments
@@ -119,6 +121,8 @@ class NatDivision(object):
         :rtype: int
 
         ``quotient`` and ``remainders`` are set by side effects
+
+        Complexity: O(precision) if precision is not None else O(divisor)
         """
         # pylint: disable=too-many-arguments
 
@@ -160,6 +164,8 @@ class NatDivision(object):
         :rtype: tuple of int * list of int * list of int
 
         :raises BasesValueError:
+
+        Complexity: O(precision) if precision is not None else O(divisor)
         """
         # pylint: disable=too-many-arguments
         quotient = []
@@ -201,6 +207,8 @@ class NatDivision(object):
 
         :returns: quotient and remainder
         :rtype: tuple of (list of int) * int
+
+        Complexity: O(log_{divisor}(quotient))
         """
         quotient = []
         for value in dividend:
@@ -234,6 +242,8 @@ class NatDivision(object):
         :returns: the result
         :rtype: tuple of list of int * list of int * list of int
         :raises ConvertError: on invalid values
+
+        Complexity: Uncalculated
         """
         # pylint: disable=too-many-arguments
 
@@ -305,6 +315,8 @@ class NatDivision(object):
 
         :returns: divisor and dividend in lowest terms
         :rtype: tuple of list of int * list of int
+
+        Complexity: O(len(non_repeating_part + repeating_part + integer_part))
         """
         if base < 2:
             raise BasesValueError(base, "base", "must be at least 2")

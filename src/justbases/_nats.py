@@ -42,6 +42,8 @@ class Nats(object):
         Preconditions:
           * all integers in value must be no less than 0
           * from_base, to_base must be at least 2
+
+        Complexity: O(len(value))
         """
         return cls.convert_from_int(
            cls.convert_to_int(value, from_base),
@@ -65,6 +67,8 @@ class Nats(object):
           * all integers in value must be at least 0
           * all integers in value must be less than from_base
           * from_base must be at least 2
+
+        Complexity: O(len(value))
         """
         if from_base < 2:
             raise BasesValueError(
@@ -95,6 +99,8 @@ class Nats(object):
 
         Preconditions:
           * to_base must be at least 2
+
+        Complexity: O(log_{to_base}(value))
         """
         if value < 0:
             raise BasesValueError(value, "value", "must be at least 0")
@@ -121,6 +127,8 @@ class Nats(object):
 
         :returns: carry-out and result
         :rtype: tuple of int * (list of int)
+
+	Complexity: O(len(value))
         """
         if base < 2:
             raise BasesValueError(base, "base", "must be at least 2")

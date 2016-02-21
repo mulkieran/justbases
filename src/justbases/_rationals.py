@@ -56,6 +56,8 @@ class Rationals(object):
         :returns: the conversion result
         :rtype: Rational
         :raises ConvertError: if from_base is less than 2
+
+        Complexity: Uncalculated.
         """
         (denominator, numerator) = \
            NatDivision.undivision(
@@ -80,6 +82,8 @@ class Rationals(object):
         :returns: the conversion result
         :rtype: Radix
         :raises BasesValueError: if to_base is less than 2
+
+        Complexity: Uncalculated.
         """
         if to_base < 2:
             raise BasesValueError(to_base, "to_base", "must be at least 2")
@@ -112,6 +116,8 @@ class Rationals(object):
 
         :returns: rounded value
         :rtype: int
+
+        Complexity: O(1)
         """
         # pylint: disable=too-many-return-statements
         if value.denominator == 1:
@@ -180,6 +186,8 @@ class Radix(object):
 
         :returns: BasesValueError if invalid values
         :rtype: BasesValueError or NoneType
+
+        Complexity: O(len(integer_part + non_repeating_part + repeating_part))
         """
         if any(x < 0 or x >= base for x in integer_part):
             return BasesValueError(
@@ -214,6 +222,8 @@ class Radix(object):
         :rtype: int
 
         If part does not repeat, result is the length of part.
+
+        Complexity: O(len(part)^2)
         """
         repeat_len = len(part)
         if repeat_len == 0:
@@ -243,6 +253,8 @@ class Radix(object):
         :type repeating: list of int
         :returns: new non_repeating and repeating parts
         :rtype: tuple of list of int * list of int
+
+        Complexity: O(len(non_repeating))
         """
         if repeating == []:
             return (non_repeating, repeating)
@@ -296,6 +308,9 @@ class Radix(object):
         :param bool canonicalize: if True, canonicalize
 
         Validation and canonicalization are expensive and may be omitted.
+
+        Complexity: polynomial in number of digits if canonicalize is True,
+        linear if validate is True, otherwise constant time
         """
         if validate:
             error = self._validate(
@@ -385,6 +400,8 @@ class Rounding(object):
         :param method: rounding method
         :type method: element of RoundingMethods.METHODS()
         :bool positive: if value is positive
+
+        Complexity: O(1)
         """
         return method is RoundingMethods.ROUND_HALF_ZERO or \
            (method is RoundingMethods.ROUND_HALF_DOWN and positive) or \
@@ -404,6 +421,8 @@ class Rounding(object):
 
         :returns: a Radix object with ``non_repeating_part`` rounded up
         :rtype: Radix
+
+        Complexity: O(len(non_repeating_part + integer_part)
         """
         (carry, non_repeating_part) = \
            Nats.carry_in(non_repeating_part, 1, base)
@@ -414,7 +433,8 @@ class Rounding(object):
            integer_part if carry == 0 else [carry] + integer_part,
            non_repeating_part,
            [],
-           base
+           base,
+           False
         )
 
     @classmethod
@@ -425,6 +445,10 @@ class Rounding(object):
         :param Radix value: value to round
         :param int precision: number of digits in total
         :param method: rounding method
+
+        Precondition: Radix is valid and canonical
+
+        Complexity: O(len(components))
         """
         # pylint: disable=too-many-return-statements
         # pylint: disable=too-many-branches
@@ -461,7 +485,8 @@ class Rounding(object):
                value.integer_part,
                non_repeating_part,
                [],
-               value.base
+               value.base,
+               False
             )
 
         if method in (
@@ -488,7 +513,8 @@ class Rounding(object):
                   [],
                   non_repeating_remainder,
                   repeating_part,
-                  value.base
+                  value.base,
+                  False
                )
             )
         middle = Fraction(1, 2)
@@ -498,7 +524,8 @@ class Rounding(object):
                value.integer_part,
                non_repeating_part,
                [],
-               value.base
+               value.base,
+               False
             )
         elif remainder > middle:
             return cls._increment(
@@ -514,7 +541,8 @@ class Rounding(object):
                    value.integer_part,
                    non_repeating_part,
                    [],
-                   value.base
+                   value.base,
+                   False
                 )
             else:
                 return cls._increment(
