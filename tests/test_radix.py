@@ -123,7 +123,7 @@ class RoundingTestCase(unittest.TestCase):
     """ Tests for rounding Radixes. """
 
     @given(
-       strategies.fractions(),
+       strategies.fractions().map(lambda x: x.limit_denominator(100)),
        strategies.integers(min_value=2, max_value=64),
        strategies.integers(min_value=0, max_value=64),
        strategies.sampled_from(RoundingMethods.METHODS())
@@ -145,7 +145,7 @@ class RoundingTestCase(unittest.TestCase):
         assert value + ulp >= rational_result
 
     @given(
-       strategies.fractions(),
+       strategies.fractions().map(lambda x: x.limit_denominator(100)),
        strategies.integers(min_value=2, max_value=64),
        strategies.integers(min_value=0, max_value=64)
     )

@@ -34,7 +34,10 @@ from justbases import RoundingMethods
 class RationalsTestCase(unittest.TestCase):
     """ Tests for rationals. """
 
-    @given(strategies.fractions(), strategies.integers(min_value=2))
+    @given(
+       strategies.fractions().map(lambda x: x.limit_denominator(100)),
+       strategies.integers(min_value=2)
+    )
     @settings(max_examples=50)
     def testInverses(self, value, to_base):
         """
