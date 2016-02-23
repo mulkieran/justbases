@@ -5,15 +5,15 @@ os:
 
 branches:
   only:
-    - develop-0.1
+    - develop-0.3
     - master
 language: python
 
 env:
   matrix:
     - TASK=lint
-    - TASK=coverage
     - TASK=test
+    - TASK=coverage
 
 script:
     - make -f Makefile $TASK
