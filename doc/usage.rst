@@ -48,14 +48,14 @@ may be specified. ::
 Nats: Conversion of Natural Numbers between Arbitrary Bases
 -----------------------------------------------------------
 The method Nats.convert() takes a value as a list of ints in a given
-base and returns a value as a list of ints in the target base.::
+base and returns a value as a list of ints in the target base. ::
 
     >>> Nats.convert([3, 2], 10, 2)
     >>> [1, 0, 0, 0, 0, 0]
 
 The methods convert_to_int() and convert_from_int() convert between
 Python's internal integer representation and a representation of a
-natural number in any base.::
+natural number in any base. ::
 
     >>> from justbases import Nats
     >>> Nats.convert_from_int(32, 2)
@@ -124,7 +124,7 @@ objects convert each to a Rational and compare the resulting values.
 
 Rationals: Conversion of Rational Numbers between Arbitrary Bases
 -----------------------------------------------------------------
-A rational number can be converted to a Radix object and vice-versa.::
+A rational number can be converted to a Radix object and vice-versa. ::
 
     >>> Rationals.convert_from_rational(Fraction(1, 3), 2)
     >>> .[0:1]_2
@@ -133,7 +133,7 @@ A rational number can be converted to a Radix object and vice-versa.::
     >>> Rationals.convert_from_rational(Fraction(60, 1), 60)
     >>> 1:0.[]_60
 
-Radix objects can be converted between arbitrary bases.::
+Radix objects can be converted between arbitrary bases. ::
 
     >>> Rationals.convert(Radix(True, [], [], [0, 1], 2), 3)
     >>> .1[]_3
@@ -148,7 +148,7 @@ A rational can be rounded to an int according to a specified method. ::
 
 Rounding: Rounding Radix Values
 -------------------------------
-A radix can be rounded to any number of digits after the point.::
+A radix can be rounded to any number of digits after the point. ::
 
     >>> from justbases import RoundingMethods
     >>> Rounding.roundFractional(Radix(True, [], [], [0, 1], 2), 5, RoundingMethods.ROUND_UP)
@@ -156,11 +156,17 @@ A radix can be rounded to any number of digits after the point.::
     >>> Rounding.roundFractional(Radix(True, [], [], [0, 1], 2), 5, RoundingMethods.ROUND_HALF_DOWN)
     >>> .0:1:0:1:0[]_2
 
+If the goal is to obtain a radix value from a rounded rational quantity it is
+more efficient to use Rationals.convert_from_rational() with precision and
+method arguments set. ::
+
+    >>> Rationals.convert_from_rational(Fraction(1, 3), 2, 1, RoundingMethods.ROUND_UP)
+
 Concrete Example: Geographic Coordinates
 ----------------------------------------
 Latitude and longitude are frequently expressed in degrees, minutes, and
 seconds, using the base 60. Below is a simple exercise to translate
-a given latitude into alternative formats.::
+a given latitude into alternative formats. ::
 
     >>> latitude = (42, 38, 0) # latitude measurement
     >>> latitude_rational = Fraction((((42 * 60) + 38) * 60), 60**2)

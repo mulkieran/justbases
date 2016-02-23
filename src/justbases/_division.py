@@ -36,7 +36,6 @@ class NatDivision(object):
        quotient,
        divisor,
        remainder,
-       remainders,
        base,
        method=RoundingMethods.ROUND_DOWN
     ):
@@ -53,6 +52,8 @@ class NatDivision(object):
 
         :returns: carry-out digit, non_repeating and repeating parts
         :rtype: tuple of int * list of int * list of int
+
+        Complexity: O(len(quotient))
         """
         # pylint: disable=too-many-return-statements
         # pylint: disable=too-many-arguments
@@ -74,30 +75,21 @@ class NatDivision(object):
             (carry, quotient) = Nats.carry_in(quotient, 1, base)
             return (carry, quotient, [])
         else:
-            remainder = cls._divide(
-               divisor,
-               remainder,
-               quotient,
-               remainders,
-               base,
-               1
-            )
-            quot = quotient[-1]
-            result = quotient[:-1]
+            remainder = fractions.Fraction(remainder, divisor)
             middle = fractions.Fraction(base, 2)
-            if quot < middle:
-                return (0, result, [])
-            elif quot > middle:
-                (carry, result) = Nats.carry_in(result, 1, base)
-                return (carry, result, [])
+            if remainder < middle:
+                return (0, quotient, [])
+            elif remainder > middle:
+                (carry, quotient) = Nats.carry_in(quotient, 1, base)
+                return (carry, quotient, [])
             else:
-                if method is RoundingMethods.ROUND_HALF_UP or remainder != 0:
-                    (carry, result) = Nats.carry_in(result, 1, base)
-                    return (carry, result, [])
+                if method is RoundingMethods.ROUND_HALF_UP:
+                    (carry, quotient) = Nats.carry_in(quotient, 1, base)
+                    return (carry, quotient, [])
                 elif method in \
                    (RoundingMethods.ROUND_HALF_DOWN,
                     RoundingMethods.ROUND_HALF_ZERO):
-                    return (0, result, [])
+                    return (0, quotient, [])
         raise BasesValueError( # pragma: no cover
            method,
            "method",
@@ -119,6 +111,8 @@ class NatDivision(object):
         :rtype: int
 
         ``quotient`` and ``remainders`` are set by side effects
+
+        Complexity: O(precision) if precision is not None else O(divisor)
         """
         # pylint: disable=too-many-arguments
 
@@ -160,6 +154,8 @@ class NatDivision(object):
         :rtype: tuple of int * list of int * list of int
 
         :raises BasesValueError:
+
+        Complexity: O(precision) if precision is not None else O(divisor)
         """
         # pylint: disable=too-many-arguments
         quotient = []
@@ -183,7 +179,6 @@ class NatDivision(object):
                quotient,
                divisor,
                remainder,
-               remainders,
                base,
                method
             )
@@ -201,6 +196,8 @@ class NatDivision(object):
 
         :returns: quotient and remainder
         :rtype: tuple of (list of int) * int
+
+        Complexity: O(log_{divisor}(quotient))
         """
         quotient = []
         for value in dividend:
@@ -234,6 +231,8 @@ class NatDivision(object):
         :returns: the result
         :rtype: tuple of list of int * list of int * list of int
         :raises ConvertError: on invalid values
+
+        Complexity: Uncalculated
         """
         # pylint: disable=too-many-arguments
 
@@ -305,6 +304,8 @@ class NatDivision(object):
 
         :returns: divisor and dividend in lowest terms
         :rtype: tuple of list of int * list of int
+
+        Complexity: O(len(non_repeating_part + repeating_part + integer_part))
         """
         if base < 2:
             raise BasesValueError(base, "base", "must be at least 2")

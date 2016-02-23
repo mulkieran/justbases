@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2015  Red Hat, Inc.
+# Copyright (C) 2016 Anne Mulhern
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -10,21 +9,22 @@
 # Public License for more details.  You should have received a copy of the
 # GNU General Public License along with this program; if not, write to the
 # Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.  Any Red Hat trademarks that are incorporated in the
-# source code or documentation are not subject to the GNU General Public
-# License and may only be used or replicated with the express permission of
-# Red Hat, Inc.
-#
-# Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
+# Anne Mulhern <mulhern@cs.wisc.edu>
 
-"""
-    justbases.version
-    =================
+""" Test utilities. """
 
-    Version information.
+from __future__ import absolute_import
 
-    .. moduleauthor::  mulhern  <amulhern@redhat.com>
-"""
+import itertools
 
-__version__ = '0.4'
-__version_info__ = tuple(int(x) for x in __version__.split('.'))
+from hypothesis import strategies
+
+
+def build_nat(base, max_len):
+    """
+    Build a well-formed nat strategy from ``base``.
+    """
+    ints = strategies.integers(min_value=0, max_value=(base - 1))
+    nats = strategies.lists(ints, min_size=1, max_size=max_len)
+    return \
+       nats.map(lambda l: list(itertools.dropwhile(lambda x: x == 0, l)))
