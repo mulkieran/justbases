@@ -73,12 +73,40 @@ class Rationals(object):
         return result * (1 if value.positive else -1)
 
     @staticmethod
-    def convert_from_rational(value, to_base):
+    def _reverse_rounding_method(method):
+        """
+        Reverse meaning of ``method`` between positive and negative.
+        """
+        if method is RoundingMethods.ROUND_UP:
+            return RoundingMethods.ROUND_DOWN
+        if method is RoundingMethods.ROUND_DOWN:
+            return RoundingMethods.ROUND_UP
+        if method is RoundingMethods.ROUND_HALF_UP:
+            return RoundingMethods.ROUND_HALF_DOWN
+        if method is RoundingMethods.ROUND_HALF_DOWN:
+            return RoundingMethods.ROUND_HALF_UP
+        if method in \
+           (RoundingMethods.ROUND_TO_ZERO, RoundingMethods.ROUND_HALF_ZERO):
+            return method
+        raise BasesAssertError('unknown method')
+
+    @classmethod
+    def convert_from_rational(
+       cls,
+       value,
+       to_base,
+       precision=None,
+       method=RoundingMethods.ROUND_DOWN
+    ):
         """
         Convert rational value to a base.
 
         :param Rational value: the value to convert
         :param int to_base: base of result, must be at least 2
+        :param precision: number of digits in total or None
+        :type precision: int or NoneType
+        :param method: rounding method
+        :type method: element of RoundingMethods.METHODS()
         :returns: the conversion result
         :rtype: Radix
         :raises BasesValueError: if to_base is less than 2
@@ -88,16 +116,29 @@ class Rationals(object):
         if to_base < 2:
             raise BasesValueError(to_base, "to_base", "must be at least 2")
 
+        if precision is not None and precision < 0:
+            raise BasesValueError(precision, "precision", "must be at least 0")
+
         positive = True if value >= 0 else False
-        value = abs(value)
+        div_method = method
+
+        if positive is False:
+            value = abs(value)
+            div_method = cls._reverse_rounding_method(method)
 
         numerator = Nats.convert_from_int(value.numerator, to_base)
         denominator = Nats.convert_from_int(value.denominator, to_base)
 
         (integer_part, non_repeating_part, repeating_part) = \
-           NatDivision.division(denominator, numerator, to_base)
+           NatDivision.division(
+              denominator,
+              numerator,
+              to_base,
+              precision,
+              div_method
+           )
 
-        return Radix(
+        result = Radix(
            positive,
            integer_part,
            non_repeating_part,
@@ -105,6 +146,10 @@ class Rationals(object):
            to_base
         )
 
+        if precision is not None:
+            return Rounding.roundFractional(result, precision, method)
+        else:
+            return result
 
     @staticmethod
     def round_to_int(value, method):
