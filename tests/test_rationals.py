@@ -28,6 +28,7 @@ from hypothesis import strategies
 from justbases import BasesError
 from justbases import Radix
 from justbases import Rationals
+from justbases import Rounding
 from justbases import RoundingMethods
 
 
@@ -46,6 +47,27 @@ class RationalsTestCase(unittest.TestCase):
         result = Rationals.convert_from_rational(value, to_base)
         assert result.positive or value < 0
         assert Rationals.convert_to_rational(result) == value
+
+    @given(
+       strategies.fractions().map(lambda x: x.limit_denominator(100)),
+       strategies.integers(min_value=2, max_value=64),
+       strategies.integers(min_value=0, max_value=64),
+       strategies.sampled_from(RoundingMethods.METHODS())
+    )
+    @settings(max_examples=50)
+    def testRoundingConversion(self, value, base, precision, method):
+        """
+        Test that converting and then rounding is the same as converting
+        with rounding.
+        """
+        rounded = \
+           Rationals.convert_from_rational(value, base, precision, method)
+        unrounded = Rationals.convert_from_rational(value, base)
+
+        self.assertEqual(
+           Rounding.roundFractional(unrounded, precision, method),
+           rounded
+        )
 
     def testExceptions(self):
         """
