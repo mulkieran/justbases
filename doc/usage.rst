@@ -156,6 +156,12 @@ A radix can be rounded to any number of digits after the point. ::
     >>> Rounding.roundFractional(Radix(True, [], [], [0, 1], 2), 5, RoundingMethods.ROUND_HALF_DOWN)
     >>> .0:1:0:1:0[]_2
 
+If the goal is to obtain a radix value from a rounded rational quantity it is
+more efficient to use Rationals.convert_from_rational() with precision and
+method arguments set. ::
+
+    >>> Rationals.convert_from_rational(Fraction(1, 3), 2, 1, RoundingMethods.ROUND_UP)
+
 Concrete Example: Geographic Coordinates
 ----------------------------------------
 Latitude and longitude are frequently expressed in degrees, minutes, and

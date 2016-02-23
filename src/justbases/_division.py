@@ -36,7 +36,6 @@ class NatDivision(object):
        quotient,
        divisor,
        remainder,
-       remainders,
        base,
        method=RoundingMethods.ROUND_DOWN
     ):
@@ -76,30 +75,21 @@ class NatDivision(object):
             (carry, quotient) = Nats.carry_in(quotient, 1, base)
             return (carry, quotient, [])
         else:
-            remainder = cls._divide(
-               divisor,
-               remainder,
-               quotient,
-               remainders,
-               base,
-               1
-            )
-            quot = quotient[-1]
-            result = quotient[:-1]
+            remainder = fractions.Fraction(remainder, divisor)
             middle = fractions.Fraction(base, 2)
-            if quot < middle:
-                return (0, result, [])
-            elif quot > middle:
-                (carry, result) = Nats.carry_in(result, 1, base)
-                return (carry, result, [])
+            if remainder < middle:
+                return (0, quotient, [])
+            elif remainder > middle:
+                (carry, quotient) = Nats.carry_in(quotient, 1, base)
+                return (carry, quotient, [])
             else:
-                if method is RoundingMethods.ROUND_HALF_UP or remainder != 0:
-                    (carry, result) = Nats.carry_in(result, 1, base)
-                    return (carry, result, [])
+                if method is RoundingMethods.ROUND_HALF_UP:
+                    (carry, quotient) = Nats.carry_in(quotient, 1, base)
+                    return (carry, quotient, [])
                 elif method in \
                    (RoundingMethods.ROUND_HALF_DOWN,
                     RoundingMethods.ROUND_HALF_ZERO):
-                    return (0, result, [])
+                    return (0, quotient, [])
         raise BasesValueError( # pragma: no cover
            method,
            "method",
@@ -189,7 +179,6 @@ class NatDivision(object):
                quotient,
                divisor,
                remainder,
-               remainders,
                base,
                method
             )
