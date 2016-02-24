@@ -129,7 +129,7 @@ class Rationals(object):
         numerator = Nats.convert_from_int(value.numerator, to_base)
         denominator = Nats.convert_from_int(value.denominator, to_base)
 
-        (integer_part, non_repeating_part, repeating_part) = \
+        (integer_part, non_repeating_part, repeating_part, _) = \
            NatDivision.division(
               denominator,
               numerator,

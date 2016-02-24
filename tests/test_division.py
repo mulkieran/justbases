@@ -49,8 +49,10 @@ class NatDivisionTestCase(unittest.TestCase):
         Test that division and undivision are inverses.
         """
         (divisor, dividend, base) = strategy
-        (integer_part, non_repeating_part, repeating_part) = \
+        (integer_part, non_repeating_part, repeating_part, relation) = \
            NatDivision.division(divisor, dividend, base)
+        assert relation == 0
+
         (denominator, numerator) = NatDivision.undivision(
            integer_part,
            non_repeating_part,
@@ -122,13 +124,16 @@ class NatDivisionTestCase(unittest.TestCase):
         precision is not bounded.
         """
         (divisor, dividend, base) = strategy
-        (integer_part, non_repeating_part, repeating_part) = \
+        (integer_part, non_repeating_part, repeating_part, rel) = \
            NatDivision.division(divisor, dividend, base, precision)
-        (integer_part_2, non_repeating_part_2, repeating_part_2) = \
+        (integer_part_2, non_repeating_part_2, repeating_part_2, rel_2) = \
            NatDivision.division(divisor, dividend, base, None)
 
+        assert rel_2 == 0
         assert integer_part == integer_part_2
         assert len(repeating_part) + len(non_repeating_part) <= precision
+
+        assert repeating_part_2 == repeating_part or rel == -1
 
         assert not(repeating_part_2 != [] and repeating_part == []) or \
            (len(non_repeating_part) == precision and \
@@ -150,7 +155,7 @@ class NatDivisionTestCase(unittest.TestCase):
         # pylint: disable=too-many-locals
         divisor = Nats.convert_from_int(divisor, base)
         dividend = Nats.convert_from_int(dividend, base)
-        (integer_part, non_repeating_part, repeating_part) = \
+        (integer_part, non_repeating_part, repeating_part, rel) = \
            NatDivision.division(
               divisor,
               dividend,
@@ -158,7 +163,7 @@ class NatDivisionTestCase(unittest.TestCase):
               precision,
               RoundingMethods.ROUND_UP
            )
-        (integer_part_2, non_repeating_part_2, repeating_part_2) = \
+        (integer_part_2, non_repeating_part_2, repeating_part_2, rel_2) = \
            NatDivision.division(
               divisor,
               dividend,
@@ -166,7 +171,7 @@ class NatDivisionTestCase(unittest.TestCase):
               precision,
               RoundingMethods.ROUND_DOWN
            )
-        (integer_part_3, non_repeating_part_3, repeating_part_3) = \
+        (integer_part_3, non_repeating_part_3, repeating_part_3, rel_3) = \
            NatDivision.division(
               divisor,
               dividend,
@@ -180,17 +185,24 @@ class NatDivisionTestCase(unittest.TestCase):
            repeating_part_2 == repeating_part_3
 
         assert repeating_part != [] or repeating_part_2 == []
+        assert rel >= rel_2 and rel_2 == rel_3
 
         round_up_int = \
            Nats.convert_to_int(integer_part + non_repeating_part, base)
         round_down_int = \
            Nats.convert_to_int(integer_part_2 + non_repeating_part_2, base)
 
-        assert repeating_part != [] or \
-           (round_up_int - round_down_int in (0, 1))
+        if repeating_part == []:
+            assert round_up_int - round_down_int in (0, 1)
+
+        if rel == 0:
+            assert round_up_int == round_down_int
+            assert rel_2 == 0
+            assert rel_3 == 0
+
 
         for method in RoundingMethods.CONDITIONAL_METHODS():
-            (integer_part_c, non_repeating_part_c, _) = \
+            (integer_part_c, non_repeating_part_c, _, rel) = \
                NatDivision.division(
                   divisor,
                   dividend,
@@ -200,5 +212,12 @@ class NatDivisionTestCase(unittest.TestCase):
                )
             rounded_int = \
                Nats.convert_to_int(integer_part_c + non_repeating_part_c, base)
-            assert repeating_part != [] or \
-               rounded_int <= round_up_int and rounded_int >= round_down_int
+            if repeating_part == []:
+                assert rounded_int <= round_up_int and \
+                   rounded_int >= round_down_int
+                if rel == 0:
+                    assert round_up_int == round_down_int
+                elif rel == -1:
+                    assert rounded_int == round_down_int
+                else:
+                    assert rounded_int == round_up_int

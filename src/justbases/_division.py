@@ -51,7 +51,7 @@ class NatDivision(object):
         :raises BasesValueError:
 
         :returns: carry-out digit, non_repeating and repeating parts
-        :rtype: tuple of int * list of int * list of int
+        :rtype: tuple of int * list of int * list of int * int
 
         Complexity: O(len(quotient))
         """
@@ -65,31 +65,31 @@ class NatDivision(object):
             )
 
         if remainder == 0: # pragma: no cover
-            return (0, quotient, [])
+            return (0, quotient, [], 0)
 
         if method is RoundingMethods.ROUND_DOWN:
-            return (0, quotient, [])
+            return (0, quotient, [], -1)
         elif method is RoundingMethods.ROUND_TO_ZERO:
-            return (0, quotient, [])
+            return (0, quotient, [], -1)
         elif method is RoundingMethods.ROUND_UP:
             (carry, quotient) = Nats.carry_in(quotient, 1, base)
-            return (carry, quotient, [])
+            return (carry, quotient, [], 1)
         else:
             remainder = fractions.Fraction(remainder, divisor)
             middle = fractions.Fraction(base, 2)
             if remainder < middle:
-                return (0, quotient, [])
+                return (0, quotient, [], -1)
             elif remainder > middle:
                 (carry, quotient) = Nats.carry_in(quotient, 1, base)
-                return (carry, quotient, [])
+                return (carry, quotient, [], 1)
             else:
                 if method is RoundingMethods.ROUND_HALF_UP:
                     (carry, quotient) = Nats.carry_in(quotient, 1, base)
-                    return (carry, quotient, [])
+                    return (carry, quotient, [], 1)
                 elif method in \
                    (RoundingMethods.ROUND_HALF_DOWN,
                     RoundingMethods.ROUND_HALF_ZERO):
-                    return (0, quotient, [])
+                    return (0, quotient, [], -1)
         raise BasesValueError( # pragma: no cover
            method,
            "method",
@@ -151,7 +151,7 @@ class NatDivision(object):
         :type method: element of RoundignMethods.METHODS
 
         :returns: carry-out digit, non_repeating and repeating parts
-        :rtype: tuple of int * list of int * list of int
+        :rtype: tuple of int * list of int * list of int * int
 
         :raises BasesValueError:
 
@@ -170,10 +170,10 @@ class NatDivision(object):
         )
 
         if remainder == 0:
-            return (0, quotient, [])
+            return (0, quotient, [], 0)
         elif remainder in remainders:
             start = remainders.index(remainder)
-            return (0, quotient[:start], quotient[start:])
+            return (0, quotient[:start], quotient[start:], 0)
         else:
             return cls._round(
                quotient,
@@ -229,8 +229,12 @@ class NatDivision(object):
         :param method: rounding method
         :type method: element of RoundignMethods.METHODS
         :returns: the result
-        :rtype: tuple of list of int * list of int * list of int
+        :rtype: tuple of list of int * list of int * list of int * int
         :raises ConvertError: on invalid values
+
+        The last value in the result indicates the relationship of the
+        result to the actual value. If 0, it is the same, if 1, greater,
+        if -1, less.
 
         Complexity: Uncalculated
         """
@@ -266,7 +270,7 @@ class NatDivision(object):
         divisor = Nats.convert_to_int(divisor, base)
 
         (integer_part, rem) = cls._division(divisor, dividend, 0, base)
-        (carry, non_repeating_part, repeating_part) = \
+        (carry, non_repeating_part, repeating_part, relation) = \
            cls._fractional_division(
               divisor,
               rem,
@@ -280,7 +284,8 @@ class NatDivision(object):
         return (
            list(itertools.dropwhile(lambda x: x == 0, [carry] + integer_part)),
            non_repeating_part,
-           repeating_part
+           repeating_part,
+           relation
         )
 
     @classmethod
