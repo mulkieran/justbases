@@ -135,7 +135,7 @@ class RoundingTestCase(unittest.TestCase):
 
         Test that rounded values are in a good range.
         """
-        radix = Rationals.convert_from_rational(value, base)
+        (radix, _) = Rationals.convert_from_rational(value, base)
         result = Rounding.roundFractional(radix, precision, method)
         assert len(result.non_repeating_part) == precision
 
@@ -154,7 +154,7 @@ class RoundingTestCase(unittest.TestCase):
         """
         Test that all results have the correct relation.
         """
-        radix = Rationals.convert_from_rational(value, base)
+        (radix, _) = Rationals.convert_from_rational(value, base)
 
 
         results = dict(
@@ -263,7 +263,7 @@ class RoundingTestCase(unittest.TestCase):
         Test 5/8 in base 3.
         """
         value = Fraction(5, 8)
-        radix = Rationals.convert_from_rational(value, 3)
+        (radix, _) = Rationals.convert_from_rational(value, 3)
         rounded = Rounding.roundFractional(
            radix,
            0,
@@ -277,7 +277,7 @@ class RoundingTestCase(unittest.TestCase):
         Test 1/2 in base 3.
         """
         value = Fraction(1, 2)
-        radix = Rationals.convert_from_rational(value, 3)
+        (radix, _) = Rationals.convert_from_rational(value, 3)
         rounded = Rounding.roundFractional(
            radix,
            0,
