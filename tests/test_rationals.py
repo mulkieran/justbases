@@ -44,8 +44,9 @@ class RationalsTestCase(unittest.TestCase):
         """
         Test that functions are inverses of each other.
         """
-        result = Rationals.convert_from_rational(value, to_base)
+        (result, relation) = Rationals.convert_from_rational(value, to_base)
         assert result.positive or value < 0
+        assert relation == 0
         assert Rationals.convert_to_rational(result) == value
 
     @given(
@@ -60,14 +61,25 @@ class RationalsTestCase(unittest.TestCase):
         Test that converting and then rounding is the same as converting
         with rounding.
         """
-        rounded = \
+        (rounded, rel) = \
            Rationals.convert_from_rational(value, base, precision, method)
-        unrounded = Rationals.convert_from_rational(value, base)
+        (unrounded, urel) = Rationals.convert_from_rational(value, base)
+
+        assert urel == 0
 
         self.assertEqual(
            Rounding.roundFractional(unrounded, precision, method),
            rounded
         )
+
+        rounded_value = Rationals.convert_to_rational(rounded)
+
+        if rounded_value > value:
+            assert rel == 1
+        elif rounded_value < value:
+            assert rel == -1
+        else:
+            assert rel == 0
 
     def testExceptions(self):
         """
@@ -75,6 +87,8 @@ class RationalsTestCase(unittest.TestCase):
         """
         with self.assertRaises(BasesError):
             Rationals.convert_from_rational(Fraction(1, 2), 0)
+        with self.assertRaises(BasesError):
+            Rationals.convert_from_rational(Fraction(1, 2), 2, -1)
         with self.assertRaises(BasesError):
             Rationals.convert(Radix(True, [], [], [], 2), 0)
 

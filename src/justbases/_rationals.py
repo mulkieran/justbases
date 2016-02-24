@@ -42,10 +42,11 @@ class Rationals(object):
         :rtype: Radix of int
         :raises ConvertError: if to_base is less than 2
         """
-        return cls.convert_from_rational(
+        (result, _) = cls.convert_from_rational(
            cls.convert_to_rational(value),
            to_base
         )
+        return result
 
     @staticmethod
     def convert_to_rational(value):
@@ -88,7 +89,7 @@ class Rationals(object):
         if method in \
            (RoundingMethods.ROUND_TO_ZERO, RoundingMethods.ROUND_HALF_ZERO):
             return method
-        raise BasesAssertError('unknown method')
+        raise BasesAssertError('unknown method') # pragma: no cover
 
     @classmethod
     def convert_from_rational(
@@ -107,8 +108,8 @@ class Rationals(object):
         :type precision: int or NoneType
         :param method: rounding method
         :type method: element of RoundingMethods.METHODS()
-        :returns: the conversion result
-        :rtype: Radix
+        :returns: the conversion result and its relation to actual result
+        :rtype: Radix * int
         :raises BasesValueError: if to_base is less than 2
 
         Complexity: Uncalculated.
@@ -129,7 +130,7 @@ class Rationals(object):
         numerator = Nats.convert_from_int(value.numerator, to_base)
         denominator = Nats.convert_from_int(value.denominator, to_base)
 
-        (integer_part, non_repeating_part, repeating_part, _) = \
+        (integer_part, non_repeating_part, repeating_part, relation) = \
            NatDivision.division(
               denominator,
               numerator,
@@ -147,9 +148,12 @@ class Rationals(object):
         )
 
         if precision is not None:
-            return Rounding.roundFractional(result, precision, method)
-        else:
-            return result
+            result = Rounding.roundFractional(result, precision, method)
+
+        if not positive:
+            relation = relation * -1
+
+        return (result, relation)
 
     @staticmethod
     def round_to_int(value, method):
