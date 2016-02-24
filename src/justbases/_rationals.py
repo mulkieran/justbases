@@ -147,11 +147,12 @@ class Rationals(object):
            to_base
         )
 
-        if precision is not None:
-            result = Rounding.roundFractional(result, precision, method)
-
         if not positive:
             relation = relation * -1
+
+        if precision is not None:
+            (result, rel) = Rounding.roundFractional(result, precision, method)
+            relation = relation if rel == 0 else rel
 
         return (result, relation)
 
@@ -523,31 +524,34 @@ class Rounding(object):
         non_repeating_part = list(itertools.islice(digits, 0, precision))
         non_repeating_part += (precision - len(non_repeating_part)) * [0]
 
-        # pylint: disable=too-many-boolean-expressions
-        if method is RoundingMethods.ROUND_TO_ZERO or \
-           (all(x == 0 for x in value.non_repeating_part[precision:]) and \
-            len(value.repeating_part) == 0) or \
-           (method is RoundingMethods.ROUND_DOWN and value.positive) or \
-           (method is RoundingMethods.ROUND_UP and not value.positive):
-            return Radix(
-               value.positive,
-               value.integer_part,
-               non_repeating_part,
-               [],
-               value.base,
-               False
-            )
+        truncated = lambda: Radix(
+           value.positive,
+           value.integer_part,
+           non_repeating_part,
+           [],
+           value.base,
+           False
+        )
 
-        if method in (
-           RoundingMethods.ROUND_DOWN,
-           RoundingMethods.ROUND_UP
-        ):
-            return cls._increment(
-               value.positive,
-               value.integer_part,
-               non_repeating_part,
-               value.base
-            )
+        incremented = lambda: cls._increment(
+           value.positive,
+           value.integer_part,
+           non_repeating_part,
+           value.base
+        )
+
+        if all(x == 0 for x in value.non_repeating_part[precision:]) and \
+           len(value.repeating_part) == 0:
+            return (truncated(), 0)
+
+        if method is RoundingMethods.ROUND_TO_ZERO:
+            return (truncated(), -1 if value.positive else 1)
+
+        if method is RoundingMethods.ROUND_DOWN:
+            return (truncated() if value.positive else incremented(), -1)
+
+        if method is RoundingMethods.ROUND_UP:
+            return (incremented() if value.positive else truncated(), 1)
 
         non_repeating_remainder = value.non_repeating_part[precision:]
         if non_repeating_remainder == []:
@@ -555,50 +559,25 @@ class Rounding(object):
                list(itertools.islice(digits, len(value.repeating_part)))
         else:
             repeating_part = value.repeating_part[:]
-        remainder = \
-            Rationals.convert_to_rational(
-               Radix(
-                  True,
-                  [],
-                  non_repeating_remainder,
-                  repeating_part,
-                  value.base,
-                  False
-               )
-            )
+
+        remainder_fraction = Rationals.convert_to_rational(
+           Radix(
+              True,
+              [],
+              non_repeating_remainder,
+              repeating_part,
+              value.base
+           )
+        )
         middle = Fraction(1, 2)
-        if remainder < middle:
-            return Radix(
-               value.positive,
-               value.integer_part,
-               non_repeating_part,
-               [],
-               value.base,
-               False
-            )
-        elif remainder > middle:
-            return cls._increment(
-               value.positive,
-               value.integer_part,
-               non_repeating_part,
-               value.base
-            )
+        if remainder_fraction < middle:
+            return (truncated(), -1 if value.positive else 1)
+        elif remainder_fraction > middle:
+            return (incremented(), 1 if value.positive else -1)
         else:
             if cls._conditional_toward_zero(method, value.positive):
-                return Radix(
-                   value.positive,
-                   value.integer_part,
-                   non_repeating_part,
-                   [],
-                   value.base,
-                   False
-                )
+                return (truncated(), -1 if value.positive else 1)
             else:
-                return cls._increment(
-                   value.positive,
-                   value.integer_part,
-                   non_repeating_part,
-                   value.base
-                )
+                return (incremented(), 1 if value.positive else -1)
 
         raise BasesAssertError() # pragma: no cover

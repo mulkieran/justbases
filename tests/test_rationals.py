@@ -55,7 +55,7 @@ class RationalsTestCase(unittest.TestCase):
        strategies.integers(min_value=0, max_value=64),
        strategies.sampled_from(RoundingMethods.METHODS())
     )
-    @settings(max_examples=50)
+    @settings(max_examples=500)
     def testRoundingConversion(self, value, base, precision, method):
         """
         Test that converting and then rounding is the same as converting
@@ -67,10 +67,11 @@ class RationalsTestCase(unittest.TestCase):
 
         assert urel == 0
 
-        self.assertEqual(
-           Rounding.roundFractional(unrounded, precision, method),
-           rounded
-        )
+        (frounded, frel) = \
+           Rounding.roundFractional(unrounded, precision, method)
+
+        assert frounded == rounded
+        assert rel == frel
 
         rounded_value = Rationals.convert_to_rational(rounded)
 
