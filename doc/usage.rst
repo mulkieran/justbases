@@ -8,13 +8,16 @@ NatDivision: Precise Division of Natural Numbers in any Base
 The method NatDivision.division() takes a divisor, a dividend, and a base.
 The divisor and dividend are numbers in the given base, represented as lists
 of ints. The result is a tuple consisting of the integer portion of the
-result, the non-repeating part after the radix, and the repeating part
-after the radix. All parts of the result are in the given base and
-represented as lists of ints. ::
+value, the non-repeating part after the radix, the repeating part
+after the radix and a flag indicating whether the value represented is
+greater than, less than, or equal to the actual result.
+
+All parts of the value are in the given base and represented as lists
+of ints. ::
 
     >>> from justbases import NatDivision
     >>> NatDivision.division([1, 0], [1, 0, 0], 2)
-    >>> ([1, 0], [], [])
+    >>> ([1, 0], [], [], 0)
 
 The method NatDivision.undivision() does the inverse operation.
 Note that these can only be considered as exact inverses if the arguments
@@ -31,19 +34,23 @@ of these two parts combined, then the part of the result that represents
 the repeating part is guaranteed to be empty. ::
 
     >>> NatDivision.division([3], [1], 10)
-    >>> ([], [], [3])
+    >>> ([], [], [3], 0)
 
     >>> NatDivision.division([3], [1], 10, 1)
-    >>> ([], [], [3])
+    >>> ([], [], [3], 0)
 
     >>> NatDivision.division([3], [1], 10, 0)
-    >>> ([], [], [])
+    >>> ([], [], [], -1)
 
 The default rounding method is round down, but other rounding methods
 may be specified. ::
 
     >>> NatDivision.division([3], [1], 10, 0, RoundingMethods.ROUND_UP)
-    >>> ([1], [], [])
+    >>> ([1], [], [], 1)
+
+If the value of the expression is greater than the result of the
+computation, the last element in the tuple is a 1, if less, -1, and, if
+equal, 0.
 
 Nats: Conversion of Natural Numbers between Arbitrary Bases
 -----------------------------------------------------------
@@ -124,14 +131,16 @@ objects convert each to a Rational and compare the resulting values.
 
 Rationals: Conversion of Rational Numbers between Arbitrary Bases
 -----------------------------------------------------------------
-A rational number can be converted to a Radix object and vice-versa. ::
+A rational number can be converted to a Radix object and vice-versa.
+The first element of the pair is the result, the second indicates the
+relation of the result to the actual value. ::
 
     >>> Rationals.convert_from_rational(Fraction(1, 3), 2)
-    >>> .[0:1]_2
+    >>> (.[0:1]_2, 0)
     >>> Rationals.convert_to_rational(Radix(True, [], [], [0, 1], 2))
     >>> Fraction(1, 3)
     >>> Rationals.convert_from_rational(Fraction(60, 1), 60)
-    >>> 1:0.[]_60
+    >>> (1:0.[]_60, 0)
 
 Radix objects can be converted between arbitrary bases. ::
 
@@ -148,19 +157,21 @@ A rational can be rounded to an int according to a specified method. ::
 
 Rounding: Rounding Radix Values
 -------------------------------
-A radix can be rounded to any number of digits after the point. ::
+A radix can be rounded to any number of digits after the point.
+The second element of the pair indicates the direction of rounding. ::
 
     >>> from justbases import RoundingMethods
     >>> Rounding.roundFractional(Radix(True, [], [], [0, 1], 2), 5, RoundingMethods.ROUND_UP)
-    >>> .0:1:0:1:1[]_2
+    >>> (.0:1:0:1:1[]_2, 1)
     >>> Rounding.roundFractional(Radix(True, [], [], [0, 1], 2), 5, RoundingMethods.ROUND_HALF_DOWN)
-    >>> .0:1:0:1:0[]_2
+    >>> (.0:1:0:1:0[]_2, -1)
 
 If the goal is to obtain a radix value from a rounded rational quantity it is
 more efficient to use Rationals.convert_from_rational() with precision and
 method arguments set. ::
 
     >>> Rationals.convert_from_rational(Fraction(1, 3), 2, 1, RoundingMethods.ROUND_UP)
+    >>> (.1[]_2, 1)
 
 Concrete Example: Geographic Coordinates
 ----------------------------------------
@@ -172,11 +183,11 @@ a given latitude into alternative formats. ::
     >>> latitude_rational = Fraction((((42 * 60) + 38) * 60), 60**2)
     >>> latitude_rational
     >>> Fraction(1279, 30) # latitude as a rational number
-    >>> radix = Rationals.convert_from_rational(latitude_rational, 10)
+    >>> (radix, _) = Rationals.convert_from_rational(latitude_rational, 10)
     >>> radix
     >>> 4:2.6[3]_10
     >>> Rounding.roundFractional(radix, 2, RoundingMethods.ROUND_TO_ZERO)
-    >>> 4:2.6:3[]_10
+    >>> (4:2.6:3[]_10, -1)
     >>> Rationals.convert(radix, 60)
     >>> 42.38[]_60
     >>> Rationals.convert(radix, 3600)
