@@ -33,7 +33,6 @@ Contents:
 
     - conversion between Rational and Radix objects
     - conversion between Radix objects in any base
-  * Rounding -- rounding Radix values according to methods
 """
 
 from ._constants import RoundingMethods
@@ -45,6 +44,5 @@ from ._nats import Nats
 
 from ._rationals import Radix
 from ._rationals import Rationals
-from ._rationals import Rounding
 
 from .version import __version__

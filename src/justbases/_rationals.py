@@ -123,7 +123,7 @@ class Rationals(object):
             relation = relation * -1
 
         if precision is not None:
-            (result, rel) = Rounding.roundFractional(result, precision, method)
+            (result, rel) = result.rounded(precision, method)
             relation = relation if rel == 0 else rel
 
         return (result, relation)
@@ -426,8 +426,22 @@ class Radix(object):
         )
         return result * (1 if self.positive else -1)
 
+    def rounded(self, precision, method):
+        """
+        This value with fractional part rounded to ``precision`` digits
+        according to ``method``.
 
-class Rounding(object):
+        :param int precision: number of digits in total
+        :param method: rounding method
+
+        Precondition: Radix is valid and canonical
+
+        Complexity: O(len(components))
+        """
+        return _Rounding.roundFractional(self, precision, method)
+
+
+class _Rounding(object):
     """
     Rounding of radix objects.
     """
