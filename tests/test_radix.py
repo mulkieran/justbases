@@ -140,7 +140,7 @@ class RoundingTestCase(unittest.TestCase):
         assert len(result.non_repeating_part) == precision
 
         ulp = Fraction(1, radix.base ** precision)
-        rational_result = Rationals.convert_to_rational(result)
+        rational_result = result.as_rational()
         assert value - ulp <= rational_result
         assert value + ulp >= rational_result
 
@@ -187,8 +187,8 @@ class RoundingTestCase(unittest.TestCase):
            RoundingMethods.ROUND_DOWN
         ]
         for index in range(len(order) - 1):
-            assert Rationals.convert_to_rational(results[order[index]]) >= \
-               Rationals.convert_to_rational(results[order[index + 1]])
+            assert results[order[index]].as_rational() >= \
+               results[order[index + 1]].as_rational()
 
     def testOverflow(self):
         """
@@ -282,7 +282,7 @@ class RoundingTestCase(unittest.TestCase):
         )
 
         assert relation == 1
-        assert Rationals.convert_to_rational(rounded) == 1
+        assert rounded.as_rational() == 1
 
     def testOneHalf(self):
         """
@@ -297,7 +297,7 @@ class RoundingTestCase(unittest.TestCase):
         )
 
         assert relation == 1
-        assert Rationals.convert_to_rational(rounded) == 1
+        assert rounded.as_rational() == 1
 
         (rounded, relation) = Rounding.roundFractional(
            radix,
@@ -306,4 +306,4 @@ class RoundingTestCase(unittest.TestCase):
         )
 
         assert relation == -1
-        assert Rationals.convert_to_rational(rounded) == 0
+        assert rounded.as_rational() == 0
