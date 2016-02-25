@@ -26,7 +26,6 @@ from hypothesis import strategies
 from justbases import BasesError
 from justbases import Radix
 from justbases import Rationals
-from justbases import Rounding
 from justbases import RoundingMethods
 
 
@@ -136,7 +135,7 @@ class RoundingTestCase(unittest.TestCase):
         Test that rounded values are in a good range.
         """
         (radix, _) = Rationals.convert_from_rational(value, base)
-        (result, relation) = Rounding.roundFractional(radix, precision, method)
+        (result, relation) = radix.rounded(precision, method)
         assert len(result.non_repeating_part) == precision
 
         ulp = Fraction(1, radix.base ** precision)
@@ -165,7 +164,7 @@ class RoundingTestCase(unittest.TestCase):
 
 
         results = dict(
-           (method, Rounding.roundFractional(radix, precision, method)[0]) for \
+           (method, radix.rounded(precision, method)[0]) for \
               method in RoundingMethods.METHODS()
         )
 
@@ -195,11 +194,7 @@ class RoundingTestCase(unittest.TestCase):
         Ensure that rounding causes overflow.
         """
         radix = Radix(True, [], [], [1], 2)
-        (result, relation) = Rounding.roundFractional(
-           radix,
-           3,
-           RoundingMethods.ROUND_UP
-        )
+        (result, relation) = radix.rounded(3, RoundingMethods.ROUND_UP)
         assert relation == 1
         assert result.integer_part == [1]
         assert result.non_repeating_part == [0, 0, 0]
@@ -210,11 +205,7 @@ class RoundingTestCase(unittest.TestCase):
         Ensure that there is no tie breaker.
         """
         radix = Radix(True, [], [1, 1, 1, 1], [], 2)
-        (result, relation) = Rounding.roundFractional(
-           radix,
-           3,
-           RoundingMethods.ROUND_HALF_UP
-        )
+        (result, relation) = radix.rounded(3, RoundingMethods.ROUND_HALF_UP)
         assert relation == 1
         assert result.integer_part == [1]
         assert result.non_repeating_part == [0, 0, 0]
@@ -225,11 +216,7 @@ class RoundingTestCase(unittest.TestCase):
         Require conversion, but do not carry out of repeating_part.
         """
         radix = Radix(True, [], [0, 0, 1, 1], [], 2)
-        (result, relation) = Rounding.roundFractional(
-           radix,
-           3,
-           RoundingMethods.ROUND_UP
-        )
+        (result, relation) = radix.rounded(3, RoundingMethods.ROUND_UP)
         assert relation == 1
         assert result.integer_part == []
         assert result.non_repeating_part == [0, 1, 0]
@@ -242,11 +229,7 @@ class RoundingTestCase(unittest.TestCase):
         precision.
         """
         radix = Radix(True, [], [1, 0, 1, 1], [], 2)
-        (result, relation) = Rounding.roundFractional(
-           radix,
-           3,
-           RoundingMethods.ROUND_UP
-        )
+        (result, relation) = radix.rounded(3, RoundingMethods.ROUND_UP)
         assert relation == 1
         assert result.integer_part == []
         assert result.non_repeating_part == [1, 1, 0]
@@ -257,14 +240,12 @@ class RoundingTestCase(unittest.TestCase):
         Test exception.
         """
         with self.assertRaises(BasesError):
-            Rounding.roundFractional(
-               Radix(True, [], [], [], 2),
+            Radix(True, [], [], [], 2).rounded(
                -1,
                RoundingMethods.ROUND_DOWN
             )
         with self.assertRaises(BasesError):
-            Rounding.roundFractional(
-               Radix(True, [], [], [], 2),
+            Radix(True, [], [], [], 2).rounded(
                0,
                None
             )
@@ -275,11 +256,7 @@ class RoundingTestCase(unittest.TestCase):
         """
         value = Fraction(5, 8)
         (radix, _) = Rationals.convert_from_rational(value, 3)
-        (rounded, relation) = Rounding.roundFractional(
-           radix,
-           0,
-           RoundingMethods.ROUND_HALF_UP
-        )
+        (rounded, relation) = radix.rounded(0, RoundingMethods.ROUND_HALF_UP)
 
         assert relation == 1
         assert rounded.as_rational() == 1
@@ -290,20 +267,12 @@ class RoundingTestCase(unittest.TestCase):
         """
         value = Fraction(1, 2)
         (radix, _) = Rationals.convert_from_rational(value, 3)
-        (rounded, relation) = Rounding.roundFractional(
-           radix,
-           0,
-           RoundingMethods.ROUND_HALF_UP
-        )
+        (rounded, relation) = radix.rounded(0, RoundingMethods.ROUND_HALF_UP)
 
         assert relation == 1
         assert rounded.as_rational() == 1
 
-        (rounded, relation) = Rounding.roundFractional(
-           radix,
-           0,
-           RoundingMethods.ROUND_HALF_DOWN
-        )
+        (rounded, relation) = radix.rounded(0, RoundingMethods.ROUND_HALF_DOWN)
 
         assert relation == -1
         assert rounded.as_rational() == 0

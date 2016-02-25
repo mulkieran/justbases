@@ -28,7 +28,6 @@ from hypothesis import strategies
 from justbases import BasesError
 from justbases import Radix
 from justbases import Rationals
-from justbases import Rounding
 from justbases import RoundingMethods
 
 
@@ -80,8 +79,7 @@ class RationalsTestCase(unittest.TestCase):
 
         assert urel == 0
 
-        (frounded, frel) = \
-           Rounding.roundFractional(unrounded, precision, method)
+        (frounded, frel) = unrounded.rounded(precision, method)
 
         assert frounded == rounded
         assert rel == frel
