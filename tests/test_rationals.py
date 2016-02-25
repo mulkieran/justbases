@@ -40,6 +40,19 @@ class RationalsTestCase(unittest.TestCase):
        strategies.integers(min_value=2)
     )
     @settings(max_examples=50)
+    def testConvert(self, value, base):
+        """
+        Test that conversion from ``base`` to ``base`` is identity.
+        """
+        (radix, _) = Rationals.convert_from_rational(value, base)
+        result = Rationals.convert(radix, base)
+        assert radix == result
+
+    @given(
+       strategies.fractions().map(lambda x: x.limit_denominator(100)),
+       strategies.integers(min_value=2)
+    )
+    @settings(max_examples=50)
     def testInverses(self, value, to_base):
         """
         Test that functions are inverses of each other.
