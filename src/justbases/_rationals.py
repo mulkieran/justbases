@@ -42,36 +42,8 @@ class Rationals(object):
         :rtype: Radix of int
         :raises ConvertError: if to_base is less than 2
         """
-        (result, _) = cls.convert_from_rational(
-           cls.convert_to_rational(value),
-           to_base
-        )
+        (result, _) = cls.convert_from_rational(value.as_rational(), to_base)
         return result
-
-    @staticmethod
-    def convert_to_rational(value):
-        """
-        Convert value to a rational.
-
-        :param Radix value: the value to convert
-        :returns: the conversion result
-        :rtype: Rational
-        :raises ConvertError: if from_base is less than 2
-
-        Complexity: Uncalculated.
-        """
-        (denominator, numerator) = \
-           NatDivision.undivision(
-              value.integer_part,
-              value.non_repeating_part,
-              value.repeating_part,
-              value.base
-           )
-        result = Fraction(
-           Nats.convert_to_int(numerator, value.base),
-           Nats.convert_to_int(denominator, value.base)
-        )
-        return result * (1 if value.positive else -1)
 
     @staticmethod
     def _reverse_rounding_method(method):
@@ -434,6 +406,26 @@ class Radix(object):
     def __ge__(self, other):
         raise BasesInvalidOperationError(">=")
 
+    def as_rational(self):
+        """
+        Return this value as a Rational.
+
+        :returns: this radix as a rational
+        :rtype: Rational
+        """
+        (denominator, numerator) = \
+           NatDivision.undivision(
+              self.integer_part,
+              self.non_repeating_part,
+              self.repeating_part,
+              self.base
+           )
+        result = Fraction(
+           Nats.convert_to_int(numerator, self.base),
+           Nats.convert_to_int(denominator, self.base)
+        )
+        return result * (1 if self.positive else -1)
+
 
 class Rounding(object):
     """
@@ -560,15 +552,14 @@ class Rounding(object):
         else:
             repeating_part = value.repeating_part[:]
 
-        remainder_fraction = Rationals.convert_to_rational(
-           Radix(
-              True,
-              [],
-              non_repeating_remainder,
-              repeating_part,
-              value.base
-           )
+        remainder = Radix(
+           True,
+           [],
+           non_repeating_remainder,
+           repeating_part,
+           value.base
         )
+        remainder_fraction = remainder.as_rational()
         middle = Fraction(1, 2)
         if remainder_fraction < middle:
             return (truncated(), -1 if value.positive else 1)

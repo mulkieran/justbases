@@ -60,7 +60,7 @@ class RationalsTestCase(unittest.TestCase):
         (result, relation) = Rationals.convert_from_rational(value, to_base)
         assert result.positive or value < 0
         assert relation == 0
-        assert Rationals.convert_to_rational(result) == value
+        assert result.as_rational() == value
 
     @given(
        strategies.fractions().map(lambda x: x.limit_denominator(100)),
@@ -86,7 +86,7 @@ class RationalsTestCase(unittest.TestCase):
         assert frounded == rounded
         assert rel == frel
 
-        rounded_value = Rationals.convert_to_rational(rounded)
+        rounded_value = rounded.as_rational()
 
         if rounded_value > value:
             assert rel == 1
