@@ -14,6 +14,7 @@
 """
 Methods dealing with rationals.
 """
+import copy
 import itertools
 
 from fractions import Fraction
@@ -400,6 +401,24 @@ class Radix(object):
     def __ge__(self, other):
         raise BasesInvalidOperationError(">=")
 
+    def __copy__(self): # pragma: no cover
+        return Radix(
+           self.positive,
+           self.integer_part,
+           self.non_repeating_part,
+           self.repeating_part,
+           self.base
+        )
+
+    def __deepcopy__(self, memo):
+        return Radix(
+           self.positive,
+           self.integer_part[:],
+           self.non_repeating_part[:],
+           self.repeating_part[:],
+           self.base
+        )
+
     def as_rational(self):
         """
         Return this value as a Rational.
@@ -443,13 +462,7 @@ class Radix(object):
         :raises ConvertError: if ``base`` is less than 2
         """
         if base == self.base:
-            return Radix(
-               self.positive,
-               self.integer_part,
-               self.non_repeating_part,
-               self.repeating_part,
-               self.base
-            )
+            return copy.deepcopy(self)
         (result, _) = Radices.from_rational(self.as_rational(), base)
         return result
 
