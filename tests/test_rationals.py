@@ -26,6 +26,7 @@ from hypothesis import settings
 from hypothesis import strategies
 
 from justbases import BasesError
+from justbases import Radices
 from justbases import Rationals
 from justbases import RoundingMethods
 
@@ -42,7 +43,7 @@ class RationalsTestCase(unittest.TestCase):
         """
         Test that functions are inverses of each other.
         """
-        (result, relation) = Rationals.convert_from_rational(value, to_base)
+        (result, relation) = Radices.from_rational(value, to_base)
         assert result.positive or value < 0
         assert relation == 0
         assert result.as_rational() == value
@@ -60,8 +61,8 @@ class RationalsTestCase(unittest.TestCase):
         with rounding.
         """
         (rounded, rel) = \
-           Rationals.convert_from_rational(value, base, precision, method)
-        (unrounded, urel) = Rationals.convert_from_rational(value, base)
+           Radices.from_rational(value, base, precision, method)
+        (unrounded, urel) = Radices.from_rational(value, base)
 
         assert urel == 0
 
@@ -84,9 +85,9 @@ class RationalsTestCase(unittest.TestCase):
         Test exceptions.
         """
         with self.assertRaises(BasesError):
-            Rationals.convert_from_rational(Fraction(1, 2), 0)
+            Radices.from_rational(Fraction(1, 2), 0)
         with self.assertRaises(BasesError):
-            Rationals.convert_from_rational(Fraction(1, 2), 2, -1)
+            Radices.from_rational(Fraction(1, 2), 2, -1)
 
     @given(
        strategies.fractions(),

@@ -24,8 +24,8 @@ from hypothesis import settings
 from hypothesis import strategies
 
 from justbases import BasesError
+from justbases import Radices
 from justbases import Radix
-from justbases import Rationals
 from justbases import RoundingMethods
 
 
@@ -41,7 +41,7 @@ class RadixTestCase(unittest.TestCase):
         """
         Test that conversion from ``base`` to ``base`` is identity.
         """
-        (radix, _) = Rationals.convert_from_rational(value, base)
+        (radix, _) = Radices.from_rational(value, base)
         result = radix.in_base(base)
         assert radix == result
 
@@ -149,7 +149,7 @@ class RoundingTestCase(unittest.TestCase):
 
         Test that rounded values are in a good range.
         """
-        (radix, _) = Rationals.convert_from_rational(value, base)
+        (radix, _) = Radices.from_rational(value, base)
         (result, relation) = radix.rounded(precision, method)
         assert len(result.non_repeating_part) == precision
 
@@ -175,7 +175,7 @@ class RoundingTestCase(unittest.TestCase):
         """
         Test that all results have the correct relation.
         """
-        (radix, _) = Rationals.convert_from_rational(value, base)
+        (radix, _) = Radices.from_rational(value, base)
 
 
         results = dict(
@@ -270,7 +270,7 @@ class RoundingTestCase(unittest.TestCase):
         Test 5/8 in base 3.
         """
         value = Fraction(5, 8)
-        (radix, _) = Rationals.convert_from_rational(value, 3)
+        (radix, _) = Radices.from_rational(value, 3)
         (rounded, relation) = radix.rounded(0, RoundingMethods.ROUND_HALF_UP)
 
         assert relation == 1
@@ -281,7 +281,7 @@ class RoundingTestCase(unittest.TestCase):
         Test 1/2 in base 3.
         """
         value = Fraction(1, 2)
-        (radix, _) = Rationals.convert_from_rational(value, 3)
+        (radix, _) = Radices.from_rational(value, 3)
         (rounded, relation) = radix.rounded(0, RoundingMethods.ROUND_HALF_UP)
 
         assert relation == 1
