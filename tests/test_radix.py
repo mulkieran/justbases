@@ -34,12 +34,26 @@ class RadixTestCase(unittest.TestCase):
 
     @given(
        strategies.fractions().map(lambda x: x.limit_denominator(100)),
+       strategies.integers(min_value=2),
        strategies.integers(min_value=2)
     )
     @settings(max_examples=50)
-    def testInBase(self, value, base):
+    def testInBase(self, value, base1, base2):
         """
-        Test that conversion from ``base`` to ``base`` is identity.
+        Test that roundtrip is identity.
+        """
+        (radix, _) = Radices.from_rational(value, base1)
+        radix2 = radix.in_base(base2)
+        radix3 = radix2.in_base(base1)
+        assert radix == radix3
+
+    @given(
+       strategies.fractions().map(lambda x: x.limit_denominator(100)),
+       strategies.integers(min_value=2)
+    )
+    def testInBase2(self, value, base):
+        """
+        Test conversion to current base.
         """
         (radix, _) = Radices.from_rational(value, base)
         result = radix.in_base(base)

@@ -442,6 +442,14 @@ class Radix(object):
         :rtype: Radix
         :raises ConvertError: if ``base`` is less than 2
         """
+        if base == self.base:
+            return Radix(
+               self.positive,
+               self.integer_part,
+               self.non_repeating_part,
+               self.repeating_part,
+               self.base
+            )
         (result, _) = Radices.from_rational(self.as_rational(), base)
         return result
 
