@@ -32,6 +32,19 @@ from justbases import RoundingMethods
 class RadixTestCase(unittest.TestCase):
     """ Tests for radix. """
 
+    @given(
+       strategies.fractions().map(lambda x: x.limit_denominator(100)),
+       strategies.integers(min_value=2)
+    )
+    @settings(max_examples=50)
+    def testInBase(self, value, base):
+        """
+        Test that conversion from ``base`` to ``base`` is identity.
+        """
+        (radix, _) = Rationals.convert_from_rational(value, base)
+        result = radix.in_base(base)
+        assert radix == result
+
     def testExceptions(self):
         """
         Test exceptions.
@@ -44,6 +57,8 @@ class RadixTestCase(unittest.TestCase):
             Radix(True, [], [-1], [1], 2)
         with self.assertRaises(BasesError):
             Radix(True, [-300], [1], [1], 2)
+        with self.assertRaises(BasesError):
+            Radix(True, [1], [0], [1], 2).in_base(0)
 
     def testStr(self):
         """

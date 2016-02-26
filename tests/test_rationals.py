@@ -26,26 +26,12 @@ from hypothesis import settings
 from hypothesis import strategies
 
 from justbases import BasesError
-from justbases import Radix
 from justbases import Rationals
 from justbases import RoundingMethods
 
 
 class RationalsTestCase(unittest.TestCase):
     """ Tests for rationals. """
-
-    @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
-       strategies.integers(min_value=2)
-    )
-    @settings(max_examples=50)
-    def testConvert(self, value, base):
-        """
-        Test that conversion from ``base`` to ``base`` is identity.
-        """
-        (radix, _) = Rationals.convert_from_rational(value, base)
-        result = Rationals.convert(radix, base)
-        assert radix == result
 
     @given(
        strategies.fractions().map(lambda x: x.limit_denominator(100)),
@@ -101,8 +87,6 @@ class RationalsTestCase(unittest.TestCase):
             Rationals.convert_from_rational(Fraction(1, 2), 0)
         with self.assertRaises(BasesError):
             Rationals.convert_from_rational(Fraction(1, 2), 2, -1)
-        with self.assertRaises(BasesError):
-            Rationals.convert(Radix(True, [], [], [], 2), 0)
 
     @given(
        strategies.fractions(),
