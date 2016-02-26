@@ -26,10 +26,11 @@ from ._errors import BasesValueError
 from ._nats import Nats
 
 
-class Rationals(object):
+class Radices(object):
     """
-    Miscellaneous methods for rationals.
+    Methods for Radices.
     """
+    # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _reverse_rounding_method(method):
@@ -50,7 +51,7 @@ class Rationals(object):
         raise BasesAssertError('unknown method') # pragma: no cover
 
     @classmethod
-    def convert_from_rational(
+    def from_rational(
        cls,
        value,
        to_base,
@@ -113,6 +114,13 @@ class Rationals(object):
             relation = relation if rel == 0 else rel
 
         return (result, relation)
+
+
+class Rationals(object):
+    """
+    Miscellaneous methods for rationals.
+    """
+    # pylint: disable=too-few-public-methods
 
     @staticmethod
     def round_to_int(value, method):
@@ -434,7 +442,7 @@ class Radix(object):
         :rtype: Radix
         :raises ConvertError: if ``base`` is less than 2
         """
-        (result, _) = Rationals.convert_from_rational(self.as_rational(), base)
+        (result, _) = Radices.from_rational(self.as_rational(), base)
         return result
 
 
