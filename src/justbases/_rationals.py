@@ -28,22 +28,8 @@ from ._nats import Nats
 
 class Rationals(object):
     """
-    Methods to convert non-negative ints.
+    Miscellaneous methods for rationals.
     """
-
-    @classmethod
-    def convert(cls, value, to_base):
-        """
-        Convert value from a base to a base.
-
-        :param Radix value: the value to convert
-        :param int to_base: base of result
-        :returns: the conversion result
-        :rtype: Radix of int
-        :raises ConvertError: if to_base is less than 2
-        """
-        (result, _) = cls.convert_from_rational(value.as_rational(), to_base)
-        return result
 
     @staticmethod
     def _reverse_rounding_method(method):
@@ -439,6 +425,17 @@ class Radix(object):
         Complexity: O(len(components))
         """
         return _Rounding.roundFractional(self, precision, method)
+
+    def in_base(self, base):
+        """
+        Return value in ``base``.
+
+        :returns: Radix in ``base``
+        :rtype: Radix
+        :raises ConvertError: if ``base`` is less than 2
+        """
+        (result, _) = Rationals.convert_from_rational(self.as_rational(), base)
+        return result
 
 
 class _Rounding(object):
