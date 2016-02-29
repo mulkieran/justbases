@@ -439,6 +439,20 @@ class Radix(object):
         )
         return result * (1 if self.positive else -1)
 
+    def as_int(self, method):
+        """
+        This value as an int, rounded according to ``method``.
+
+        :param method: rounding method
+        :raises BasesValueError: on bad parameters
+
+        :returns: corresponding int value
+        :rtype: int
+        """
+        (new_radix, relation) = self.rounded(0, method)
+        value = Nats.convert_to_int(new_radix.integer_part, new_radix.base)
+        return (value * (1 if self.positive else -1), relation)
+
     def rounded(self, precision, method):
         """
         This value with fractional part rounded to ``precision`` digits
