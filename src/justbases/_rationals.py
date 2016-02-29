@@ -446,6 +446,7 @@ class Radix(object):
 
         :param int precision: number of digits in total
         :param method: rounding method
+        :raises BasesValueError: on bad parameters
 
         Precondition: Radix is valid and canonical
 
@@ -527,6 +528,7 @@ class _Rounding(object):
         :param Radix value: value to round
         :param int precision: number of digits in total
         :param method: rounding method
+        :raises BasesValueError: on bad parameters
 
         Precondition: Radix is valid and canonical
 
