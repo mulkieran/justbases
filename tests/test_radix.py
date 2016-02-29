@@ -26,6 +26,7 @@ from hypothesis import strategies
 from justbases import BasesError
 from justbases import Radices
 from justbases import Radix
+from justbases import Rationals
 from justbases import RoundingMethods
 
 
@@ -217,6 +218,21 @@ class RoundingTestCase(unittest.TestCase):
         for index in range(len(order) - 1):
             assert results[order[index]].as_rational() >= \
                results[order[index + 1]].as_rational()
+
+    @given(
+       strategies.fractions().map(lambda x: x.limit_denominator(100)),
+       strategies.integers(min_value=2, max_value=64),
+       strategies.sampled_from(RoundingMethods.METHODS())
+    )
+    @settings(max_examples=50)
+    def testAsInt(self, value, base, method):
+        """
+        Test equivalence with two paths.
+        """
+        (radix, _) = Radices.from_rational(value, base)
+        result1 = Rationals.round_to_int(radix.as_rational(), method)
+        (result2, _) = radix.as_int(method)
+        assert result1 == result2
 
     def testOverflow(self):
         """
