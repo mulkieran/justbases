@@ -231,7 +231,7 @@ class RoundingTestCase(unittest.TestCase):
         """
         (radix, _) = Radices.from_rational(value, base)
         result1 = Rationals.round_to_int(radix.as_rational(), method)
-        (result2, _) = radix.as_int(method)
+        result2 = radix.as_int(method)
         assert result1 == result2
 
     def testOverflow(self):

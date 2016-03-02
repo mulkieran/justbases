@@ -131,14 +131,14 @@ class Rationals(object):
         :param Rational value: the value to round
         :param method: the rounding method (of RoundingMethods.METHODS())
 
-        :returns: rounded value
-        :rtype: int
+        :returns: rounded value and relation of rounded value to actual value.
+        :rtype: (int * int)
 
         Complexity: O(1)
         """
         # pylint: disable=too-many-return-statements
         if value.denominator == 1:
-            return value.numerator
+            return (value.numerator, 0)
 
         int_value = int(value)
         if int_value < value:
@@ -147,27 +147,27 @@ class Rationals(object):
             (lower, upper) = (int_value - 1, int_value)
 
         if method is RoundingMethods.ROUND_DOWN:
-            return lower
+            return (lower, -1)
 
         if method is RoundingMethods.ROUND_UP:
-            return upper
+            return (upper, 1)
 
         if method is RoundingMethods.ROUND_TO_ZERO:
-            return upper if lower < 0 else lower
+            return (upper, 1) if lower < 0 else (lower, -1)
 
         delta = value - lower
 
         if method is RoundingMethods.ROUND_HALF_UP:
-            return upper if delta >= Fraction(1, 2) else lower
+            return (upper, 1) if delta >= Fraction(1, 2) else (lower, -1)
 
         if method is RoundingMethods.ROUND_HALF_DOWN:
-            return lower if delta <= Fraction(1, 2) else upper
+            return (lower, -1) if delta <= Fraction(1, 2) else (upper, 1)
 
         if method is RoundingMethods.ROUND_HALF_ZERO:
             if lower < 0:
-                return upper if delta >= Fraction(1, 2) else lower
+                return (upper, 1) if delta >= Fraction(1, 2) else (lower, -1)
             else:
-                return lower if delta <= Fraction(1, 2) else upper
+                return (lower, -1) if delta <= Fraction(1, 2) else (upper, 1)
 
         raise BasesValueError(method, "method")
 
