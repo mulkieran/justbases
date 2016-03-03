@@ -14,6 +14,7 @@
 """
 Methods dealing with rationals.
 """
+import copy
 import itertools
 
 from fractions import Fraction
@@ -26,51 +27,11 @@ from ._errors import BasesValueError
 from ._nats import Nats
 
 
-class Rationals(object):
+class Radices(object):
     """
-    Methods to convert non-negative ints.
+    Methods for Radices.
     """
-
-    @classmethod
-    def convert(cls, value, to_base):
-        """
-        Convert value from a base to a base.
-
-        :param Radix value: the value to convert
-        :param int to_base: base of result
-        :returns: the conversion result
-        :rtype: Radix of int
-        :raises ConvertError: if to_base is less than 2
-        """
-        return cls.convert_from_rational(
-           cls.convert_to_rational(value),
-           to_base
-        )
-
-    @staticmethod
-    def convert_to_rational(value):
-        """
-        Convert value to a rational.
-
-        :param Radix value: the value to convert
-        :returns: the conversion result
-        :rtype: Rational
-        :raises ConvertError: if from_base is less than 2
-
-        Complexity: Uncalculated.
-        """
-        (denominator, numerator) = \
-           NatDivision.undivision(
-              value.integer_part,
-              value.non_repeating_part,
-              value.repeating_part,
-              value.base
-           )
-        result = Fraction(
-           Nats.convert_to_int(numerator, value.base),
-           Nats.convert_to_int(denominator, value.base)
-        )
-        return result * (1 if value.positive else -1)
+    # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _reverse_rounding_method(method):
@@ -88,10 +49,10 @@ class Rationals(object):
         if method in \
            (RoundingMethods.ROUND_TO_ZERO, RoundingMethods.ROUND_HALF_ZERO):
             return method
-        raise BasesAssertError('unknown method')
+        raise BasesAssertError('unknown method') # pragma: no cover
 
     @classmethod
-    def convert_from_rational(
+    def from_rational(
        cls,
        value,
        to_base,
@@ -107,8 +68,8 @@ class Rationals(object):
         :type precision: int or NoneType
         :param method: rounding method
         :type method: element of RoundingMethods.METHODS()
-        :returns: the conversion result
-        :rtype: Radix
+        :returns: the conversion result and its relation to actual result
+        :rtype: Radix * int
         :raises BasesValueError: if to_base is less than 2
 
         Complexity: Uncalculated.
@@ -129,7 +90,7 @@ class Rationals(object):
         numerator = Nats.convert_from_int(value.numerator, to_base)
         denominator = Nats.convert_from_int(value.denominator, to_base)
 
-        (integer_part, non_repeating_part, repeating_part) = \
+        (integer_part, non_repeating_part, repeating_part, relation) = \
            NatDivision.division(
               denominator,
               numerator,
@@ -146,10 +107,21 @@ class Rationals(object):
            to_base
         )
 
+        if not positive:
+            relation = relation * -1
+
         if precision is not None:
-            return Rounding.roundFractional(result, precision, method)
-        else:
-            return result
+            (result, rel) = result.rounded(precision, method)
+            relation = relation if rel == 0 else rel
+
+        return (result, relation)
+
+
+class Rationals(object):
+    """
+    Miscellaneous methods for rationals.
+    """
+    # pylint: disable=too-few-public-methods
 
     @staticmethod
     def round_to_int(value, method):
@@ -159,14 +131,14 @@ class Rationals(object):
         :param Rational value: the value to round
         :param method: the rounding method (of RoundingMethods.METHODS())
 
-        :returns: rounded value
-        :rtype: int
+        :returns: rounded value and relation of rounded value to actual value.
+        :rtype: (int * int)
 
         Complexity: O(1)
         """
         # pylint: disable=too-many-return-statements
         if value.denominator == 1:
-            return value.numerator
+            return (value.numerator, 0)
 
         int_value = int(value)
         if int_value < value:
@@ -175,27 +147,27 @@ class Rationals(object):
             (lower, upper) = (int_value - 1, int_value)
 
         if method is RoundingMethods.ROUND_DOWN:
-            return lower
+            return (lower, -1)
 
         if method is RoundingMethods.ROUND_UP:
-            return upper
+            return (upper, 1)
 
         if method is RoundingMethods.ROUND_TO_ZERO:
-            return upper if lower < 0 else lower
+            return (upper, 1) if lower < 0 else (lower, -1)
 
         delta = value - lower
 
         if method is RoundingMethods.ROUND_HALF_UP:
-            return upper if delta >= Fraction(1, 2) else lower
+            return (upper, 1) if delta >= Fraction(1, 2) else (lower, -1)
 
         if method is RoundingMethods.ROUND_HALF_DOWN:
-            return lower if delta <= Fraction(1, 2) else upper
+            return (lower, -1) if delta <= Fraction(1, 2) else (upper, 1)
 
         if method is RoundingMethods.ROUND_HALF_ZERO:
             if lower < 0:
-                return upper if delta >= Fraction(1, 2) else lower
+                return (upper, 1) if delta >= Fraction(1, 2) else (lower, -1)
             else:
-                return lower if delta <= Fraction(1, 2) else upper
+                return (lower, -1) if delta <= Fraction(1, 2) else (upper, 1)
 
         raise BasesValueError(method, "method")
 
@@ -429,8 +401,88 @@ class Radix(object):
     def __ge__(self, other):
         raise BasesInvalidOperationError(">=")
 
+    def __copy__(self): # pragma: no cover
+        return Radix(
+           self.positive,
+           self.integer_part,
+           self.non_repeating_part,
+           self.repeating_part,
+           self.base
+        )
 
-class Rounding(object):
+    def __deepcopy__(self, memo):
+        return Radix(
+           self.positive,
+           self.integer_part[:],
+           self.non_repeating_part[:],
+           self.repeating_part[:],
+           self.base
+        )
+
+    def as_rational(self):
+        """
+        Return this value as a Rational.
+
+        :returns: this radix as a rational
+        :rtype: Rational
+        """
+        (denominator, numerator) = \
+           NatDivision.undivision(
+              self.integer_part,
+              self.non_repeating_part,
+              self.repeating_part,
+              self.base
+           )
+        result = Fraction(
+           Nats.convert_to_int(numerator, self.base),
+           Nats.convert_to_int(denominator, self.base)
+        )
+        return result * (1 if self.positive else -1)
+
+    def as_int(self, method):
+        """
+        This value as an int, rounded according to ``method``.
+
+        :param method: rounding method
+        :raises BasesValueError: on bad parameters
+
+        :returns: corresponding int value
+        :rtype: int
+        """
+        (new_radix, relation) = self.rounded(0, method)
+        value = Nats.convert_to_int(new_radix.integer_part, new_radix.base)
+        return (value * (1 if self.positive else -1), relation)
+
+    def rounded(self, precision, method):
+        """
+        This value with fractional part rounded to ``precision`` digits
+        according to ``method``.
+
+        :param int precision: number of digits in total
+        :param method: rounding method
+        :raises BasesValueError: on bad parameters
+
+        Precondition: Radix is valid and canonical
+
+        Complexity: O(len(components))
+        """
+        return _Rounding.roundFractional(self, precision, method)
+
+    def in_base(self, base):
+        """
+        Return value in ``base``.
+
+        :returns: Radix in ``base``
+        :rtype: Radix
+        :raises ConvertError: if ``base`` is less than 2
+        """
+        if base == self.base:
+            return copy.deepcopy(self)
+        (result, _) = Radices.from_rational(self.as_rational(), base)
+        return result
+
+
+class _Rounding(object):
     """
     Rounding of radix objects.
     """
@@ -490,6 +542,7 @@ class Rounding(object):
         :param Radix value: value to round
         :param int precision: number of digits in total
         :param method: rounding method
+        :raises BasesValueError: on bad parameters
 
         Precondition: Radix is valid and canonical
 
@@ -519,31 +572,34 @@ class Rounding(object):
         non_repeating_part = list(itertools.islice(digits, 0, precision))
         non_repeating_part += (precision - len(non_repeating_part)) * [0]
 
-        # pylint: disable=too-many-boolean-expressions
-        if method is RoundingMethods.ROUND_TO_ZERO or \
-           (all(x == 0 for x in value.non_repeating_part[precision:]) and \
-            len(value.repeating_part) == 0) or \
-           (method is RoundingMethods.ROUND_DOWN and value.positive) or \
-           (method is RoundingMethods.ROUND_UP and not value.positive):
-            return Radix(
-               value.positive,
-               value.integer_part,
-               non_repeating_part,
-               [],
-               value.base,
-               False
-            )
+        truncated = lambda: Radix(
+           value.positive,
+           value.integer_part,
+           non_repeating_part,
+           [],
+           value.base,
+           False
+        )
 
-        if method in (
-           RoundingMethods.ROUND_DOWN,
-           RoundingMethods.ROUND_UP
-        ):
-            return cls._increment(
-               value.positive,
-               value.integer_part,
-               non_repeating_part,
-               value.base
-            )
+        incremented = lambda: cls._increment(
+           value.positive,
+           value.integer_part,
+           non_repeating_part,
+           value.base
+        )
+
+        if all(x == 0 for x in value.non_repeating_part[precision:]) and \
+           len(value.repeating_part) == 0:
+            return (truncated(), 0)
+
+        if method is RoundingMethods.ROUND_TO_ZERO:
+            return (truncated(), -1 if value.positive else 1)
+
+        if method is RoundingMethods.ROUND_DOWN:
+            return (truncated() if value.positive else incremented(), -1)
+
+        if method is RoundingMethods.ROUND_UP:
+            return (incremented() if value.positive else truncated(), 1)
 
         non_repeating_remainder = value.non_repeating_part[precision:]
         if non_repeating_remainder == []:
@@ -551,50 +607,24 @@ class Rounding(object):
                list(itertools.islice(digits, len(value.repeating_part)))
         else:
             repeating_part = value.repeating_part[:]
-        remainder = \
-            Rationals.convert_to_rational(
-               Radix(
-                  True,
-                  [],
-                  non_repeating_remainder,
-                  repeating_part,
-                  value.base,
-                  False
-               )
-            )
+
+        remainder = Radix(
+           True,
+           [],
+           non_repeating_remainder,
+           repeating_part,
+           value.base
+        )
+        remainder_fraction = remainder.as_rational()
         middle = Fraction(1, 2)
-        if remainder < middle:
-            return Radix(
-               value.positive,
-               value.integer_part,
-               non_repeating_part,
-               [],
-               value.base,
-               False
-            )
-        elif remainder > middle:
-            return cls._increment(
-               value.positive,
-               value.integer_part,
-               non_repeating_part,
-               value.base
-            )
+        if remainder_fraction < middle:
+            return (truncated(), -1 if value.positive else 1)
+        elif remainder_fraction > middle:
+            return (incremented(), 1 if value.positive else -1)
         else:
             if cls._conditional_toward_zero(method, value.positive):
-                return Radix(
-                   value.positive,
-                   value.integer_part,
-                   non_repeating_part,
-                   [],
-                   value.base,
-                   False
-                )
+                return (truncated(), -1 if value.positive else 1)
             else:
-                return cls._increment(
-                   value.positive,
-                   value.integer_part,
-                   non_repeating_part,
-                   value.base
-                )
+                return (incremented(), 1 if value.positive else -1)
 
         raise BasesAssertError() # pragma: no cover

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2015  Red Hat, Inc.
+# Copyright (C) 2015 Anne Mulhern
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -10,21 +9,24 @@
 # Public License for more details.  You should have received a copy of the
 # GNU General Public License along with this program; if not, write to the
 # Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.  Any Red Hat trademarks that are incorporated in the
-# source code or documentation are not subject to the GNU General Public
-# License and may only be used or replicated with the express permission of
-# Red Hat, Inc.
-#
-# Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
+# Anne Mulhern <mulhern@cs.wisc.edu>
 
-"""
-    justbases.version
-    =================
+""" Test for integer conversions. """
 
-    Version information.
+from __future__ import absolute_import
 
-    .. moduleauthor::  mulhern  <amulhern@redhat.com>
-"""
+import unittest
 
-__version__ = '0.5'
-__version_info__ = tuple(int(x) for x in __version__.split('.'))
+from justbases import RoundingMethods
+
+
+class RoundingMethodsTestCase(unittest.TestCase):
+    """ Tests for RoundingMethods constants. """
+
+    def testStr(self):
+        """
+        Test __str__ and __repr__ method.
+        """
+        for method in RoundingMethods.METHODS():
+            assert str(method) is not None
+            assert repr(method) is not None
