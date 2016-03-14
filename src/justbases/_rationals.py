@@ -369,7 +369,16 @@ class Radix(object):
            '[%s]' % ':'.join(str(x) for x in self.repeating_part) + \
            '_' + \
            str(self.base)
-    __repr__ = __str__
+
+    def __repr__(self):
+        return 'Radix(%s,%s,%s,%s,%s)' % \
+           (
+              self.positive,
+              self.integer_part,
+              self.non_repeating_part,
+              self.repeating_part,
+              self.base
+           )
 
     def __eq__(self, other):
         if not isinstance(other, Radix):
