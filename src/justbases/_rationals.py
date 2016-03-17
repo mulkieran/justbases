@@ -180,6 +180,16 @@ class Radix(object):
     """
     # pylint: disable=too-few-public-methods
 
+    _FMT_STR = "".join([
+       "%(sign)s",
+       "%(left)s",
+       "%(radix)s",
+       "%(non_repeat)s",
+       "%(repeat)s",
+       "_",
+       "%(base)s"
+    ])
+
     @classmethod
     def _validate( # pylint: disable=too-many-arguments
         cls,
@@ -362,14 +372,26 @@ class Radix(object):
         self.repeating_part = repeating_part
 
     def __str__(self):
-        return ('' if self.positive else '-') + \
-           ':'.join(str(x) for x in self.integer_part) + \
-           '.' + \
-           ':'.join(str(x) for x in self.non_repeating_part) + \
-           '[%s]' % ':'.join(str(x) for x in self.repeating_part) + \
-           '_' + \
-           str(self.base)
-    __repr__ = __str__
+        return self._FMT_STR % \
+           {
+              'sign' : '' if self.positive else '-',
+              'left': ':'.join(str(x) for x in self.integer_part) or '0',
+              'radix' :
+                 '.' if self.non_repeating_part or self.repeating_part  else '',
+              'non_repeat' : ':'.join(str(x) for x in self.non_repeating_part),
+              'repeat' : ':'.join(str(x) for x in self.repeating_part),
+              'base': self.base
+           }
+
+    def __repr__(self):
+        return 'Radix(%s,%s,%s,%s,%s)' % \
+           (
+              self.positive,
+              self.integer_part,
+              self.non_repeating_part,
+              self.repeating_part,
+              self.base
+           )
 
     def __eq__(self, other):
         if not isinstance(other, Radix):

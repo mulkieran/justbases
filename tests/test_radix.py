@@ -81,6 +81,18 @@ class RadixTestCase(unittest.TestCase):
         """
         assert str(Radix(True, [1], [2], [3], 4)) != ''
 
+    @given(
+       strategies.fractions().map(lambda x: x.limit_denominator(100)),
+       strategies.integers(min_value=2)
+    )
+    @settings(max_examples=10)
+    def testRepr(self, value, base):
+        """
+        Make sure that result is evalable.
+        """
+        (radix, _) = Radices.from_rational(value, base)
+        assert eval(repr(radix)) == radix # pylint: disable=eval-used
+
     def testOptions(self):
         """
         Skip validation and canonicalization.
