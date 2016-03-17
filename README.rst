@@ -24,3 +24,24 @@ make use of. No differentiation is made among different Python operations.
 With respect to division in an arbitrary base, the complexity is bounded
 by the value of the divisor, unless a precision limit is set.
 
+Related Packages
+----------------
+
+* allyourbase: https://pypi.python.org/pypi/allyourbase
+  Converts a variety of numeric types to str in arbitrary bases.
+  Does not require one character to digit encoding, uses a digit separator.
+  Requires rounding, does not do precise conversion, but does do
+  conversion to any specified precision.
+
+* python-baseconv: https://pypi.python.org/pypi/allyourbase
+  Converts an int to a string using a one character to digit encoding.
+  Also converts in the opposite direction.
+  Does not handle arbitrary rationals and does not really handle conversion to
+  large bases, e.g., 1024, as such conversion would require 1024 distinct
+  characters.
+
+* python-radix: https://pypi.python.org/pypi/python-radix
+  Does not handle arbitrary bases. Converts int or int as str to str.
+
+* numpy: http://docs.scipy.org/doc/numpy/reference/
+  Converts int to str in bases between 2 and 36.
