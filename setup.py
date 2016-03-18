@@ -46,7 +46,8 @@ setuptools.setup(
         'Topic :: Scientific/Engineering :: Mathematics',
         ],
     install_requires = [
-        'six'
+        'six',
+        'typing'
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages("src"),

@@ -15,6 +15,8 @@
 Constants required by the package.
 """
 
+from typing import List # pylint: disable=unused-import
+
 
 class _RoundingMethod(object):
     """ Class to generate rounding method enumeration. """
@@ -28,13 +30,15 @@ class _RoundingMethod(object):
         self._doc = doc
 
     def __str__(self):
+        # type: () -> str
         return self.__class__.__name__
 
     def __repr__(self):
+        # type: () -> str
         return "%s(%s)" % (str(self), self.doc)
 
     # pylint: disable=protected-access
-    doc = property(lambda s: s._doc, doc="explanation of rounding method")
+    doc = property(lambda s: s._doc, doc="explanation of rounding method") # type: ignore
 
 
 class RoundingMethods(object):
@@ -59,10 +63,12 @@ class RoundingMethods(object):
 
     @classmethod
     def METHODS(cls):
+        # type: (RoundingMethods) -> List[_RoundingMethod]
         """ Methods of this class. """
         return cls._METHODS[:]
 
     @classmethod
     def CONDITIONAL_METHODS(cls):
+        # type: (RoundingMethods) -> List[_RoundingMethod]
         """ Conditional rounding methods. """
         return [cls.ROUND_HALF_DOWN, cls.ROUND_HALF_UP, cls.ROUND_HALF_ZERO]

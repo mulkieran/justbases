@@ -17,7 +17,11 @@ Methods dealing with rationals.
 import copy
 import itertools
 
-from fractions import Fraction
+from fractions import Fraction # type: ignore
+from numbers import Rational # type: ignore # pylint: disable=unused-import
+
+from typing import Any # pylint: disable=unused-import
+from typing import Tuple # pylint: disable=unused-import
 
 from ._constants import RoundingMethods
 from ._division import NatDivision
@@ -25,6 +29,8 @@ from ._errors import BasesAssertError
 from ._errors import BasesInvalidOperationError
 from ._errors import BasesValueError
 from ._nats import Nats
+
+from ._constants import _RoundingMethod # pylint: disable=unused-import
 
 
 class Radices(object):
@@ -35,6 +41,7 @@ class Radices(object):
 
     @staticmethod
     def _reverse_rounding_method(method):
+        # type: (_RoundingMethod) -> _RoundingMethod
         """
         Reverse meaning of ``method`` between positive and negative.
         """
@@ -59,6 +66,7 @@ class Radices(object):
        precision=None,
        method=RoundingMethods.ROUND_DOWN
     ):
+        # type: (Rational, int, int, _RoundingMethod) ->  Tuple[Radix, int]
         """
         Convert rational value to a base.
 
@@ -125,6 +133,7 @@ class Rationals(object):
 
     @staticmethod
     def round_to_int(value, method):
+        # type: (Rational, _RoundingMethod) ->  Tuple[int, int]
         """
         Round ``value`` to an int according to ``method``.
 
@@ -199,6 +208,7 @@ class Radix(object):
         repeating_part,
         base
     ):
+        # type: (bool, List[int], List[int], List[int], int) -> BasesValueError
         """
         Check if radix is valid.
 
@@ -240,6 +250,7 @@ class Radix(object):
 
     @classmethod
     def _repeat_length(cls, part):
+        # type: (List[int]) -> int
         """
         The length of the repeated portions of ``part``.
 
@@ -270,6 +281,7 @@ class Radix(object):
 
     @classmethod
     def _canonicalize_fraction(cls, non_repeating, repeating):
+        # type: (List[int], List[int]) -> Tuple[List[int], List[int]]
         """
         If the same fractional value can be represented by stripping repeating
         part from ``non_repeating``, do it.
@@ -320,6 +332,7 @@ class Radix(object):
         validate=True,
         canonicalize=True
     ):
+        # type: (Radix, bool, List[int], List[int], List[int], int, bool, bool) -> None
         """
         Initializer.
 
@@ -394,6 +407,7 @@ class Radix(object):
            )
 
     def __eq__(self, other):
+        # type: (object) -> bool
         if not isinstance(other, Radix):
             raise BasesInvalidOperationError("!=", other)
         return self.positive == other.positive and \
@@ -403,6 +417,7 @@ class Radix(object):
            self.base == other.base
 
     def __ne__(self, other):
+        # type: (object) -> bool
         if not isinstance(other, Radix):
             raise BasesInvalidOperationError("!=", other)
         return self.positive != other.positive or \
@@ -412,18 +427,23 @@ class Radix(object):
            self.base != other.base
 
     def __lt__(self, other):
+        # type: (object) -> None
         raise BasesInvalidOperationError("<")
 
     def __gt__(self, other):
+        # type: (object) -> None
         raise BasesInvalidOperationError(">")
 
     def __le__(self, other):
+        # type: (object) -> None
         raise BasesInvalidOperationError("<=")
 
     def __ge__(self, other):
+        # type: (object) -> None
         raise BasesInvalidOperationError(">=")
 
     def __copy__(self): # pragma: no cover
+        # type: () -> Radix
         return Radix(
            self.positive,
            self.integer_part,
@@ -433,6 +453,7 @@ class Radix(object):
         )
 
     def __deepcopy__(self, memo):
+        # type: (dict) -> Radix
         return Radix(
            self.positive,
            self.integer_part[:],
@@ -442,6 +463,7 @@ class Radix(object):
         )
 
     def as_rational(self):
+        # type: () -> Rational
         """
         Return this value as a Rational.
 
@@ -462,6 +484,7 @@ class Radix(object):
         return result * (1 if self.positive else -1)
 
     def as_int(self, method):
+        # type: (_RoundingMethod) -> Tuple[int, int]
         """
         This value as an int, rounded according to ``method``.
 
@@ -476,6 +499,7 @@ class Radix(object):
         return (value * (1 if self.positive else -1), relation)
 
     def rounded(self, precision, method):
+        # type: (int, _RoundingMethod) -> Tuple[Radix, int]
         """
         This value with fractional part rounded to ``precision`` digits
         according to ``method``.
@@ -491,6 +515,7 @@ class Radix(object):
         return _Rounding.roundFractional(self, precision, method)
 
     def in_base(self, base):
+        # type: (int) -> Radix
         """
         Return value in ``base``.
 
@@ -513,6 +538,7 @@ class _Rounding(object):
 
     @staticmethod
     def _conditional_toward_zero(method, positive):
+        # type: (_RoundingMethod, bool) -> bool
         """
         Whether to round toward zero.
 
@@ -528,6 +554,7 @@ class _Rounding(object):
 
     @staticmethod
     def _increment(positive, integer_part, non_repeating_part, base):
+        # type: (bool, List[int], List[int], int) -> Radix
         """
         Return an increment radix.
 
@@ -558,6 +585,7 @@ class _Rounding(object):
 
     @classmethod
     def roundFractional(cls, value, precision, method):
+        # type: (Radix, int, _RoundingMethod) -> Tuple[Radix, int]
         """
         Round to precision as number of digits after radix.
 

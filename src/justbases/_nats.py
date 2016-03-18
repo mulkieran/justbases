@@ -16,6 +16,11 @@ Methods dealing exclusively with natural numbers.
 """
 from functools import reduce # pylint: disable=redefined-builtin
 
+from typing import Any # pylint: disable=unused-import
+from typing import Iterator # pylint: disable=unused-import
+from typing import List # pylint: disable=unused-import
+from typing import Tuple # pylint: disable=unused-import
+
 from ._errors import BasesValueError
 
 
@@ -26,6 +31,7 @@ class Nats(object):
 
     @classmethod
     def convert(cls, value, from_base, to_base):
+        # type: (List[int], int, int) -> List[int]
         """
         Convert value from a base to a base.
 
@@ -52,6 +58,7 @@ class Nats(object):
 
     @staticmethod
     def convert_to_int(value, from_base):
+        # type: (Any, int) -> int
         """
         Convert value to an int.
 
@@ -83,10 +90,11 @@ class Nats(object):
                "value",
                "elements must be at least 0 and less than %s" % from_base
             )
-        return reduce(lambda x, y: x * from_base + y, value, 0)
+        return reduce(lambda x, y: x * from_base + y, value, 0) # type: ignore
 
     @staticmethod
     def convert_from_int(value, to_base):
+        # type: (int, int) -> List[int]
         """
         Convert int value to a base.
 
@@ -117,6 +125,7 @@ class Nats(object):
 
     @staticmethod
     def carry_in(value, carry, base):
+        # type: (List[int], int, int) -> Tuple[int, List[int]]
         """
         Add a carry digit to a number represented by ``value``.
 

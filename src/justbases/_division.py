@@ -17,12 +17,18 @@ Long division in any bases.
 
 from __future__ import absolute_import
 
-import fractions
+import fractions # type: ignore
 import itertools
+
+from typing import Any # pylint: disable=unused-import
+from typing import List # pylint: disable=unused-import
+from typing import Tuple # pylint: disable=unused-import
 
 from ._constants import RoundingMethods
 from ._errors import BasesValueError
 from ._nats import Nats
+
+from ._constants import _RoundingMethod # pylint: disable=unused-import
 
 
 class NatDivision(object):
@@ -39,6 +45,7 @@ class NatDivision(object):
        base,
        method=RoundingMethods.ROUND_DOWN
     ):
+        # type: (List[int], int, int, int, _RoundingMethod) -> Tuple[int, List[int], List[int], int]
         """
         Round the quotient.
 
@@ -98,6 +105,7 @@ class NatDivision(object):
 
     @staticmethod
     def _divide(divisor, remainder, quotient, remainders, base, precision=None):
+        # type: (int, int, List[int], List[int], int, int) -> int
         """
         Given a divisor and dividend, continue until precision in is reached.
 
@@ -139,6 +147,7 @@ class NatDivision(object):
        precision=None,
        method=RoundingMethods.ROUND_DOWN
     ):
+        # type: (int, int, int, int, _RoundingMethod) -> Tuple[int, List[int], List[int], int]
         """
         Get the repeating and non-repeating part.
 
@@ -158,8 +167,8 @@ class NatDivision(object):
         Complexity: O(precision) if precision is not None else O(divisor)
         """
         # pylint: disable=too-many-arguments
-        quotient = []
-        remainders = []
+        quotient = [] # type: List[int]
+        remainders = [] # type: List[int]
         remainder = cls._divide(
            divisor,
            remainder * base,
@@ -185,6 +194,7 @@ class NatDivision(object):
 
     @staticmethod
     def _division(divisor, dividend, remainder, base):
+        # type: (int, List[int], int, int) -> Tuple[List[int], int]
         """
         Get the quotient and remainder
 
@@ -217,6 +227,7 @@ class NatDivision(object):
        precision=None,
        method=RoundingMethods.ROUND_DOWN
       ):
+        # type: (List[int], List[int], int, int, _RoundingMethod) -> Tuple[List[int], List[int], List[int], int] # pylint: disable=line-too-long
         """
         Division of natural numbers.
 
@@ -267,12 +278,12 @@ class NatDivision(object):
                "must be greater than 0"
             )
 
-        divisor = Nats.convert_to_int(divisor, base)
+        int_divisor = Nats.convert_to_int(divisor, base)
 
-        (integer_part, rem) = cls._division(divisor, dividend, 0, base)
+        (integer_part, rem) = cls._division(int_divisor, dividend, 0, base)
         (carry, non_repeating_part, repeating_part, relation) = \
            cls._fractional_division(
-              divisor,
+              int_divisor,
               rem,
               base,
               precision,
@@ -296,6 +307,7 @@ class NatDivision(object):
        repeating_part,
        base
     ):
+        # type: (List[int], List[int], List[int], int) -> Tuple[List[int], List[int]]
         """
         Find divisor and dividend that yield component parts.
 
