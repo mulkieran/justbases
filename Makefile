@@ -12,6 +12,10 @@ coverage:
 test:
 	$(TOX) -c tox.ini -e test
 
+.PHONY: typing
+typing:
+	$(TOX) -c tox.ini -e typing
+
 PYREVERSE_OPTS = --output=pdf
 .PHONY: view
 view:

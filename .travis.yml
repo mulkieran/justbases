@@ -12,8 +12,16 @@ language: python
 env:
   matrix:
     - TASK=lint
+    - TASK=typing
     - TASK=test
     - TASK=coverage
+
+matrix:
+    exclude:
+        - python: "2.7"
+          env: TASK=typing
+        - python: "pypy"
+          env: TASK=typing
 
 script:
     - make -f Makefile $TASK
