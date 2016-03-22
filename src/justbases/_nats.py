@@ -59,6 +59,9 @@ class Nats(object):
     @staticmethod
     def convert_to_int(value, from_base):
         # type: (Any, int) -> int
+        # With fix: https://github.com/python/typeshed/pull/127
+        # new type: (Iterable, int) -> int
+        # Also, ignore directive can be removed
         """
         Convert value to an int.
 
