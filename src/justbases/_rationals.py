@@ -82,10 +82,18 @@ class Radices(object):
         if precision is not None and precision < 0:
             raise BasesValueError(precision, "precision", "must be at least 0")
 
-        positive = True if value >= 0 else False
+        if value == 0:
+            non_repeating_part = [] if precision is None else precision * [0]
+            return (Radix(0, [], non_repeating_part, [], to_base), 0)
+
+        if value < 0:
+            sign = -1
+        else:
+            sign = 1
+
         div_method = method
 
-        if positive is False:
+        if sign == -1:
             value = abs(value)
             div_method = cls._reverse_rounding_method(method)
 
@@ -101,16 +109,15 @@ class Radices(object):
               div_method
            )
 
+        relation = relation * sign
+
         result = Radix(
-           positive,
+           sign,
            integer_part,
            non_repeating_part,
            repeating_part,
            to_base
         )
-
-        if not positive:
-            relation = relation * -1
 
         if precision is not None:
             (result, rel) = result.rounded(precision, method)
@@ -195,7 +202,7 @@ class Radix(object):
     @classmethod
     def _validate( # pylint: disable=too-many-arguments
         cls,
-        positive, # pylint: disable=unused-argument
+        sign,
         integer_part,
         non_repeating_part,
         repeating_part,
@@ -204,7 +211,7 @@ class Radix(object):
         """
         Check if radix is valid.
 
-        :param bool positive: True if value is positive, otherwise False
+        :param int sign: -1, 0, or 1 as appropriate
         :param integer_part: the part on the left side of the radix
         :type integer_part: list of int
         :param non_repeating_part: non repeating part on left side
@@ -238,6 +245,14 @@ class Radix(object):
             )
         if base < 2:
             return BasesValueError(base, "base", "must be at least 2")
+
+        if sign not in (-1, 0, 1) or sign is True or sign is False:
+            return BasesValueError(
+               sign,
+               "sign",
+               "must be an int between -1 and 1"
+            )
+
         return None
 
     @classmethod
@@ -314,7 +329,7 @@ class Radix(object):
 
     def __init__( # pylint: disable=too-many-arguments
         self,
-        positive,
+        sign,
         integer_part,
         non_repeating_part,
         repeating_part,
@@ -325,7 +340,7 @@ class Radix(object):
         """
         Initializer.
 
-        :param bool positive: True if value is positive, otherwise False
+        :param int sign: -1, 0, or 1 as appropriate
         :param integer_part: the part on the left side of the radix
         :type integer_part: list of int
         :param non_repeating_part: non repeating part on left side
@@ -343,7 +358,7 @@ class Radix(object):
         """
         if validate:
             error = self._validate(
-               positive,
+               sign,
                integer_part,
                non_repeating_part,
                repeating_part,
@@ -361,13 +376,13 @@ class Radix(object):
 
             if integer_part == [] and repeating_part == [] and \
                all(x == 0 for x in non_repeating_part):
-                positive = True
+                sign = 0
 
             repeating_part = repeating_part[0:self._repeat_length(repeating_part)]
             (non_repeating_part, repeating_part) = \
                 self._canonicalize_fraction(non_repeating_part, repeating_part)
 
-        self.positive = positive
+        self.sign = sign
         self.base = base
         self.integer_part = integer_part
         self.non_repeating_part = non_repeating_part
@@ -388,7 +403,7 @@ class Radix(object):
     def __repr__(self):
         return 'Radix(%s,%s,%s,%s,%s)' % \
            (
-              self.positive,
+              self.sign,
               self.integer_part,
               self.non_repeating_part,
               self.repeating_part,
@@ -398,7 +413,7 @@ class Radix(object):
     def __eq__(self, other):
         if not isinstance(other, Radix):
             raise BasesInvalidOperationError("!=", other)
-        return self.positive == other.positive and \
+        return self.sign == other.sign and \
            self.integer_part == other.integer_part and \
            self.non_repeating_part == other.non_repeating_part and \
            self.repeating_part == other.repeating_part and \
@@ -407,7 +422,7 @@ class Radix(object):
     def __ne__(self, other):
         if not isinstance(other, Radix):
             raise BasesInvalidOperationError("!=", other)
-        return self.positive != other.positive or \
+        return self.sign != other.sign or \
            self.integer_part != other.integer_part or \
            self.non_repeating_part != other.non_repeating_part or \
            self.repeating_part != other.repeating_part or \
@@ -427,7 +442,7 @@ class Radix(object):
 
     def __copy__(self): # pragma: no cover
         return Radix(
-           self.positive,
+           self.sign,
            self.integer_part,
            self.non_repeating_part,
            self.repeating_part,
@@ -436,7 +451,7 @@ class Radix(object):
 
     def __deepcopy__(self, memo):
         return Radix(
-           self.positive,
+           self.sign,
            self.integer_part[:],
            self.non_repeating_part[:],
            self.repeating_part[:],
@@ -461,7 +476,7 @@ class Radix(object):
            Nats.convert_to_int(numerator, self.base),
            Nats.convert_to_int(denominator, self.base)
         )
-        return result * (1 if self.positive else -1)
+        return result * self.sign
 
     def as_int(self, method):
         """
@@ -475,7 +490,7 @@ class Radix(object):
         """
         (new_radix, relation) = self.rounded(0, method)
         value = Nats.convert_to_int(new_radix.integer_part, new_radix.base)
-        return (value * (1 if self.positive else -1), relation)
+        return (value * self.sign, relation)
 
     def rounded(self, precision, method):
         """
@@ -514,26 +529,26 @@ class _Rounding(object):
 
 
     @staticmethod
-    def _conditional_toward_zero(method, positive):
+    def _conditional_toward_zero(method, sign):
         """
         Whether to round toward zero.
 
         :param method: rounding method
         :type method: element of RoundingMethods.METHODS()
-        :bool positive: if value is positive
+        :param int sign: -1, 0, or 1 as appropriate
 
         Complexity: O(1)
         """
         return method is RoundingMethods.ROUND_HALF_ZERO or \
-           (method is RoundingMethods.ROUND_HALF_DOWN and positive) or \
-           (method is RoundingMethods.ROUND_HALF_UP and not positive)
+           (method is RoundingMethods.ROUND_HALF_DOWN and sign == 1) or \
+           (method is RoundingMethods.ROUND_HALF_UP and sign == -1)
 
     @staticmethod
-    def _increment(positive, integer_part, non_repeating_part, base):
+    def _increment(sign, integer_part, non_repeating_part, base):
         """
         Return an increment radix.
 
-        :param bool positive: positive if Radix is positive
+        :param int sign: -1, 0, or 1 as appropriate
         :param integer_part: the integer part
         :type integer_part: list of int
         :param non_repeating_part: the fractional part
@@ -550,7 +565,7 @@ class _Rounding(object):
         (carry, integer_part) = \
            Nats.carry_in(integer_part, carry, base)
         return Radix(
-           positive,
+           sign,
            integer_part if carry == 0 else [carry] + integer_part,
            non_repeating_part,
            [],
@@ -589,6 +604,9 @@ class _Rounding(object):
                "must be one of RoundingMethod.METHODS()"
             )
 
+        if value.sign == 0:
+            return (Radix(0, [], precision * [0], [], value.base), 0)
+
         digits = itertools.chain(
            value.non_repeating_part,
            itertools.cycle(value.repeating_part)
@@ -597,7 +615,7 @@ class _Rounding(object):
         non_repeating_part += (precision - len(non_repeating_part)) * [0]
 
         truncated = lambda: Radix(
-           value.positive,
+           value.sign,
            value.integer_part,
            non_repeating_part,
            [],
@@ -606,7 +624,7 @@ class _Rounding(object):
         )
 
         incremented = lambda: cls._increment(
-           value.positive,
+           value.sign,
            value.integer_part,
            non_repeating_part,
            value.base
@@ -617,13 +635,13 @@ class _Rounding(object):
             return (truncated(), 0)
 
         if method is RoundingMethods.ROUND_TO_ZERO:
-            return (truncated(), -1 if value.positive else 1)
+            return (truncated(), -1 * value.sign)
 
         if method is RoundingMethods.ROUND_DOWN:
-            return (truncated() if value.positive else incremented(), -1)
+            return (truncated() if value.sign == 1 else incremented(), -1)
 
         if method is RoundingMethods.ROUND_UP:
-            return (incremented() if value.positive else truncated(), 1)
+            return (incremented() if value.sign == 1 else truncated(), 1)
 
         non_repeating_remainder = value.non_repeating_part[precision:]
         if non_repeating_remainder == []:
@@ -633,7 +651,7 @@ class _Rounding(object):
             repeating_part = value.repeating_part[:]
 
         remainder = Radix(
-           True,
+           1,
            [],
            non_repeating_remainder,
            repeating_part,
@@ -642,13 +660,13 @@ class _Rounding(object):
         remainder_fraction = remainder.as_rational()
         middle = Fraction(1, 2)
         if remainder_fraction < middle:
-            return (truncated(), -1 if value.positive else 1)
+            return (truncated(), -1 * value.sign)
         elif remainder_fraction > middle:
-            return (incremented(), 1 if value.positive else -1)
+            return (incremented(), value.sign)
         else:
-            if cls._conditional_toward_zero(method, value.positive):
-                return (truncated(), -1 if value.positive else 1)
+            if cls._conditional_toward_zero(method, value.sign):
+                return (truncated(), -1 * value.sign)
             else:
-                return (incremented(), 1 if value.positive else -1)
+                return (incremented(), value.sign)
 
         raise BasesAssertError() # pragma: no cover

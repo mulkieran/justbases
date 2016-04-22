@@ -44,7 +44,7 @@ class RationalsTestCase(unittest.TestCase):
         Test that functions are inverses of each other.
         """
         (result, relation) = Radices.from_rational(value, to_base)
-        assert result.positive or value < 0
+        assert result.sign in (0, 1) or value < 0
         assert relation == 0
         assert result.as_rational() == value
 

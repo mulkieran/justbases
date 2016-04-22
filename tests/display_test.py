@@ -117,7 +117,7 @@ class TestNumber(unittest.TestCase):
           strip_config=strategies.just(StripConfig())
        ),
        strategies.integers(min_value=2, max_value=16),
-       strategies.booleans()
+       strategies.integers(min_value=-1, max_value=1)
     )
     @settings(max_examples=100)
     def testXform(
@@ -127,7 +127,7 @@ class TestNumber(unittest.TestCase):
        repeating_part,
        config,
        base,
-       positive
+       sign
     ):
         """
         Test xform.
@@ -140,11 +140,11 @@ class TestNumber(unittest.TestCase):
            repeating_part,
            config,
            base,
-           positive
+           sign
         )
-        if config.show_base and base == 16 and positive:
+        if config.show_base and base == 16 and sign != -1:
             self.assertTrue(result.startswith('0x'))
-        if config.show_base and base == 8 and positive:
+        if config.show_base and base == 8 and sign != -1:
             self.assertTrue(result.startswith('0'))
 
 
