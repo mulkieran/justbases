@@ -40,8 +40,10 @@ class NatsTestCase(unittest.TestCase):
     def testFromInt(self, value, to_base):
         """
         convert_to_int(convert_from_int(value, to_base), 10) == value
+        No leading zeros in convert_from_int(value, to_base)
         """
         result = Nats.convert_from_int(value, to_base)
+        assert result == [] or result[0] != 0
         assert Nats.convert_to_int(result, to_base) == value
 
     @given(

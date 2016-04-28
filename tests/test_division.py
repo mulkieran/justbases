@@ -59,6 +59,9 @@ class NatDivisionTestCase(unittest.TestCase):
            repeating_part,
            base
         )
+        assert numerator == [] or numerator[0] != 0
+        assert denominator != [] and denominator[0] != 0
+
         original = fractions.Fraction(
            Nats.convert_to_int(dividend, base),
            Nats.convert_to_int(divisor, base)
