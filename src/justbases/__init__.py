@@ -36,6 +36,12 @@ Contents:
 """
 
 from ._constants import RoundingMethods
+
+from ._config import BasesConfig
+from ._config import DigitsConfig
+from ._config import DisplayConfig
+from ._config import StripConfig
+
 from ._division import NatDivision
 
 from ._errors import BasesError

@@ -20,6 +20,8 @@ import itertools
 from fractions import Fraction
 
 from ._constants import RoundingMethods
+from ._config import BasesConfig
+from ._display import String
 from ._division import NatDivision
 from ._errors import BasesAssertError
 from ._errors import BasesInvalidOperationError
@@ -371,17 +373,17 @@ class Radix(object):
         self.non_repeating_part = non_repeating_part
         self.repeating_part = repeating_part
 
+    def getString(self, config, relation=0):
+        """
+        Return a representation of a Radix according to config.
+
+        :param DisplayConfig config: configuration
+        :param int relation: the relation of this value to actual value
+        """
+        return String.xform(self, config, relation)
+
     def __str__(self):
-        return self._FMT_STR % \
-           {
-              'sign' : '' if self.positive else '-',
-              'left': ':'.join(str(x) for x in self.integer_part) or '0',
-              'radix' :
-                 '.' if self.non_repeating_part or self.repeating_part  else '',
-              'non_repeat' : ':'.join(str(x) for x in self.non_repeating_part),
-              'repeat' : ':'.join(str(x) for x in self.repeating_part),
-              'base': self.base
-           }
+        return self.getString(BasesConfig.DISPLAY_CONFIG, 0)
 
     def __repr__(self):
         return 'Radix(%s,%s,%s,%s,%s)' % \
