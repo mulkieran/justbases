@@ -124,7 +124,7 @@ class Number(object):
     ])
 
     @classmethod
-    def xform(cls, left, right, repeating, config, base, positive):
+    def xform(cls, left, right, repeating, config, base, sign):
         """
         Return prefixes for tuple.
 
@@ -133,7 +133,7 @@ class Number(object):
         :param str repeating: repeating part
         :param DisplayConfig config: display configuration
         :param int base: the base in which value is displayed
-        :param bool positive: whether value is non-negative
+        :param int sign: -1, 0, 1 as appropriate
         :returns: the number string
         :rtype: str
         """
@@ -148,10 +148,8 @@ class Number(object):
             else:
                 base_str = ''
 
-        sign = '' if positive else '-'
-
         result = {
-           'sign' : sign,
+           'sign' : '-' if sign == -1 else '',
            'base_str' : base_str,
            'left' : left,
            'radix' : '.' if right else "",
@@ -250,7 +248,7 @@ class String(object):
            repeating_str,
            display,
            radix.base,
-           radix.positive
+           radix.sign
         )
 
         decorators = Decorators.decorators(display, relation)

@@ -65,21 +65,49 @@ class RadixTestCase(unittest.TestCase):
         Test exceptions.
         """
         with self.assertRaises(BasesError):
-            Radix(True, [], [], [], 0)
+            Radix(0, [], [], [], 0)
         with self.assertRaises(BasesError):
-            Radix(True, [], [], [2], 2)
+            Radix(1, [], [], [2], 2)
         with self.assertRaises(BasesError):
-            Radix(True, [], [-1], [1], 2)
+            Radix(1, [], [-1], [1], 2)
         with self.assertRaises(BasesError):
-            Radix(True, [-300], [1], [1], 2)
+            Radix(1, [-300], [1], [1], 2)
         with self.assertRaises(BasesError):
-            Radix(True, [1], [0], [1], 2).in_base(0)
+            Radix(True, [1], [0], [1], 2)
+        with self.assertRaises(BasesError):
+            Radix(1, [1], [0], [1], 2).in_base(0)
 
-    def testStr(self):
+    @given(
+       strategies.integers(min_value=2, max_value=36).flatmap(
+          lambda n: strategies.builds(
+             Radix,
+             strategies.integers(min_value=1, max_value=1),
+             strategies.lists(
+                elements=strategies.integers(min_value=0, max_value=n-1),
+                min_size=0,
+                max_size=10
+             ),
+             strategies.lists(
+                elements=strategies.integers(min_value=0, max_value=n-1),
+                min_size=0,
+                max_size=10
+             ),
+             strategies.lists(
+                elements=strategies.integers(min_value=0, max_value=n-1),
+                min_size=0,
+                max_size=10
+             ),
+             strategies.just(n)
+          )
+       )
+    )
+    @settings(max_examples=10)
+    def testStr(self, radix):
         """
         Make sure that __str__ executes.
         """
-        assert str(Radix(True, [1], [2], [3], 4)) != ''
+        result = str(radix)
+        assert result.startswith("-") == (radix.sign == -1)
 
     @given(
        strategies.fractions().map(lambda x: x.limit_denominator(100)),
@@ -97,15 +125,15 @@ class RadixTestCase(unittest.TestCase):
         """
         Skip validation and canonicalization.
         """
-        self.assertIsNotNone(Radix(False, [], [], [], 4, False, False))
+        self.assertIsNotNone(Radix(-1, [], [], [], 4, False, False))
 
     def testEquality(self):
         """
         Test == operator.
         """
         self.assertEqual(
-           Radix(True, [1], [], [], 2),
-           Radix(True, [1], [], [], 2),
+           Radix(1, [1], [], [], 2),
+           Radix(1, [1], [], [], 2),
         )
 
     def testInEquality(self):
@@ -113,16 +141,16 @@ class RadixTestCase(unittest.TestCase):
         Test != operator.
         """
         self.assertNotEqual(
-           Radix(False, [], [], [], 3),
-           Radix(True, [], [], [], 2),
+           Radix(0, [], [], [], 3),
+           Radix(0, [], [], [], 2),
         )
 
     def testOperatorExceptions(self):
         """
         Test that comparsion operators yield exceptions.
         """
-        radix1 = Radix(False, [], [], [], 3)
-        radix2 = Radix(False, [], [], [], 2)
+        radix1 = Radix(0, [], [], [], 3)
+        radix2 = Radix(0, [], [], [], 2)
         # pylint: disable=pointless-statement
         with self.assertRaises(BasesError):
             radix1 > radix2
@@ -143,19 +171,19 @@ class RadixTestCase(unittest.TestCase):
         """
         Repeat part is made up of repeating parts.
         """
-        radix = Radix(True, [], [], [1, 1], 4)
+        radix = Radix(1, [], [], [1, 1], 4)
         self.assertEqual(radix.repeating_part, [1])
-        radix = Radix(True, [], [], [1, 1, 2], 4)
+        radix = Radix(1, [], [], [1, 1, 2], 4)
         self.assertEqual(radix.repeating_part, [1, 1, 2])
-        radix = Radix(True, [], [], [1, 2, 1, 2, 1, 2], 4)
+        radix = Radix(1, [], [], [1, 2, 1, 2, 1, 2], 4)
         self.assertEqual(radix.repeating_part, [1, 2])
-        radix = Radix(True, [], [3, 1, 2, 1, 2], [1, 2], 4)
+        radix = Radix(1, [], [3, 1, 2, 1, 2], [1, 2], 4)
         self.assertEqual(radix.non_repeating_part, [3])
         self.assertEqual(radix.repeating_part, [1, 2])
-        radix = Radix(True, [], [3, 2, 1, 2, 1, 2], [1, 2], 4)
+        radix = Radix(1, [], [3, 2, 1, 2, 1, 2], [1, 2], 4)
         self.assertEqual(radix.non_repeating_part, [3])
         self.assertEqual(radix.repeating_part, [2, 1])
-        radix = Radix(True, [], [3, 3, 2, 3, 1, 2, 3, 1, 2, 3], [1, 2, 3], 4)
+        radix = Radix(1, [], [3, 3, 2, 3, 1, 2, 3, 1, 2, 3], [1, 2, 3], 4)
         self.assertEqual(radix.non_repeating_part, [3, 3])
         self.assertEqual(radix.repeating_part, [2, 3, 1])
 
@@ -210,7 +238,7 @@ class RoundingTestCase(unittest.TestCase):
               method in RoundingMethods.METHODS()
         )
 
-        if radix.positive is True:
+        if radix.sign in (0, 1):
             assert results[RoundingMethods.ROUND_DOWN] == \
                results[RoundingMethods.ROUND_TO_ZERO]
             assert results[RoundingMethods.ROUND_HALF_DOWN] == \
@@ -250,7 +278,7 @@ class RoundingTestCase(unittest.TestCase):
         """
         Ensure that rounding causes overflow.
         """
-        radix = Radix(True, [], [], [1], 2)
+        radix = Radix(1, [], [], [1], 2)
         (result, relation) = radix.rounded(3, RoundingMethods.ROUND_UP)
         assert relation == 1
         assert result.integer_part == [1]
@@ -261,7 +289,7 @@ class RoundingTestCase(unittest.TestCase):
         """
         Ensure that there is no tie breaker.
         """
-        radix = Radix(True, [], [1, 1, 1, 1], [], 2)
+        radix = Radix(1, [], [1, 1, 1, 1], [], 2)
         (result, relation) = radix.rounded(3, RoundingMethods.ROUND_HALF_UP)
         assert relation == 1
         assert result.integer_part == [1]
@@ -272,7 +300,7 @@ class RoundingTestCase(unittest.TestCase):
         """
         Require conversion, but do not carry out of repeating_part.
         """
-        radix = Radix(True, [], [0, 0, 1, 1], [], 2)
+        radix = Radix(1, [], [0, 0, 1, 1], [], 2)
         (result, relation) = radix.rounded(3, RoundingMethods.ROUND_UP)
         assert relation == 1
         assert result.integer_part == []
@@ -285,7 +313,7 @@ class RoundingTestCase(unittest.TestCase):
         Ensure that the intermediate result is exactly the required
         precision.
         """
-        radix = Radix(True, [], [1, 0, 1, 1], [], 2)
+        radix = Radix(1, [], [1, 0, 1, 1], [], 2)
         (result, relation) = radix.rounded(3, RoundingMethods.ROUND_UP)
         assert relation == 1
         assert result.integer_part == []
@@ -297,12 +325,12 @@ class RoundingTestCase(unittest.TestCase):
         Test exception.
         """
         with self.assertRaises(BasesError):
-            Radix(True, [], [], [], 2).rounded(
+            Radix(0, [], [], [], 2).rounded(
                -1,
                RoundingMethods.ROUND_DOWN
             )
         with self.assertRaises(BasesError):
-            Radix(True, [], [], [], 2).rounded(
+            Radix(0, [], [], [], 2).rounded(
                0,
                None
             )
