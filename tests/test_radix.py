@@ -24,41 +24,36 @@ from hypothesis import settings
 from hypothesis import strategies
 
 from justbases import BasesError
-from justbases import Radices
 from justbases import Radix
 from justbases import Rationals
 from justbases import RoundingMethods
+
+from ._utils import build_base
+from ._utils import build_radix
 
 
 class RadixTestCase(unittest.TestCase):
     """ Tests for radix. """
 
     @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
-       strategies.integers(min_value=2),
-       strategies.integers(min_value=2)
+       build_radix(16, 3),
+       build_base(16)
     )
     @settings(max_examples=50)
-    def testInBase(self, value, base1, base2):
+    def testInBase(self, radix, base):
         """
-        Test that roundtrip is identity.
+        Test that roundtrip is identity modulo number of 0s in
+        non repeating part.
         """
-        (radix, _) = Radices.from_rational(value, base1)
-        radix2 = radix.in_base(base2)
-        radix3 = radix2.in_base(base1)
-        assert radix == radix3
+        result = radix.in_base(base).in_base(radix.base)
+        assert result.sign == radix.sign and \
+           result.integer_part == radix.integer_part and \
+           result.repeating_part == radix.repeating_part and \
+           result.base == radix.base
 
-    @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
-       strategies.integers(min_value=2)
-    )
-    def testInBase2(self, value, base):
-        """
-        Test conversion to current base.
-        """
-        (radix, _) = Radices.from_rational(value, base)
-        result = radix.in_base(base)
-        assert radix == result
+        length = len(result.non_repeating_part)
+        assert result.non_repeating_part == radix.non_repeating_part[:length]
+        assert all(x == 0 for x in radix.non_repeating_part[length:])
 
     def testExceptions(self):
         """
@@ -77,48 +72,22 @@ class RadixTestCase(unittest.TestCase):
         with self.assertRaises(BasesError):
             Radix(1, [1], [0], [1], 2).in_base(0)
 
-    @given(
-       strategies.integers(min_value=2, max_value=36).flatmap(
-          lambda n: strategies.builds(
-             Radix,
-             strategies.integers(min_value=1, max_value=1),
-             strategies.lists(
-                elements=strategies.integers(min_value=0, max_value=n-1),
-                min_size=0,
-                max_size=10
-             ),
-             strategies.lists(
-                elements=strategies.integers(min_value=0, max_value=n-1),
-                min_size=0,
-                max_size=10
-             ),
-             strategies.lists(
-                elements=strategies.integers(min_value=0, max_value=n-1),
-                min_size=0,
-                max_size=10
-             ),
-             strategies.just(n)
-          )
-       )
-    )
+    @given(build_radix(36, 10))
     @settings(max_examples=10)
     def testStr(self, radix):
         """
-        Make sure that __str__ executes.
+        Check basic properties of __str__.
         """
         result = str(radix)
         assert result.startswith("-") == (radix.sign == -1)
+        assert (result[-1] == ")") == (radix.repeating_part != [])
 
-    @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
-       strategies.integers(min_value=2)
-    )
+    @given(build_radix(1024, 10))
     @settings(max_examples=10)
-    def testRepr(self, value, base):
+    def testRepr(self, radix):
         """
         Make sure that result is evalable.
         """
-        (radix, _) = Radices.from_rational(value, base)
         assert eval(repr(radix)) == radix # pylint: disable=eval-used
 
     def testOptions(self):
@@ -167,6 +136,12 @@ class RadixTestCase(unittest.TestCase):
         with self.assertRaises(BasesError):
             radix1 != 1
 
+    def testCarryOnRepeatingPart(self):
+        """
+        Carry from non_repeating_part to integer_part and then out.
+        """
+        assert Radix(1, [3], [3], [3], 4) == Radix(1, [1, 0], [], [], 4)
+
     def testRepeatingRepeatPart(self):
         """
         Repeat part is made up of repeating parts.
@@ -192,19 +167,18 @@ class RoundingTestCase(unittest.TestCase):
     """ Tests for rounding Radixes. """
 
     @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
-       strategies.integers(min_value=2, max_value=64),
+       build_radix(16, 10),
        strategies.integers(min_value=0, max_value=64),
        strategies.sampled_from(RoundingMethods.METHODS())
     )
-    @settings(max_examples=500)
-    def testRoundFraction(self, value, base, precision, method):
+    @settings(max_examples=50)
+    def testRoundFraction(self, radix, precision, method):
         """
         Test that rounding yields the correct number of digits.
 
         Test that rounded values are in a good range.
         """
-        (radix, _) = Radices.from_rational(value, base)
+        value = radix.as_rational()
         (result, relation) = radix.rounded(precision, method)
         assert len(result.non_repeating_part) == precision
 
@@ -221,22 +195,21 @@ class RoundingTestCase(unittest.TestCase):
             assert relation == 0
 
     @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
-       strategies.integers(min_value=2, max_value=64),
+       build_radix(16, 10),
        strategies.integers(min_value=0, max_value=64)
     )
     @settings(max_examples=50)
-    def testRoundRelation(self, value, base, precision):
+    def testRoundRelation(self, radix, precision):
         """
         Test that all results have the correct relation.
         """
-        (radix, _) = Radices.from_rational(value, base)
-
-
         results = dict(
            (method, radix.rounded(precision, method)[0]) for \
               method in RoundingMethods.METHODS()
         )
+
+        for _, result in results.items():
+            assert len(result.non_repeating_part) == precision
 
         if radix.sign in (0, 1):
             assert results[RoundingMethods.ROUND_DOWN] == \
@@ -260,65 +233,17 @@ class RoundingTestCase(unittest.TestCase):
                results[order[index + 1]].as_rational()
 
     @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
-       strategies.integers(min_value=2, max_value=64),
+       build_radix(64, 5),
        strategies.sampled_from(RoundingMethods.METHODS())
     )
     @settings(max_examples=50)
-    def testAsInt(self, value, base, method):
+    def testAsInt(self, radix, method):
         """
         Test equivalence with two paths.
         """
-        (radix, _) = Radices.from_rational(value, base)
         result1 = Rationals.round_to_int(radix.as_rational(), method)
         result2 = radix.as_int(method)
         assert result1 == result2
-
-    def testOverflow(self):
-        """
-        Ensure that rounding causes overflow.
-        """
-        radix = Radix(1, [], [], [1], 2)
-        (result, relation) = radix.rounded(3, RoundingMethods.ROUND_UP)
-        assert relation == 1
-        assert result.integer_part == [1]
-        assert result.non_repeating_part == [0, 0, 0]
-        assert result.repeating_part == []
-
-    def testMiddles(self):
-        """
-        Ensure that there is no tie breaker.
-        """
-        radix = Radix(1, [], [1, 1, 1, 1], [], 2)
-        (result, relation) = radix.rounded(3, RoundingMethods.ROUND_HALF_UP)
-        assert relation == 1
-        assert result.integer_part == [1]
-        assert result.non_repeating_part == [0, 0, 0]
-        assert result.repeating_part == []
-
-    def testLeadingZeros(self):
-        """
-        Require conversion, but do not carry out of repeating_part.
-        """
-        radix = Radix(1, [], [0, 0, 1, 1], [], 2)
-        (result, relation) = radix.rounded(3, RoundingMethods.ROUND_UP)
-        assert relation == 1
-        assert result.integer_part == []
-        assert result.non_repeating_part == [0, 1, 0]
-        assert result.repeating_part == []
-
-    def testExactLength(self):
-        """
-        Require conversion, but do not carry out of repeating_part.
-        Ensure that the intermediate result is exactly the required
-        precision.
-        """
-        radix = Radix(1, [], [1, 0, 1, 1], [], 2)
-        (result, relation) = radix.rounded(3, RoundingMethods.ROUND_UP)
-        assert relation == 1
-        assert result.integer_part == []
-        assert result.non_repeating_part == [1, 1, 0]
-        assert result.repeating_part == []
 
     def testExceptions(self):
         """
@@ -334,30 +259,3 @@ class RoundingTestCase(unittest.TestCase):
                0,
                None
             )
-
-    def testFiveEighths(self):
-        """
-        Test 5/8 in base 3.
-        """
-        value = Fraction(5, 8)
-        (radix, _) = Radices.from_rational(value, 3)
-        (rounded, relation) = radix.rounded(0, RoundingMethods.ROUND_HALF_UP)
-
-        assert relation == 1
-        assert rounded.as_rational() == 1
-
-    def testOneHalf(self):
-        """
-        Test 1/2 in base 3.
-        """
-        value = Fraction(1, 2)
-        (radix, _) = Radices.from_rational(value, 3)
-        (rounded, relation) = radix.rounded(0, RoundingMethods.ROUND_HALF_UP)
-
-        assert relation == 1
-        assert rounded.as_rational() == 1
-
-        (rounded, relation) = radix.rounded(0, RoundingMethods.ROUND_HALF_DOWN)
-
-        assert relation == -1
-        assert rounded.as_rational() == 0
