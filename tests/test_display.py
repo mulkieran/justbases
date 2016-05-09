@@ -17,9 +17,8 @@ import unittest
 
 from justbases import BasesConfig
 from justbases import BasesError
+from justbases import BaseConfig
 from justbases import DigitsConfig
-from justbases import DisplayConfig
-from justbases import Radix
 from justbases import StripConfig
 
 from justbases._display import Digits
@@ -31,6 +30,15 @@ from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies
 
+from ._utils import build_base
+from ._utils import build_base_config
+from ._utils import build_display_config
+from ._utils import build_nat
+from ._utils import build_radix
+from ._utils import build_relation
+from ._utils import build_sign
+from ._utils import build_strip_config
+
 
 class TestString(unittest.TestCase):
     """
@@ -38,36 +46,13 @@ class TestString(unittest.TestCase):
     """
 
     @given(
-       strategies.integers(min_value=2, max_value=1024).flatmap(
-          lambda n: strategies.builds(
-             Radix,
-             strategies.integers(min_value=1, max_value=1),
-             strategies.lists(
-                elements=strategies.integers(min_value=0, max_value=n-1),
-                min_size=0,
-                max_size=10
-             ),
-             strategies.lists(
-                elements=strategies.integers(min_value=0, max_value=n-1),
-                min_size=0,
-                max_size=10
-             ),
-             strategies.lists(
-                elements=strategies.integers(min_value=0, max_value=n-1),
-                min_size=0,
-                max_size=10
-             ),
-             strategies.just(n)
-          )
+       build_radix(1024, 10),
+       build_display_config(
+          strategies.just(BaseConfig()),
+          strategies.just(DigitsConfig(use_letters=False)),
+          build_strip_config()
        ),
-       strategies.builds(
-          DisplayConfig,
-          show_approx_str=strategies.booleans(),
-          show_base=strategies.booleans(),
-          digits_config=strategies.just(DigitsConfig(use_letters=False)),
-          strip_config=strategies.just(StripConfig())
-       ),
-       strategies.integers(min_value=-1, max_value=1)
+       build_relation()
     )
     @settings(max_examples=100)
     def testFormat(self, radix, display, relation):
@@ -75,7 +60,8 @@ class TestString(unittest.TestCase):
         Verify that a xformed string with a repeating part shows that part.
         """
         result = String.xform(radix, display, relation)
-        assert (radix.repeating_part != []) == (result[-1] == ")")
+        assert (radix.repeating_part != [] and \
+           not display.base_config.use_subscript) == (result[-1] == ")")
 
 
 class TestDigits(unittest.TestCase):
@@ -109,15 +95,9 @@ class TestNumber(unittest.TestCase):
           max_size=10
        ),
        strategies.text(alphabet=strategies.characters(), max_size=10),
-       strategies.builds(
-          DisplayConfig,
-          show_approx_str=strategies.booleans(),
-          show_base=strategies.booleans(),
-          digits_config=strategies.just(DigitsConfig(use_letters=False)),
-          strip_config=strategies.just(StripConfig())
-       ),
-       strategies.integers(min_value=2, max_value=16),
-       strategies.integers(min_value=-1, max_value=1)
+       build_base_config(),
+       build_base(16),
+       build_sign()
     )
     @settings(max_examples=100)
     def testXform(
@@ -142,10 +122,16 @@ class TestNumber(unittest.TestCase):
            base,
            sign
         )
-        if config.show_base and base == 16 and sign != -1:
+        if config.use_prefix and base == 16 and sign != -1:
             self.assertTrue(result.startswith('0x'))
-        if config.show_base and base == 8 and sign != -1:
+        if config.use_prefix and base == 8 and sign != -1:
             self.assertTrue(result.startswith('0'))
+        if config.use_subscript:
+            base_str = str(base)
+            self.assertEqual(
+               result.rfind(base_str) + len(base_str),
+               len(result)
+            )
 
 
 class TestStrip(unittest.TestCase):
@@ -154,24 +140,19 @@ class TestStrip(unittest.TestCase):
     """
 
     @given(
-       strategies.lists(
-          elements=strategies.integers(min_value=0, max_value=10),
-          max_size=10
-       ),
-       strategies.builds(
-          StripConfig,
-          strategies.booleans(),
-          strategies.booleans(),
-          strategies.booleans()
-       ),
-       strategies.integers(min_value=-1, max_value=1)
+       build_nat(10, 3),
+       build_strip_config(),
+       build_relation(),
     )
     @settings(max_examples=100)
     def testXform(self, number, config, relation):
         """
-        Test xform.
+        Confirm that option strip strips more than other options.
         """
         result = Strip.xform(number, config, relation)
         most = Strip.xform(number, StripConfig(strip=True), relation)
 
         self.assertTrue(len(most) <= len(result))
+
+        if config.strip and number != []:
+            self.assertTrue(result[-1] != 0)

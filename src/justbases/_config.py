@@ -14,6 +14,36 @@
 """ Configuration of the justbytes package. """
 
 
+class BaseConfig(object):
+    """
+    Whether and how to show the base.
+    """
+    # pylint: disable=too-few-public-methods
+
+    _FMT_STR = ", ".join([
+       "use_prefix=%(use_prefix)s",
+       "use_subscript=%(use_subscript)s"
+    ])
+
+    def __init__(self, use_prefix=False, use_subscript=True):
+        """
+        Initializer.
+
+        :param bool use_prefix: show base using prefix, e.g., 0x, 0
+        :param bool use_subscript: show base using subscript
+        """
+        self.use_prefix = use_prefix
+        self.use_subscript = use_subscript
+
+    def __str__(self): # pragma: no cover
+        values = {
+           'use_prefix' : self.use_prefix,
+           'use_subscript' : self.use_subscript
+        }
+        return "BaseConfig(%s)" % (self._FMT_STR % values)
+    __repr__ = __str__
+
+
 class StripConfig(object):
     """
     Stripping trailing zeros.
@@ -99,7 +129,7 @@ class DisplayConfig(object):
 
     _FMT_STR = ", ".join([
        "show_approx_str=%(show_approx_str)s",
-       "show_base=%(show_base)s",
+       "base_config=%(base_config)s",
        "digits_config=%(digits_config)s",
        "strip_config-%(strip_config)s"
     ])
@@ -107,7 +137,10 @@ class DisplayConfig(object):
     def __init__(
        self,
        show_approx_str=True,
-       show_base=False,
+       base_config=BaseConfig(
+          use_prefix=False,
+          use_subscript=True
+       ),
        digits_config=DigitsConfig(
           separator='~',
           use_caps=False,
@@ -131,14 +164,14 @@ class DisplayConfig(object):
         hexadecimal.
         """
         self.show_approx_str = show_approx_str
-        self.show_base = show_base
+        self.base_config = base_config
         self.digits_config = digits_config
         self.strip_config = strip_config
 
     def __str__(self):
         values = {
            'show_approx_str' : self.show_approx_str,
-           'show_base' : self.show_base,
+           'base_config' : self.base_config,
            'digits_config' : self.digits_config,
            'strip_config' : self.strip_config
         }
@@ -154,7 +187,10 @@ class BasesConfig(object):
 
     DISPLAY_CONFIG = DisplayConfig(
        show_approx_str=True,
-       show_base=False,
+       base_config=BaseConfig(
+          use_prefix=False,
+          use_subscript=True
+       ),
        digits_config=DigitsConfig(
           separator='~',
           use_caps=False,
@@ -176,7 +212,7 @@ class BasesConfig(object):
         """
         cls.DISPLAY_CONFIG = DisplayConfig(
             show_approx_str=config.show_approx_str,
-            show_base=config.show_base,
+            base_config=config.base_config,
             digits_config=config.digits_config,
             strip_config=config.strip_config
         )

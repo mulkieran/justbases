@@ -371,16 +371,26 @@ class Radix(object):
             if all(x == 0 for x in integer_part):
                 integer_part = []
 
+            repeating_part = \
+               repeating_part[0:self._repeat_length(repeating_part)]
+            (non_repeating_part, repeating_part) = \
+                self._canonicalize_fraction(non_repeating_part, repeating_part)
             if all(x == 0 for x in repeating_part):
                 repeating_part = []
+
+            if repeating_part == [base - 1]:
+                repeating_part = []
+                (carry_out, non_repeating_part) = \
+                   Nats.carry_in(non_repeating_part, 1, base)
+                if carry_out != 0:
+                    (carry_out, integer_part) = \
+                       Nats.carry_in(integer_part, 1, base)
+                    if carry_out != 0:
+                        integer_part = [carry_out] + integer_part
 
             if integer_part == [] and repeating_part == [] and \
                all(x == 0 for x in non_repeating_part):
                 sign = 0
-
-            repeating_part = repeating_part[0:self._repeat_length(repeating_part)]
-            (non_repeating_part, repeating_part) = \
-                self._canonicalize_fraction(non_repeating_part, repeating_part)
 
         self.sign = sign
         self.base = base

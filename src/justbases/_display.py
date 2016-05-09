@@ -116,11 +116,13 @@ class Number(object):
 
     _FMT_STR = "".join([
        "%(sign)s",
-       "%(base_str)s",
+       "%(base_prefix)s",
        "%(left)s",
        "%(radix)s",
        "%(right)s",
-       "%(repeating)s"
+       "%(repeating)s",
+       "%(base_separator)s",
+       "%(base_subscript)s"
     ])
 
     @classmethod
@@ -131,7 +133,7 @@ class Number(object):
         :param str left: left of the radix
         :param str right: right of the radix
         :param str repeating: repeating part
-        :param DisplayConfig config: display configuration
+        :param BaseConfig config: display configuration
         :param int base: the base in which value is displayed
         :param int sign: -1, 0, 1 as appropriate
         :returns: the number string
@@ -139,22 +141,26 @@ class Number(object):
         """
         # pylint: disable=too-many-arguments
 
-        base_str = ''
-        if config.show_base:
+        base_prefix = ''
+        if config.use_prefix:
             if base == 8:
-                base_str = '0'
+                base_prefix = '0'
             elif base == 16:
-                base_str = '0x'
+                base_prefix = '0x'
             else:
-                base_str = ''
+                base_prefix = ''
+
+        base_subscript = str(base) if config.use_subscript else ''
 
         result = {
            'sign' : '-' if sign == -1 else '',
-           'base_str' : base_str,
+           'base_prefix' : base_prefix,
            'left' : left,
            'radix' : '.' if right else "",
            'right' : right,
-           'repeating' : ("(%s)" % repeating) if repeating != "" else ""
+           'repeating' : ("(%s)" % repeating) if repeating != "" else "",
+           'base_separator' : '' if base_subscript == '' else '_',
+           'base_subscript' : base_subscript
         }
 
         return cls._FMT_STR % result
@@ -246,7 +252,7 @@ class String(object):
            left_str,
            right_str,
            repeating_str,
-           display,
+           display.base_config,
            radix.base,
            radix.sign
         )
