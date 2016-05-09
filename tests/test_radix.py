@@ -80,7 +80,6 @@ class RadixTestCase(unittest.TestCase):
         """
         result = str(radix)
         assert result.startswith("-") == (radix.sign == -1)
-        assert (result[-1] == ")") == (radix.repeating_part != [])
 
     @given(build_radix(1024, 10))
     @settings(max_examples=10)

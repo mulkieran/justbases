@@ -17,6 +17,7 @@ import unittest
 
 from justbases import BasesConfig
 from justbases import BasesError
+from justbases import BaseConfig
 from justbases import DigitsConfig
 from justbases import StripConfig
 
@@ -30,6 +31,7 @@ from hypothesis import settings
 from hypothesis import strategies
 
 from ._utils import build_base
+from ._utils import build_base_config
 from ._utils import build_display_config
 from ._utils import build_nat
 from ._utils import build_radix
@@ -46,6 +48,7 @@ class TestString(unittest.TestCase):
     @given(
        build_radix(1024, 10),
        build_display_config(
+          strategies.just(BaseConfig()),
           strategies.just(DigitsConfig(use_letters=False)),
           build_strip_config()
        ),
@@ -57,7 +60,8 @@ class TestString(unittest.TestCase):
         Verify that a xformed string with a repeating part shows that part.
         """
         result = String.xform(radix, display, relation)
-        assert (radix.repeating_part != []) == (result[-1] == ")")
+        assert (radix.repeating_part != [] and \
+           not display.base_config.use_subscript) == (result[-1] == ")")
 
 
 class TestDigits(unittest.TestCase):
@@ -91,10 +95,7 @@ class TestNumber(unittest.TestCase):
           max_size=10
        ),
        strategies.text(alphabet=strategies.characters(), max_size=10),
-       build_display_config(
-          strategies.just(DigitsConfig(use_letters=False)),
-          strategies.just(StripConfig())
-       ),
+       build_base_config(),
        build_base(16),
        build_sign()
     )
@@ -121,10 +122,16 @@ class TestNumber(unittest.TestCase):
            base,
            sign
         )
-        if config.show_base and base == 16 and sign != -1:
+        if config.use_prefix and base == 16 and sign != -1:
             self.assertTrue(result.startswith('0x'))
-        if config.show_base and base == 8 and sign != -1:
+        if config.use_prefix and base == 8 and sign != -1:
             self.assertTrue(result.startswith('0'))
+        if config.use_subscript:
+            base_str = str(base)
+            self.assertEqual(
+               result.rfind(base_str) + len(base_str),
+               len(result)
+            )
 
 
 class TestStrip(unittest.TestCase):
