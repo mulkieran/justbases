@@ -25,6 +25,7 @@ from collections import namedtuple
 
 from ._errors import BasesValueError
 
+
 class Digits(object):
     """
     Transforms digits as ints to corresponding symbols.
@@ -36,29 +37,36 @@ class Digits(object):
 
     _MAX_SIZE_BASE_FOR_CHARS = len(string.digits + string.ascii_uppercase)
 
-    @classmethod
-    def xform(cls, number, config, base):
+    def __init__(self, config):
+        """
+        Initializer.
+
+        :param DigitsConfig config: configuration for displaying digits
+        """
+        self.CONFIG = config
+
+    def xform(self, number, base):
         """
         Get a number as a string.
 
         :param number: a number
         :type number: list of int
-        :param DigitsConfig config: configuration for displaying digits
         :param int base: the base in which this number is being represented
         :raises BasesValueError: if config is unsuitable for number
         """
-        if config.use_letters:
-            if base > cls._MAX_SIZE_BASE_FOR_CHARS:
+        if self.CONFIG.use_letters:
+            if base > self._MAX_SIZE_BASE_FOR_CHARS:
                 raise BasesValueError(
                    base,
                    "base",
                    "must be no greater than number of available characters"
                 )
             digits = \
-               cls._UPPER_DIGITS if config.use_caps else cls._LOWER_DIGITS
+               self._UPPER_DIGITS if self.CONFIG.use_caps else \
+               self._LOWER_DIGITS
             return ''.join(digits[x] for x in number)
         else:
-            separator = '' if base <= 10 else config.separator
+            separator = '' if base <= 10 else self.CONFIG.separator
             return separator.join(str(x) for x in number)
 
 
@@ -67,6 +75,7 @@ class Strip(object):
     Handle stripping digits.
     """
     # pylint: disable=too-few-public-methods
+
 
     @staticmethod
     def _strip_trailing_zeros(value):
@@ -85,23 +94,29 @@ class Strip(object):
            )
         )
 
-    @classmethod
-    def xform(cls, number, config, relation):
+    def __init__(self, config):
+        """
+        Initializer.
+
+        :param StripConfig config: configuration for stripping zeros
+        """
+        self.CONFIG = config
+
+    def xform(self, number, relation):
         """
         Strip trailing zeros from a number according to config and relation.
 
         :param number: a number
         :type number: list of int
-        :param StripConfig config: configuration for stripping zeros
         :param int relation: the relation of the display value to the actual
         """
 
         # pylint: disable=too-many-boolean-expressions
-        if (config.strip) or \
-           (config.strip_exact and relation == 0) or \
-           (config.strip_whole and relation == 0 and \
+        if (self.CONFIG.strip) or \
+           (self.CONFIG.strip_exact and relation == 0) or \
+           (self.CONFIG.strip_whole and relation == 0 and \
             all(x == 0 for x in number)):
-            return cls._strip_trailing_zeros(number)
+            return Strip._strip_trailing_zeros(number)
         else:
             return number
 
@@ -125,15 +140,21 @@ class Number(object):
        "%(base_subscript)s"
     ])
 
-    @classmethod
-    def xform(cls, left, right, repeating, config, base, sign):
+    def __init__(self, config):
+        """
+        Initializer.
+
+        :param BaseConfig config: display configuration
+        """
+        self.CONFIG = config
+
+    def xform(self, left, right, repeating, base, sign):
         """
         Return prefixes for tuple.
 
         :param str left: left of the radix
         :param str right: right of the radix
         :param str repeating: repeating part
-        :param BaseConfig config: display configuration
         :param int base: the base in which value is displayed
         :param int sign: -1, 0, 1 as appropriate
         :returns: the number string
@@ -142,7 +163,7 @@ class Number(object):
         # pylint: disable=too-many-arguments
 
         base_prefix = ''
-        if config.use_prefix:
+        if self.CONFIG.use_prefix:
             if base == 8:
                 base_prefix = '0'
             elif base == 16:
@@ -150,7 +171,7 @@ class Number(object):
             else:
                 base_prefix = ''
 
-        base_subscript = str(base) if config.use_subscript else ''
+        base_subscript = str(base) if self.CONFIG.use_subscript else ''
 
         result = {
            'sign' : '-' if sign == -1 else '',
@@ -163,7 +184,7 @@ class Number(object):
            'base_subscript' : base_subscript
         }
 
-        return cls._FMT_STR % result
+        return self._FMT_STR % result
 
 
 _Decorators = namedtuple('_Decorators', ['approx_str'])
@@ -195,16 +216,22 @@ class Decorators(object):
         else:
             assert False # pragma: no cover
 
-    @classmethod
-    def decorators(cls, config, relation):
+    def __init__(self, config):
+        """
+        Initializer.
+
+        :param DisplayConfig config: the display configuration
+        """
+        self.CONFIG = config
+
+    def decorators(self, relation):
         """
         Return prefixes for tuple.
 
-        :param DisplayConfig config: display configuration
         :param int relation: relation of string value to actual value
         """
-        if config.show_approx_str:
-            approx_str = cls.relation_to_symbol(relation)
+        if self.CONFIG.show_approx_str:
+            approx_str = Decorators.relation_to_symbol(relation)
         else:
             approx_str = ''
 
@@ -223,14 +250,20 @@ class String(object):
        "%(number)s"
     ])
 
-    @classmethod
-    def xform(cls, radix, display, relation):
+    def __init__(self, display):
+        """
+        Initializer.
+
+        :param DisplayConfig display: the display config
+        """
+        self.CONFIG = display
+
+    def xform(self, radix, relation):
         """
         Transform a radix and some information to a str according to
         configurations.
 
         :param Radix radix: the radix
-        :param DisplayConfig display: the display config
         :param int relation: relation of display value to actual value
         :param units: element of UNITS()
         :returns: a string representing the value
@@ -243,23 +276,23 @@ class String(object):
         repeating = radix.repeating_part
 
         if repeating == []:
-            right = Strip.xform(right, display.strip_config, relation)
+            right = Strip(self.CONFIG.strip_config).xform(right, relation)
 
-        right_str = Digits.xform(right, display.digits_config, radix.base)
-        left_str = Digits.xform(left, display.digits_config, radix.base) or '0'
+        right_str = Digits(self.CONFIG.digits_config).xform(right, radix.base)
+        left_str = \
+           Digits(self.CONFIG.digits_config).xform(left, radix.base) or '0'
         repeating_str = \
-           Digits.xform(repeating, display.digits_config, radix.base)
+           Digits(self.CONFIG.digits_config).xform(repeating, radix.base)
 
-        number = Number.xform(
+        number = Number(self.CONFIG.base_config).xform(
            left_str,
            right_str,
            repeating_str,
-           display.base_config,
            radix.base,
            radix.sign
         )
 
-        decorators = Decorators.decorators(display, relation)
+        decorators = Decorators(self.CONFIG).decorators(relation)
 
         result = {
            'approx' : decorators.approx_str,
@@ -267,4 +300,4 @@ class String(object):
            'number' : number
         }
 
-        return cls._FMT_STR % result
+        return self._FMT_STR % result

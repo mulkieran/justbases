@@ -59,7 +59,7 @@ class TestString(unittest.TestCase):
         """
         Verify that a xformed string with a repeating part shows that part.
         """
-        result = String.xform(radix, display, relation)
+        result = String(display).xform(radix, relation)
         assert (radix.repeating_part != [] and \
            not display.base_config.use_subscript) == (result[-1] == ")")
 
@@ -75,9 +75,8 @@ class TestDigits(unittest.TestCase):
         """
         with self.assertRaises(BasesError):
             # pylint: disable=protected-access
-            Digits.xform(
+            Digits(BasesConfig.DISPLAY_CONFIG.digits_config).xform(
                [],
-               BasesConfig.DISPLAY_CONFIG.digits_config,
                Digits._MAX_SIZE_BASE_FOR_CHARS + 1
             )
 
@@ -114,11 +113,10 @@ class TestNumber(unittest.TestCase):
         """
         # pylint: disable=too-many-arguments
 
-        result = Number.xform(
+        result = Number(config).xform(
            integer_part,
            non_repeating_part,
            repeating_part,
-           config,
            base,
            sign
         )
@@ -149,8 +147,8 @@ class TestStrip(unittest.TestCase):
         """
         Confirm that option strip strips more than other options.
         """
-        result = Strip.xform(number, config, relation)
-        most = Strip.xform(number, StripConfig(strip=True), relation)
+        result = Strip(config).xform(number, relation)
+        most = Strip(StripConfig(strip=True)).xform(number, relation)
 
         self.assertTrue(len(most) <= len(result))
 
