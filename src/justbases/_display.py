@@ -37,12 +37,22 @@ class Digits(object):
 
     _MAX_SIZE_BASE_FOR_CHARS = len(string.digits + string.ascii_uppercase)
 
-    def __init__(self, config):
+    def __init__(self, config, base):
         """
         Initializer.
 
         :param DigitsConfig config: configuration for displaying digits
+        :param int base: the base of the values to display
+
+        :raises BasesValueError: if config options are bad
         """
+        if config.use_letters:
+            if base > self._MAX_SIZE_BASE_FOR_CHARS:
+                raise BasesValueError(
+                   base,
+                   "base",
+                   "must be no greater than number of available characters"
+                )
         self.CONFIG = config
 
     def xform(self, number, base):
@@ -55,12 +65,6 @@ class Digits(object):
         :raises BasesValueError: if config is unsuitable for number
         """
         if self.CONFIG.use_letters:
-            if base > self._MAX_SIZE_BASE_FOR_CHARS:
-                raise BasesValueError(
-                   base,
-                   "base",
-                   "must be no greater than number of available characters"
-                )
             digits = \
                self._UPPER_DIGITS if self.CONFIG.use_caps else \
                self._LOWER_DIGITS
@@ -94,12 +98,14 @@ class Strip(object):
            )
         )
 
-    def __init__(self, config):
+    def __init__(self, config, base):
         """
         Initializer.
 
         :param StripConfig config: configuration for stripping zeros
+        :param int base: the base
         """
+        # pylint: disable=unused-argument
         self.CONFIG = config
 
     def xform(self, number, relation):
@@ -140,12 +146,14 @@ class Number(object):
        "%(base_subscript)s"
     ])
 
-    def __init__(self, config):
+    def __init__(self, config, base):
         """
         Initializer.
 
         :param BaseConfig config: display configuration
+        :param int base: the base
         """
+        # pylint: disable=unused-argument
         self.CONFIG = config
 
     def xform(self, left, right, repeating, base, sign):
@@ -216,12 +224,14 @@ class Decorators(object):
         else:
             assert False # pragma: no cover
 
-    def __init__(self, config):
+    def __init__(self, config, base):
         """
         Initializer.
 
         :param DisplayConfig config: the display configuration
+        :param int base: the base
         """
+        # pylint: disable=unused-argument
         self.CONFIG = config
 
     def decorators(self, relation):
@@ -250,12 +260,20 @@ class String(object):
        "%(number)s"
     ])
 
-    def __init__(self, display):
+    def __init__(self, display, base):
         """
         Initializer.
 
         :param DisplayConfig display: the display config
+        :param int base: the base of the radix
+
+        :raises BasesValueError: if the configuration cannot work
         """
+        self.DECORATORS = Decorators(display, base)
+        self.DIGITS = Digits(display.digits_config, base)
+        self.NUMBER = Number(display.base_config, base)
+        self.STRIP = Strip(display.strip_config, base)
+
         self.CONFIG = display
 
     def xform(self, radix, relation):
@@ -276,15 +294,13 @@ class String(object):
         repeating = radix.repeating_part
 
         if repeating == []:
-            right = Strip(self.CONFIG.strip_config).xform(right, relation)
+            right = self.STRIP.xform(right, relation)
 
-        right_str = Digits(self.CONFIG.digits_config).xform(right, radix.base)
-        left_str = \
-           Digits(self.CONFIG.digits_config).xform(left, radix.base) or '0'
-        repeating_str = \
-           Digits(self.CONFIG.digits_config).xform(repeating, radix.base)
+        right_str = self.DIGITS.xform(right, radix.base)
+        left_str = self.DIGITS.xform(left, radix.base) or '0'
+        repeating_str = self.DIGITS.xform(repeating, radix.base)
 
-        number = Number(self.CONFIG.base_config).xform(
+        number = self.NUMBER.xform(
            left_str,
            right_str,
            repeating_str,
@@ -292,7 +308,7 @@ class String(object):
            radix.sign
         )
 
-        decorators = Decorators(self.CONFIG).decorators(relation)
+        decorators = self.DECORATORS.decorators(relation)
 
         result = {
            'approx' : decorators.approx_str,

@@ -59,7 +59,7 @@ class TestString(unittest.TestCase):
         """
         Verify that a xformed string with a repeating part shows that part.
         """
-        result = String(display).xform(radix, relation)
+        result = String(display, radix.base).xform(radix, relation)
         assert (radix.repeating_part != [] and \
            not display.base_config.use_subscript) == (result[-1] == ")")
 
@@ -75,8 +75,8 @@ class TestDigits(unittest.TestCase):
         """
         with self.assertRaises(BasesError):
             # pylint: disable=protected-access
-            Digits(BasesConfig.DISPLAY_CONFIG.digits_config).xform(
-               [],
+            Digits(
+               BasesConfig.DISPLAY_CONFIG.digits_config,
                Digits._MAX_SIZE_BASE_FOR_CHARS + 1
             )
 
@@ -113,7 +113,7 @@ class TestNumber(unittest.TestCase):
         """
         # pylint: disable=too-many-arguments
 
-        result = Number(config).xform(
+        result = Number(config, base).xform(
            integer_part,
            non_repeating_part,
            repeating_part,
@@ -141,14 +141,15 @@ class TestStrip(unittest.TestCase):
        build_nat(10, 3),
        build_strip_config(),
        build_relation(),
+       build_base(16),
     )
     @settings(max_examples=100)
-    def testXform(self, number, config, relation):
+    def testXform(self, number, config, relation, base):
         """
         Confirm that option strip strips more than other options.
         """
-        result = Strip(config).xform(number, relation)
-        most = Strip(StripConfig(strip=True)).xform(number, relation)
+        result = Strip(config, base).xform(number, relation)
+        most = Strip(StripConfig(strip=True), base).xform(number, relation)
 
         self.assertTrue(len(most) <= len(result))
 
