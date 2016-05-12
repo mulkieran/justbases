@@ -45,7 +45,7 @@ class Digits(object):
         :type number: list of int
         :param DigitsConfig config: configuration for displaying digits
         :param int base: the base in which this number is being represented
-        :raises: BasesValueError
+        :raises BasesValueError: if config is unsuitable for number
         """
         if config.use_letters:
             if base > cls._MAX_SIZE_BASE_FOR_CHARS:
@@ -235,6 +235,8 @@ class String(object):
         :param units: element of UNITS()
         :returns: a string representing the value
         :rtype: str
+
+        :raises BasesValueError: if configuration does not work with value
         """
         right = radix.non_repeating_part
         left = radix.integer_part
