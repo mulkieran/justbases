@@ -157,7 +157,7 @@ class DisplayConfig(object):
         self.digits_config = digits_config
         self.strip_config = strip_config
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         values = {
            'show_approx_str' : self.show_approx_str,
            'base_config' : self.base_config,
