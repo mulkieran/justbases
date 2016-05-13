@@ -405,7 +405,7 @@ class Radix(object):
         :param DisplayConfig config: configuration
         :param int relation: the relation of this value to actual value
         """
-        return String.xform(self, config, relation)
+        return String(config, self.base).xform(self, relation)
 
     def __str__(self):
         return self.getString(BasesConfig.DISPLAY_CONFIG, 0)

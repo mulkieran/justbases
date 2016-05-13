@@ -137,20 +137,9 @@ class DisplayConfig(object):
     def __init__(
        self,
        show_approx_str=True,
-       base_config=BaseConfig(
-          use_prefix=False,
-          use_subscript=True
-       ),
-       digits_config=DigitsConfig(
-          separator='~',
-          use_caps=False,
-          use_letters=True
-       ),
-       strip_config=StripConfig(
-          strip=False,
-          strip_exact=False,
-          strip_whole=True
-       )
+       base_config=BaseConfig(),
+       digits_config=DigitsConfig(),
+       strip_config=StripConfig()
     ):
         """
         Initializer.
@@ -168,7 +157,7 @@ class DisplayConfig(object):
         self.digits_config = digits_config
         self.strip_config = strip_config
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         values = {
            'show_approx_str' : self.show_approx_str,
            'base_config' : self.base_config,
@@ -185,23 +174,7 @@ class BasesConfig(object):
     """
     # pylint: disable=too-few-public-methods
 
-    DISPLAY_CONFIG = DisplayConfig(
-       show_approx_str=True,
-       base_config=BaseConfig(
-          use_prefix=False,
-          use_subscript=True
-       ),
-       digits_config=DigitsConfig(
-          separator='~',
-          use_caps=False,
-          use_letters=True
-       ),
-       strip_config=StripConfig(
-          strip=False,
-          strip_exact=False,
-          strip_whole=True
-       )
-    )
+    DISPLAY_CONFIG = DisplayConfig()
 
     @classmethod
     def set_display_config(cls, config): # pragma: no cover

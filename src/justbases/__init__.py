@@ -33,6 +33,7 @@ Contents:
 
     - conversion between Rational and Radix objects
     - conversion between Radix objects in any base
+  * String -- display of Radices
 """
 
 from ._constants import RoundingMethods
@@ -42,6 +43,8 @@ from ._config import BaseConfig
 from ._config import DigitsConfig
 from ._config import DisplayConfig
 from ._config import StripConfig
+
+from ._display import String
 
 from ._division import NatDivision
 
