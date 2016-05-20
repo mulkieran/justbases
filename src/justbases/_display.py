@@ -185,7 +185,7 @@ class Number(object):
            'sign' : '-' if sign == -1 else '',
            'base_prefix' : base_prefix,
            'left' : left,
-           'radix' : '.' if right else "",
+           'radix' : '.' if (right != "" or repeating != "") else "",
            'right' : right,
            'repeating' : ("(%s)" % repeating) if repeating != "" else "",
            'base_separator' : '' if base_subscript == '' else '_',
