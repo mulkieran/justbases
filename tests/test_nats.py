@@ -43,7 +43,7 @@ class NatsTestCase(unittest.TestCase):
         No leading zeros in convert_from_int(value, to_base)
         """
         result = Nats.convert_from_int(value, to_base)
-        assert result == [] or result[0] != 0
+        assert result[:1] != [0]
         assert Nats.convert_to_int(result, to_base) == value
 
     @given(
