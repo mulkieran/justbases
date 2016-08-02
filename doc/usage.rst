@@ -104,8 +104,8 @@ A class which represents a rational number as
 
 Note that the number after the underscore represents the base, and the
 digits within square brackets represent the repeating portion of the
-number. Individual digits, in a decimal representation, are separated by
-':''s. This approach supports arbitrary bases.
+number. Individual digits in a decimal representation require a separator,
+here a ':'. This approach supports arbitrary bases.
 
 The Radix constructor validates and canonicalizes the Radix.
 Validation ensures that the digits are within the appropriate range
@@ -172,6 +172,17 @@ method arguments set. ::
 
     >>> Rationals.convert_from_rational(Fraction(1, 3), 2, 1, RoundingMethods.ROUND_UP)
     >>> (.1[]_2, 1)
+
+
+Display
+-------
+Radix.getString() returns a string representing a Radix object. The form of
+this string can be modified using the config parameter. The justbases-gui
+library is useful for experimenting with the different configuration options,
+which control such things as the choice of representation for digits larger
+than 9, whether or not to strip trailing zeros, and so forth. Consult the
+justbases-gui documentation for its usage.
+
 
 Concrete Example: Geographic Coordinates
 ----------------------------------------
