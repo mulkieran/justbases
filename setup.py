@@ -33,7 +33,7 @@ setuptools.setup(
     platforms=['Linux'],
     license='GPL 2+',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Operating System :: POSIX :: Linux',
