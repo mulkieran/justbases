@@ -47,4 +47,5 @@ Related Packages
   Does not handle arbitrary bases. Converts int or int as str to str.
 
 * numpy: http://docs.scipy.org/doc/numpy/reference/
+
   Converts int to str in bases between 2 and 36.
