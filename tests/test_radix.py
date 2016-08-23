@@ -72,6 +72,8 @@ class RadixTestCase(unittest.TestCase):
             Radix(True, [1], [0], [1], 2)
         with self.assertRaises(BasesError):
             Radix(1, [1], [0], [1], 2).in_base(0)
+        with self.assertRaises(BasesError):
+            Radix(0, [1], [], [], 2)
 
     @given(build_radix(36, 10))
     @settings(max_examples=10)
