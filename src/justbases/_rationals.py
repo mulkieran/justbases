@@ -530,6 +530,25 @@ class Radix(object):
         (result, _) = Radices.from_rational(self.as_rational(), base)
         return result
 
+    @property
+    def ulp(self):
+        """
+        The unit of least precision of this value.
+
+        If the Radix has a repeating portion, then there is no ULP, by
+        definition, and None is returned.
+
+        If the radix has no digits in the non-repeating portion, then its
+        ULP is 1.
+
+        :return: the ULP or None
+        :rtype: Rational or NoneType
+        """
+        if self.repeating_part != []:
+            return None
+
+        return Fraction(1, self.base ** len(self.non_repeating_part))
+
 
 class _Rounding(object):
     """
