@@ -225,6 +225,7 @@ class Radix(object):
 
         Complexity: O(len(integer_part + non_repeating_part + repeating_part))
         """
+        # pylint: disable=too-many-return-statements
         if any(x < 0 or x >= base for x in integer_part):
             return BasesValueError(
                integer_part,
@@ -251,6 +252,16 @@ class Radix(object):
                sign,
                "sign",
                "must be an int between -1 and 1"
+            )
+
+        if sign == 0 and \
+           (any(x != 0 for x in integer_part) or \
+           any(x != 0 for x in non_repeating_part) or \
+           any(x != 0 for x in repeating_part)):
+            return BasesValueError(
+               sign,
+               "sign",
+               "can not be 0 unless number is also zero"
             )
 
         return None
@@ -529,6 +540,25 @@ class Radix(object):
             return copy.deepcopy(self)
         (result, _) = Radices.from_rational(self.as_rational(), base)
         return result
+
+    @property
+    def ulp(self):
+        """
+        The unit of least precision of this value.
+
+        If the Radix has a repeating portion, then there is no ULP, by
+        definition, and None is returned.
+
+        If the radix has no digits in the non-repeating portion, then its
+        ULP is 1.
+
+        :return: the ULP or None
+        :rtype: Rational or NoneType
+        """
+        if self.repeating_part != []:
+            return None
+
+        return Fraction(1, self.base ** len(self.non_repeating_part))
 
 
 class _Rounding(object):

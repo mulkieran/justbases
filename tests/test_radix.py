@@ -24,6 +24,7 @@ from hypothesis import settings
 from hypothesis import strategies
 
 from justbases import BasesError
+from justbases import Nats
 from justbases import Radix
 from justbases import Rationals
 from justbases import RoundingMethods
@@ -71,6 +72,8 @@ class RadixTestCase(unittest.TestCase):
             Radix(True, [1], [0], [1], 2)
         with self.assertRaises(BasesError):
             Radix(1, [1], [0], [1], 2).in_base(0)
+        with self.assertRaises(BasesError):
+            Radix(0, [1], [], [], 2)
 
     @given(build_radix(36, 10))
     @settings(max_examples=10)
@@ -160,6 +163,34 @@ class RadixTestCase(unittest.TestCase):
         radix = Radix(1, [], [3, 3, 2, 3, 1, 2, 3, 1, 2, 3], [1, 2, 3], 4)
         self.assertEqual(radix.non_repeating_part, [3, 3])
         self.assertEqual(radix.repeating_part, [2, 3, 1])
+
+    @given(build_radix(1024, 10))
+    def testUlp(self, radix):
+        """
+        Verify that ulp has correct relation to ``radix``.
+        """
+        result = radix.ulp
+        if radix.repeating_part != []:
+            self.assertIsNone(result)
+        else:
+            (carry_out, non_repeating_part) = \
+               Nats.carry_in(radix.non_repeating_part, 1, radix.base)
+            (carry_out, integer_part) = \
+               Nats.carry_in(radix.integer_part, carry_out, radix.base)
+            if carry_out != 0:
+                integer_part = [carry_out] + integer_part
+            new = Radix(
+               radix.sign if radix.sign != 0 else 1,
+               integer_part,
+               non_repeating_part,
+               [],
+               radix.base
+            )
+            difference = new.as_rational() - radix.as_rational()
+            if radix.sign < 0:
+                self.assertEqual(difference, -result)
+            else:
+                self.assertEqual(difference, result)
 
 
 class RoundingTestCase(unittest.TestCase):
