@@ -76,7 +76,7 @@ class Radices(object):
         div_method = method
 
         if sign == -1:
-            value = abs(value)
+            value = -value
             div_method = Rounding.reverse(method)
 
         numerator = Nats.convert_from_int(value.numerator, to_base)
