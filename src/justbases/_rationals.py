@@ -27,6 +27,7 @@ from ._errors import BasesAssertError
 from ._errors import BasesInvalidOperationError
 from ._errors import BasesValueError
 from ._nats import Nats
+from ._rounding import Rounding
 
 
 class Radices(object):
@@ -36,26 +37,7 @@ class Radices(object):
     # pylint: disable=too-few-public-methods
 
     @staticmethod
-    def _reverse_rounding_method(method):
-        """
-        Reverse meaning of ``method`` between positive and negative.
-        """
-        if method is RoundingMethods.ROUND_UP:
-            return RoundingMethods.ROUND_DOWN
-        if method is RoundingMethods.ROUND_DOWN:
-            return RoundingMethods.ROUND_UP
-        if method is RoundingMethods.ROUND_HALF_UP:
-            return RoundingMethods.ROUND_HALF_DOWN
-        if method is RoundingMethods.ROUND_HALF_DOWN:
-            return RoundingMethods.ROUND_HALF_UP
-        if method in \
-           (RoundingMethods.ROUND_TO_ZERO, RoundingMethods.ROUND_HALF_ZERO):
-            return method
-        raise BasesAssertError('unknown method') # pragma: no cover
-
-    @classmethod
     def from_rational(
-       cls,
        value,
        to_base,
        precision=None,
@@ -95,7 +77,7 @@ class Radices(object):
 
         if sign == -1:
             value = abs(value)
-            div_method = cls._reverse_rounding_method(method)
+            div_method = Rounding.reverse(method)
 
         numerator = Nats.convert_from_int(value.numerator, to_base)
         denominator = Nats.convert_from_int(value.denominator, to_base)

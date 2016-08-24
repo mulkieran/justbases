@@ -67,3 +67,28 @@ class Rounding(object):
                 return False
 
         raise BasesAssertError('unknown method') # pragma: no cover
+
+    @staticmethod
+    def reverse(method):
+        """
+        Reverse meaning of ``method`` between positive and negative.
+
+        :param method: a rounding method
+        :type method: one of RoundingMethods.METHODS()
+
+        :returns: the matching rounding method if the number is negative
+        :rtype: one of RoundingMethods.METHODS()
+        """
+        if method is RoundingMethods.ROUND_UP:
+            return RoundingMethods.ROUND_DOWN
+        if method is RoundingMethods.ROUND_DOWN:
+            return RoundingMethods.ROUND_UP
+        if method is RoundingMethods.ROUND_HALF_UP:
+            return RoundingMethods.ROUND_HALF_DOWN
+        if method is RoundingMethods.ROUND_HALF_DOWN:
+            return RoundingMethods.ROUND_HALF_UP
+        if method in \
+           (RoundingMethods.ROUND_TO_ZERO, RoundingMethods.ROUND_HALF_ZERO):
+            return method
+
+        raise BasesAssertError('unknown method') # pragma: no cover
