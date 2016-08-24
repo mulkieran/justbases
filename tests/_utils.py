@@ -57,6 +57,31 @@ def build_nat_with_base(max_base, max_len):
        )
     )
 
+def build_nat_with_base_and_carry(max_base, max_len):
+    """
+    Build a nat with a base and also a valid carry in value.
+    :param int max_base: the maximum base
+    :param int max_len: the maximum number of digits in the nat
+
+    :returns: a strategy from which is drawn a triple, nat, base, carry-in
+    """
+    def the_func(x):
+        """
+        From a nat and base generally a valid carry-in value.
+
+        :param x: a nat and a corresponding base
+        :type x: tuple of (list of int) * int
+        :returns: strategies that yields triple of nat, base, carry-in
+        """
+        (nat, base) = x
+        return strategies.tuples(
+           strategies.just(nat),
+           strategies.just(base),
+           strategies.integers(min_value=0, max_value=base - 1)
+        )
+
+    return build_nat_with_base(max_base, max_len).flatmap(the_func)
+
 def build_sign():
     """
     Build a sign value.

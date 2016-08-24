@@ -23,8 +23,8 @@ from hypothesis import strategies
 from justbases import BasesError
 from justbases import Nats
 
-from ._utils import build_nat
 from ._utils import build_nat_with_base
+from ._utils import build_nat_with_base_and_carry
 
 
 class NatsTestCase(unittest.TestCase):
@@ -75,21 +75,14 @@ class NatsTestCase(unittest.TestCase):
         with self.assertRaises(BasesError):
             Nats.carry_in([1], 1, 1)
 
-    _CARRY_STRATEGY = strategies.integers(min_value=2).flatmap(
-       lambda n: strategies.tuples(
-          build_nat(n, 64),
-          strategies.integers(min_value=1, max_value=(n - 1)),
-          strategies.just(n)
-       )
-    )
-    @given(_CARRY_STRATEGY)
+    @given(build_nat_with_base_and_carry(1024, 64))
     def testCarryIn(self, strategy):
         """
         Test carry_in.
 
         :param strategy: the strategy (tuple of value, carry, base)
         """
-        (value, carry, base) = strategy
+        (value, base, carry) = strategy
         (carry_out, result) = Nats.carry_in(value, carry, base)
         assert len(result) == len(value)
 
