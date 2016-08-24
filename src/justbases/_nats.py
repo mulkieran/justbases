@@ -20,6 +20,7 @@ from itertools import dropwhile
 
 from ._constants import RoundingMethods
 from ._errors import BasesValueError
+from ._rounding import Rounding
 
 
 class Nats(object):
@@ -212,7 +213,7 @@ class Nats(object):
         middle = Fraction(ulp, 2)
         fractional_value = cls.convert_to_int(right, base)
 
-        if cls._rounding_up(fractional_value, middle, method):
+        if Rounding.rounding_up(fractional_value, middle, method):
             (carry_out, new_left) = cls.carry_in(left, 1, base)
             if carry_out != 0:
                 new_left = [carry_out] + new_left
@@ -224,39 +225,3 @@ class Nats(object):
         new_left = new_left + num_digits * [0]
         new_left = [x for x in dropwhile(lambda x: x == 0, new_left)]
         return (new_left, relation)
-
-    @classmethod
-    def _rounding_up(cls, value, middle, method):
-        """
-        Find rounding direction base on ``method``.
-
-        :param int value: the value that determines the direction
-        :param Fraction middle: the middle possible value
-        :param method: the rounding method
-
-        :returns: True if rounding up, False if down
-        :rtype: boolean
-        """
-        # pylint: disable=too-many-return-statements
-        if method is RoundingMethods.ROUND_DOWN:
-            return False
-
-        if method is RoundingMethods.ROUND_TO_ZERO:
-            return False
-
-        if method is RoundingMethods.ROUND_UP:
-            return True
-
-        if value < middle:
-            return True
-
-        if value > middle:
-            return False
-
-        if value == middle:
-            if method is RoundingMethods.ROUND_HALF_UP:
-                return True
-            if method is RoundingMethods.ROUND_HALF_DOWN:
-                return False
-            if method is RoundingMethods.ROUND_HALF_ZERO:
-                return False
