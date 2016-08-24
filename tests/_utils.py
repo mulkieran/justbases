@@ -42,6 +42,21 @@ def build_base(max_base):
     """
     return strategies.integers(min_value=2, max_value=max_base)
 
+def build_nat_with_base(max_base, max_len):
+    """
+    Builds a nat and its base.
+    :param int max_base: the maximum base
+    :param int max_len: the maximum number of digits in the nat
+
+    :returns: a strategy from which can be drawn a pair, a nat and its base
+    """
+    return build_base(max_base).flatmap(
+       lambda n: strategies.tuples(
+          build_nat(n, max_len),
+          strategies.just(n)
+       )
+    )
+
 def build_sign():
     """
     Build a sign value.
