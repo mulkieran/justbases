@@ -17,14 +17,18 @@ from __future__ import absolute_import
 
 import unittest
 
+from fractions import Fraction
+
 from hypothesis import given
 from hypothesis import strategies
 
 from justbases import BasesError
 from justbases import Nats
+from justbases import RoundingMethods
 
 from ._utils import build_nat_with_base
 from ._utils import build_nat_with_base_and_carry
+from ._utils import build_precision
 
 
 class NatsTestCase(unittest.TestCase):
@@ -74,6 +78,12 @@ class NatsTestCase(unittest.TestCase):
             Nats.carry_in([1], -1, 2)
         with self.assertRaises(BasesError):
             Nats.carry_in([1], 1, 1)
+        with self.assertRaises(BasesError):
+            Nats.roundTo([1], 0, 2, RoundingMethods.ROUND_DOWN)
+        with self.assertRaises(BasesError):
+            Nats.roundTo([3], 2, 2, RoundingMethods.ROUND_DOWN)
+        with self.assertRaises(BasesError):
+            Nats.roundTo([1], 2, 2, None)
 
     @given(build_nat_with_base_and_carry(1024, 64))
     def testCarryIn(self, strategy):
@@ -97,3 +107,40 @@ class NatsTestCase(unittest.TestCase):
            result2[0] == carry_out and result2[1:] == result
 
         assert not (len(result2) == len(result)) or result2 == result
+
+    @given(
+       build_nat_with_base(1024, 64),
+       build_precision(-128, 64),
+       strategies.sampled_from(RoundingMethods.METHODS())
+    )
+    def testRoundTo(self, nat, precision, method):
+        """
+        Test proper functioning of Nats.roundTo().
+        """
+        (subject, base) = nat
+        (result, relation) = Nats.roundTo(subject, base, precision, method)
+
+        if precision is None or precision >= 0:
+            self.assertEqual(result, subject)
+            self.assertEqual(relation, 0)
+            return
+
+        num_digits = -precision
+        padding = num_digits * [0]
+
+        if result != []:
+            self.assertEqual(result[precision:], padding)
+
+        if num_digits > len(subject):
+            self.assertIn(result, ([], [1] + padding))
+
+        int_subject = Nats.convert_to_int(subject, base)
+        int_result = Nats.convert_to_int(result, base)
+
+        self.assertEqual(
+           relation,
+           Fraction(int_result - int_subject, base ** num_digits)
+        )
+
+        self.assertGreater(relation, -1)
+        self.assertLess(relation, 1)
