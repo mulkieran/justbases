@@ -68,7 +68,7 @@ class NatDivision(object):
             return (0, quotient, [], 0)
 
         fractional = fractions.Fraction(remainder, divisor)
-        middle = fractions.Fraction(base, 2)
+        middle = fractions.Fraction(1, 2)
         if Rounding.rounding_up(fractional, middle, method):
             (carry, quotient) = Nats.carry_in(quotient, 1, base)
             return (carry, quotient, [], 1)
@@ -101,12 +101,10 @@ class NatDivision(object):
             if remainder == 0 or remainder in remainders:
                 break
             remainders.append(remainder)
+            remainder = remainder * base
             (quot, rem) = divmod(remainder, divisor)
             quotient.append(quot)
-            if quot > 0:
-                remainder = rem * base
-            else:
-                remainder = remainder * base
+            remainder = rem if quot > 0 else remainder
         return (quotient, remainders, remainder)
 
     @classmethod
@@ -137,12 +135,8 @@ class NatDivision(object):
         Complexity: O(precision) if precision is not None else O(divisor)
         """
         # pylint: disable=too-many-arguments
-        (quotient, remainders, remainder) = cls._divide(
-           divisor,
-           remainder * base,
-           base,
-           precision
-        )
+        (quotient, remainders, remainder) = \
+           cls._divide(divisor, remainder, base, precision)
 
         if remainder == 0:
             return (0, quotient, [], 0)
