@@ -42,6 +42,60 @@ def build_base(max_base):
     """
     return strategies.integers(min_value=2, max_value=max_base)
 
+def build_nat_with_base(max_base, max_len):
+    """
+    Builds a nat and its base.
+    :param int max_base: the maximum base
+    :param int max_len: the maximum number of digits in the nat
+
+    :returns: a strategy from which can be drawn a pair, a nat and its base
+    """
+    return build_base(max_base).flatmap(
+       lambda n: strategies.tuples(
+          build_nat(n, max_len),
+          strategies.just(n)
+       )
+    )
+
+def build_nat_with_base_and_carry(max_base, max_len):
+    """
+    Build a nat with a base and also a valid carry in value.
+    :param int max_base: the maximum base
+    :param int max_len: the maximum number of digits in the nat
+
+    :returns: a strategy from which is drawn a triple, nat, base, carry-in
+    """
+    def the_func(x):
+        """
+        From a nat and base generally a valid carry-in value.
+
+        :param x: a nat and a corresponding base
+        :type x: tuple of (list of int) * int
+        :returns: strategies that yields triple of nat, base, carry-in
+        """
+        (nat, base) = x
+        return strategies.tuples(
+           strategies.just(nat),
+           strategies.just(base),
+           strategies.integers(min_value=0, max_value=base - 1)
+        )
+
+    return build_nat_with_base(max_base, max_len).flatmap(the_func)
+
+def build_precision(min_value, max_value):
+    """
+    Build a precision value.
+
+    :param int min_value: the minimum allowable precision, may be negative
+    :param int max_value: the maximum allowable precision, may be negative
+
+    May return None, which means no precision specified.
+    """
+    return strategies.one_of(
+       strategies.just(None),
+       strategies.integers(min_value, max_value)
+    )
+
 def build_sign():
     """
     Build a sign value.
