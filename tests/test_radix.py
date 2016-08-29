@@ -192,6 +192,16 @@ class RadixTestCase(unittest.TestCase):
             else:
                 self.assertEqual(difference, result)
 
+    @given(build_radix(1024, 10), build_radix(1024, 10))
+    @settings(max_examples=50)
+    def testHashEqual(self, radix1, radix2):
+        """
+        Test that hash has the hash property.
+        """
+        hash1 = hash(radix1)
+        hash2 = hash(radix2)
+        if radix1 == radix2:
+            self.assertEqual(hash1, hash2)
 
 class RoundingTestCase(unittest.TestCase):
     """ Tests for rounding Radixes. """

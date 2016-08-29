@@ -444,6 +444,12 @@ class Radix(object):
            self.base
         )
 
+    def __hash__(self):
+        blob = [self.sign] + \
+           self.integer_part + self.non_repeating_part + self.repeating_part + \
+           [self.base]
+        return hash(sum(blob))
+
     def as_rational(self):
         """
         Return this value as a Rational.
