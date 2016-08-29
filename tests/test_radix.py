@@ -203,6 +203,45 @@ class RadixTestCase(unittest.TestCase):
         if radix1 == radix2:
             self.assertEqual(hash1, hash2)
 
+    @given(build_radix(1024, 10))
+    @settings(max_examples=50)
+    def testAbs(self, radix):
+        """
+        Test abs().
+        """
+        result = abs(radix)
+        self.assertEqual(result.integer_part, radix.integer_part)
+        self.assertEqual(result.non_repeating_part, radix.non_repeating_part)
+        self.assertEqual(result.repeating_part, radix.repeating_part)
+        self.assertEqual(result.base, radix.base)
+        self.assertEqual(result.sign, abs(radix.sign))
+
+    @given(build_radix(1024, 10))
+    @settings(max_examples=50)
+    def testPos(self, radix):
+        """
+        Test pos().
+        """
+        result = +radix
+        self.assertEqual(result.integer_part, radix.integer_part)
+        self.assertEqual(result.non_repeating_part, radix.non_repeating_part)
+        self.assertEqual(result.repeating_part, radix.repeating_part)
+        self.assertEqual(result.base, radix.base)
+        self.assertEqual(result.sign, +radix.sign)
+
+    @given(build_radix(1024, 10))
+    @settings(max_examples=50)
+    def testNeg(self, radix):
+        """
+        Test neg().
+        """
+        result = -radix
+        self.assertEqual(result.integer_part, radix.integer_part)
+        self.assertEqual(result.non_repeating_part, radix.non_repeating_part)
+        self.assertEqual(result.repeating_part, radix.repeating_part)
+        self.assertEqual(result.base, radix.base)
+        self.assertEqual(result.sign, -radix.sign)
+
 class RoundingTestCase(unittest.TestCase):
     """ Tests for rounding Radixes. """
 
