@@ -150,9 +150,14 @@ class Radix(object):
     """
     An object containing information about a rational representation.
 
-    Such values can not be ordered, but can be compared for equality.
+    A Radix is a numeral, not a number, and in general it is impossible to
+    compute with it. Radices can not be ordered, but can be compared for
+    equality. There are some unary arithmetic operations, which make sense,
+    and are convenient, on a numeral, e.g., abs. These operations are
+    implemented. However, no binary arithmetic operations, other than equality
+    and inequality are implemented. Different representation of the same
+    number are considered unequal.
     """
-    # pylint: disable=too-few-public-methods
 
     _FMT_STR = "".join([
        "%(sign)s",
