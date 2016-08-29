@@ -677,30 +677,13 @@ class _Rounding(object):
         if value.sign == 0:
             return (Radix(0, [], precision * [0], [], value.base), 0)
 
-        if value.sign < 0:
-            use_value = Radix(
-               1,
-               value.integer_part,
-               value.non_repeating_part,
-               value.repeating_part,
-               value.base
-            )
-            use_method = Rounding.reverse(method)
-        else:
-            use_value = value
-            use_method = method
+        use_value = abs(value)
+        use_method = method if value.sign > 0 else Rounding.reverse(method)
 
         (result, relation) = \
            cls._round_positive(use_value, precision, use_method)
 
         if value != use_value:
-            result = Radix(
-               -1,
-               result.integer_part,
-               result.non_repeating_part,
-               result.repeating_part,
-               result.base
-            )
-            return (result, -relation)
+            return (-result, -relation)
         else:
             return (result, relation)
