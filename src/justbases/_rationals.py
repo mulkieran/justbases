@@ -23,7 +23,6 @@ from ._constants import RoundingMethods
 from ._config import BasesConfig
 from ._display import String
 from ._division import NatDivision
-from ._errors import BasesAssertError
 from ._errors import BasesInvalidOperationError
 from ._errors import BasesValueError
 from ._nats import Nats
@@ -533,51 +532,82 @@ class _Rounding(object):
     """
     # pylint: disable=too-few-public-methods
 
-
     @staticmethod
-    def _conditional_toward_zero(method, sign):
+    def _truncated(value, precision):
         """
-        Whether to round toward zero.
+        Get ``value`` truncated to ``precision``.
 
-        :param method: rounding method
-        :type method: element of RoundingMethods.METHODS()
-        :param int sign: -1, 0, or 1 as appropriate
+        :param Radix value: the value to truncate
+        :param int precision: the precision to truncate to
 
-        Complexity: O(1)
-        """
-        return method is RoundingMethods.ROUND_HALF_ZERO or \
-           (method is RoundingMethods.ROUND_HALF_DOWN and sign == 1) or \
-           (method is RoundingMethods.ROUND_HALF_UP and sign == -1)
-
-    @staticmethod
-    def _increment(sign, integer_part, non_repeating_part, base):
-        """
-        Return an increment radix.
-
-        :param int sign: -1, 0, or 1 as appropriate
-        :param integer_part: the integer part
-        :type integer_part: list of int
-        :param non_repeating_part: the fractional part
-        :type non_repeating_part: list of int
-        :param int base: the base
-
-        :returns: a Radix object with ``non_repeating_part`` rounded up
+        :returns: the truncated value
         :rtype: Radix
 
-        Complexity: O(len(non_repeating_part + integer_part)
+        Preconditions: value.sign > 0
         """
-        (carry, non_repeating_part) = \
-           Nats.carry_in(non_repeating_part, 1, base)
-        (carry, integer_part) = \
-           Nats.carry_in(integer_part, carry, base)
-        return Radix(
-           sign,
-           integer_part if carry == 0 else [carry] + integer_part,
-           non_repeating_part,
-           [],
-           base,
-           False
+        digits = itertools.chain(
+           value.non_repeating_part,
+           itertools.cycle(value.repeating_part)
         )
+
+        non_repeating_part = list(itertools.islice(digits, 0, precision))
+        non_repeating_part += (precision - len(non_repeating_part)) * [0]
+
+        return Radix(1, value.integer_part, non_repeating_part, [], value.base)
+
+    @classmethod
+    def _round_positive(cls, value, precision, method):
+        """
+        Round ``value`` to ``precision`` using ``method`` assuming positive.
+
+        :param Radix value: the value, must be positive
+        :param int precision: the precision
+        :param method: the rounding method
+        :type method: member of RoundingMethods.METHODS()
+
+        :returns: the rounded value and its relation
+        :rtype: Radix * int
+        """
+        base = value.base
+
+        truncated = cls._truncated(value, precision)
+
+        len_non_repeating = len(value.non_repeating_part)
+        if precision <= len_non_repeating:
+            fractional_part = Radix(
+               1,
+               [],
+               value.non_repeating_part[precision:],
+               value.repeating_part,
+               base
+            )
+        elif value.repeating_part == []:
+            fractional_part = Radix(0, [], [], [], base)
+        else:
+            index = \
+               (precision - len_non_repeating) % len(value.repeating_part)
+            repeating_part = value.repeating_part[index:] + \
+               value.repeating_part[:index]
+            fractional_part = Radix(1, [], [], repeating_part, base)
+
+        remainder = fractional_part.as_rational()
+        if remainder == 0:
+            return (truncated, 0)
+
+        if Rounding.rounding_up(remainder, Fraction(1, 2), method):
+            (carry_out, non_repeating_part) = \
+               Nats.carry_in(truncated.non_repeating_part, 1, base)
+
+            integer_part = truncated.integer_part
+            if carry_out != 0:
+                (carry_out, integer_part) = \
+                   Nats.carry_in(integer_part, carry_out, base)
+            if carry_out != 0:
+                integer_part = [carry_out] + integer_part
+
+            return (Radix(1, integer_part, non_repeating_part, [], base), 1)
+        else:
+            return (truncated, -1)
 
     @classmethod
     def roundFractional(cls, value, precision, method):
@@ -589,12 +619,13 @@ class _Rounding(object):
         :param method: rounding method
         :raises BasesValueError: on bad parameters
 
+        :returns: the rounded value and its relation to the actual
+        :rtype: Radix * int
+
         Precondition: Radix is valid and canonical
 
         Complexity: O(len(components))
         """
-        # pylint: disable=too-many-return-statements
-        # pylint: disable=too-many-branches
 
         if precision < 0:
             raise BasesValueError(
@@ -613,66 +644,30 @@ class _Rounding(object):
         if value.sign == 0:
             return (Radix(0, [], precision * [0], [], value.base), 0)
 
-        digits = itertools.chain(
-           value.non_repeating_part,
-           itertools.cycle(value.repeating_part)
-        )
-        non_repeating_part = list(itertools.islice(digits, 0, precision))
-        non_repeating_part += (precision - len(non_repeating_part)) * [0]
-
-        truncated = lambda: Radix(
-           value.sign,
-           value.integer_part,
-           non_repeating_part,
-           [],
-           value.base,
-           False
-        )
-
-        incremented = lambda: cls._increment(
-           value.sign,
-           value.integer_part,
-           non_repeating_part,
-           value.base
-        )
-
-        if all(x == 0 for x in value.non_repeating_part[precision:]) and \
-           len(value.repeating_part) == 0:
-            return (truncated(), 0)
-
-        if method is RoundingMethods.ROUND_TO_ZERO:
-            return (truncated(), -1 * value.sign)
-
-        if method is RoundingMethods.ROUND_DOWN:
-            return (truncated() if value.sign == 1 else incremented(), -1)
-
-        if method is RoundingMethods.ROUND_UP:
-            return (incremented() if value.sign == 1 else truncated(), 1)
-
-        non_repeating_remainder = value.non_repeating_part[precision:]
-        if non_repeating_remainder == []:
-            repeating_part = \
-               list(itertools.islice(digits, len(value.repeating_part)))
+        if value.sign < 0:
+            use_value = Radix(
+               1,
+               value.integer_part,
+               value.non_repeating_part,
+               value.repeating_part,
+               value.base
+            )
+            use_method = Rounding.reverse(method)
         else:
-            repeating_part = value.repeating_part[:]
+            use_value = value
+            use_method = method
 
-        remainder = Radix(
-           1,
-           [],
-           non_repeating_remainder,
-           repeating_part,
-           value.base
-        )
-        remainder_fraction = remainder.as_rational()
-        middle = Fraction(1, 2)
-        if remainder_fraction < middle:
-            return (truncated(), -1 * value.sign)
-        elif remainder_fraction > middle:
-            return (incremented(), value.sign)
+        (result, relation) = \
+           cls._round_positive(use_value, precision, use_method)
+
+        if value != use_value:
+            result = Radix(
+               -1,
+               result.integer_part,
+               result.non_repeating_part,
+               result.repeating_part,
+               result.base
+            )
+            return (result, -relation)
         else:
-            if cls._conditional_toward_zero(method, value.sign):
-                return (truncated(), -1 * value.sign)
-            else:
-                return (incremented(), value.sign)
-
-        raise BasesAssertError() # pragma: no cover
+            return (result, relation)
