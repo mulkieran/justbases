@@ -105,9 +105,9 @@ class NatDivision(object):
             fractional = Fraction(remainder, divisor)
             if Rounding.rounding_up(fractional, Fraction(1, 2), method):
                 (carry, quotient) = Nats.carry_in(quotient, 1, base)
-                return (carry, quotient, [], 1)
+                return (carry, quotient, [], 1 - fractional)
             else:
-                return (0, quotient, [], -1)
+                return (0, quotient, [], -fractional)
 
     @staticmethod
     def _division(divisor, dividend, remainder, base):
@@ -155,12 +155,14 @@ class NatDivision(object):
         :param method: rounding method
         :type method: element of RoundignMethods.METHODS
         :returns: the result
-        :rtype: tuple of list of int * list of int * list of int * int
+        :rtype: tuple of list of int * list of int * list of int * Rational
         :raises ConvertError: on invalid values
 
         The last value in the result indicates the relationship of the
-        result to the actual value. If 0, it is the same, if 1, greater,
-        if -1, less.
+        result to the actual value. It is the ratio of the difference between
+        the result and the actual value to the ulp. It is always between -1 and
+        1, exclusive. If it is positive, then the result is greater than the
+        actual value, if negative, less.
 
         Complexity: Uncalculated
         """

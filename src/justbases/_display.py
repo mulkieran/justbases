@@ -217,9 +217,9 @@ class Decorators(object):
         """
         if relation == 0:
             return ''
-        elif relation == -1:
+        elif relation < 0:
             return '>'
-        elif relation == 1:
+        elif relation > 0:
             return '<'
         else:
             assert False # pragma: no cover
@@ -282,7 +282,7 @@ class String(object):
         configurations.
 
         :param Radix radix: the radix
-        :param int relation: relation of display value to actual value
+        :param Rational relation: relation of display value to actual value
         :param units: element of UNITS()
         :returns: a string representing the value
         :rtype: str
