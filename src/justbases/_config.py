@@ -13,6 +13,10 @@
 
 """ Configuration of the justbytes package. """
 
+from fractions import Fraction
+
+from ._approx_display import ApproxPrefix
+
 
 class BaseConfig(object):
     """
@@ -121,6 +125,36 @@ class DigitsConfig(object):
     __repr__ = __str__
 
 
+class ApproxConfig(object):
+    """
+    Whether and how to show approximation information.
+    """
+    # pylint: disable=too-few-public-methods
+
+    _FMT_STR = ", ".join([
+       "xform=%(xform)s"
+    ])
+
+    def __init__(
+       self,
+       xform=ApproxPrefix([Fraction(1, 1024), Fraction(1, 2)]).xform
+    ):
+        """
+        Initializer.
+
+        :param xform: a transformer for a number, to show approximation info
+        :type xform: (Rational * str) -> str
+        """
+        self.xform = xform
+
+    def __str__(self): # pragma: no cover
+        values = {
+           'xform' : self.xform
+        }
+        return "ApproxConfig(%s)" % (self._FMT_STR % values)
+    __repr__ = __str__
+
+
 class DisplayConfig(object):
     """
     Superficial aspects of display.
@@ -128,7 +162,7 @@ class DisplayConfig(object):
     # pylint: disable=too-few-public-methods
 
     _FMT_STR = ", ".join([
-       "show_approx_str=%(show_approx_str)s",
+       "approx_config=%(approx_config)s",
        "base_config=%(base_config)s",
        "digits_config=%(digits_config)s",
        "strip_config-%(strip_config)s"
@@ -136,7 +170,7 @@ class DisplayConfig(object):
 
     def __init__(
        self,
-       show_approx_str=True,
+       approx_config=ApproxConfig(),
        base_config=BaseConfig(),
        digits_config=DigitsConfig(),
        strip_config=StripConfig()
@@ -144,22 +178,22 @@ class DisplayConfig(object):
         """
         Initializer.
 
-        :param bool show_approx_str: distinguish approximate str values
-        :param bool show_base: True if base prefix to be prepended
-        :param DigitsConfig digits_config:
-        :param StripConfig strip_config:
+        :param ApproxConfig approx_config: how to show approximation information
+        :param BaseConfig base_config: how to show base
+        :param DigitsConfig digits_config: how to display digits
+        :param StripConfig strip_config: how to strip zeros
 
         There are only two base prefixes acknowledged, 0 for octal and 0x for
         hexadecimal.
         """
-        self.show_approx_str = show_approx_str
+        self.approx_config = approx_config
         self.base_config = base_config
         self.digits_config = digits_config
         self.strip_config = strip_config
 
     def __str__(self): # pragma: no cover
         values = {
-           'show_approx_str' : self.show_approx_str,
+           'approx_config' : self.approx_config,
            'base_config' : self.base_config,
            'digits_config' : self.digits_config,
            'strip_config' : self.strip_config
@@ -184,7 +218,7 @@ class BasesConfig(object):
         :param DisplayConfig config: a configuration object
         """
         cls.DISPLAY_CONFIG = DisplayConfig(
-            show_approx_str=config.show_approx_str,
+            approx_config=config.approx_config,
             base_config=config.base_config,
             digits_config=config.digits_config,
             strip_config=config.strip_config
