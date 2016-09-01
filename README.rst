@@ -24,6 +24,11 @@ make use of. No differentiation is made among different Python operations.
 With respect to division in an arbitrary base, the complexity is bounded
 by the value of the divisor, unless a precision limit is set.
 
+__str__ method
+--------------
+This method does not constitute part of the justbases public API. It is meant
+to be read by humans, not machines, and may change at any time.
+
 Related Packages
 ----------------
 
