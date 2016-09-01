@@ -52,7 +52,7 @@ class Radices(object):
         :param method: rounding method
         :type method: element of RoundingMethods.METHODS()
         :returns: the conversion result and its relation to actual result
-        :rtype: Radix * int
+        :rtype: Radix * Rational
         :raises BasesValueError: if to_base is less than 2
 
         Complexity: Uncalculated.
@@ -118,7 +118,7 @@ class Rationals(object):
         :param method: the rounding method (of RoundingMethods.METHODS())
 
         :returns: rounded value and relation of rounded value to actual value.
-        :rtype: (int * int)
+        :rtype: (int * Rational)
 
         Complexity: O(1)
         """
@@ -136,9 +136,9 @@ class Rationals(object):
         (lower, upper) = (int_value, int_value + 1)
 
         if Rounding.rounding_up(use_value - lower, Fraction(1, 2), use_method):
-            (use_result, relation) = (upper, 1)
+            (use_result, relation) = (upper, upper - use_value)
         else:
-            (use_result, relation) = (lower, -1)
+            (use_result, relation) = (lower, lower - use_value)
 
         if value != use_value:
             return (-use_result, -relation)
@@ -384,7 +384,7 @@ class Radix(object):
         Return a representation of a Radix according to config.
 
         :param DisplayConfig config: configuration
-        :param int relation: the relation of this value to actual value
+        :param Rational relation: the relation of this value to actual value
         """
         return String(config, self.base).xform(self, relation)
 
@@ -509,8 +509,8 @@ class Radix(object):
         :param method: rounding method
         :raises BasesValueError: on bad parameters
 
-        :returns: corresponding int value
-        :rtype: int
+        :returns: corresponding int value and relation to original value
+        :rtype: int * Rational
         """
         (new_radix, relation) = self.rounded(0, method)
         value = Nats.convert_to_int(new_radix.integer_part, new_radix.base)
@@ -523,6 +523,8 @@ class Radix(object):
 
         :param int precision: number of digits in total
         :param method: rounding method
+        :returns: a rounded value and its relation to the actual
+        :rtype: Radix * Rational
         :raises BasesValueError: on bad parameters
 
         Precondition: Radix is valid and canonical
@@ -604,7 +606,7 @@ class _Rounding(object):
         :type method: member of RoundingMethods.METHODS()
 
         :returns: the rounded value and its relation
-        :rtype: Radix * int
+        :rtype: Radix * Rational
         """
         base = value.base
 
@@ -643,9 +645,12 @@ class _Rounding(object):
             if carry_out != 0:
                 integer_part = [carry_out] + integer_part
 
-            return (Radix(1, integer_part, non_repeating_part, [], base), 1)
+            return (
+               Radix(1, integer_part, non_repeating_part, [], base),
+               1 - remainder
+            )
         else:
-            return (truncated, -1)
+            return (truncated, -remainder)
 
     @classmethod
     def roundFractional(cls, value, precision, method):
@@ -658,7 +663,7 @@ class _Rounding(object):
         :raises BasesValueError: on bad parameters
 
         :returns: the rounded value and its relation to the actual
-        :rtype: Radix * int
+        :rtype: Radix * Rational
 
         Precondition: Radix is valid and canonical
 

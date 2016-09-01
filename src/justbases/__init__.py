@@ -38,6 +38,7 @@ Contents:
 
 from ._constants import RoundingMethods
 
+from ._config import ApproxConfig
 from ._config import BasesConfig
 from ._config import BaseConfig
 from ._config import DigitsConfig

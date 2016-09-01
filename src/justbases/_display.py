@@ -21,8 +21,6 @@
 import itertools
 import string
 
-from collections import namedtuple
-
 from ._errors import BasesValueError
 
 
@@ -195,70 +193,11 @@ class Number(object):
         return self._FMT_STR % result
 
 
-_Decorators = namedtuple('_Decorators', ['approx_str'])
-
-
-class Decorators(object):
-    """
-    Handle generic display stuff.
-
-    Returns decorators for the value.
-    """
-
-    @staticmethod
-    def relation_to_symbol(relation):
-        """
-        Change a numeric relation to a string symbol.
-
-        :param int relation: the relation
-
-        :returns: a symbol with the right relation to ``relation``
-        :rtype: str
-        """
-        if relation == 0:
-            return ''
-        elif relation == -1:
-            return '>'
-        elif relation == 1:
-            return '<'
-        else:
-            assert False # pragma: no cover
-
-    def __init__(self, config, base):
-        """
-        Initializer.
-
-        :param DisplayConfig config: the display configuration
-        :param int base: the base
-        """
-        # pylint: disable=unused-argument
-        self.CONFIG = config
-
-    def decorators(self, relation):
-        """
-        Return prefixes for tuple.
-
-        :param int relation: relation of string value to actual value
-        """
-        if self.CONFIG.show_approx_str:
-            approx_str = Decorators.relation_to_symbol(relation)
-        else:
-            approx_str = ''
-
-        return _Decorators(approx_str=approx_str)
-
-
 class String(object):
     """
     Convert size components to string according to configuration.
     """
     # pylint: disable=too-few-public-methods
-
-    _FMT_STR = "".join([
-       "%(approx)s",
-       "%(space)s",
-       "%(number)s"
-    ])
 
     def __init__(self, display, base):
         """
@@ -269,7 +208,6 @@ class String(object):
 
         :raises BasesValueError: if the configuration cannot work
         """
-        self.DECORATORS = Decorators(display, base)
         self.DIGITS = Digits(display.digits_config, base)
         self.NUMBER = Number(display.base_config, base)
         self.STRIP = Strip(display.strip_config, base)
@@ -282,7 +220,7 @@ class String(object):
         configurations.
 
         :param Radix radix: the radix
-        :param int relation: relation of display value to actual value
+        :param Rational relation: relation of display value to actual value
         :param units: element of UNITS()
         :returns: a string representing the value
         :rtype: str
@@ -308,12 +246,4 @@ class String(object):
            radix.sign
         )
 
-        decorators = self.DECORATORS.decorators(relation)
-
-        result = {
-           'approx' : decorators.approx_str,
-           'space' : ' ' if decorators.approx_str else '',
-           'number' : number
-        }
-
-        return self._FMT_STR % result
+        return self.CONFIG.approx_config.xform(relation, number)

@@ -15,6 +15,7 @@
 
 import unittest
 
+from justbases import ApproxConfig
 from justbases import BasesConfig
 from justbases import BasesError
 from justbases import BaseConfig
@@ -48,6 +49,7 @@ class TestString(unittest.TestCase):
     @given(
        build_radix(1024, 10),
        build_display_config(
+          strategies.just(ApproxConfig()),
           strategies.just(BaseConfig()),
           strategies.just(DigitsConfig(use_letters=False)),
           build_strip_config()

@@ -134,7 +134,7 @@ class NatDivisionTestCase(unittest.TestCase):
         assert integer_part == integer_part_2
         assert len(repeating_part) + len(non_repeating_part) <= precision
 
-        assert repeating_part_2 == repeating_part or rel == -1
+        assert repeating_part_2 == repeating_part or rel < 0
 
         assert not(repeating_part_2 != [] and repeating_part == []) or \
            (len(non_repeating_part) == precision and \
@@ -218,7 +218,7 @@ class NatDivisionTestCase(unittest.TestCase):
                    rounded_int >= round_down_int
                 if rel == 0:
                     assert round_up_int == round_down_int
-                elif rel == -1:
+                elif rel < 0:
                     assert rounded_int == round_down_int
                 else:
                     assert rounded_int == round_up_int
