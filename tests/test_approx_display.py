@@ -15,7 +15,7 @@
 
 import unittest
 
-from justbases._approx_display import ApproxPrefix
+from justbases import ApproxPrefix
 
 from hypothesis import given
 from hypothesis import settings
