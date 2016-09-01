@@ -137,7 +137,7 @@ class ApproxConfig(object):
 
     def __init__(
        self,
-       xform=ApproxPrefix([Fraction(1, 1024), Fraction(1, 2)]).xform
+       xform=ApproxPrefix([Fraction(1, 2)]).xform
     ):
         """
         Initializer.
