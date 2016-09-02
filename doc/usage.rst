@@ -46,7 +46,7 @@ The default rounding method is round down, but other rounding methods
 may be specified. ::
 
     >>> NatDivision.division([3], [1], 10, 0, RoundingMethods.ROUND_UP)
-    >>> ([1], [], [], Fraction(2, 3))
+    ([1], [], [], Fraction(2, 3))
 
 The final element in the tuple indicates the difference between the rounded
 value and the original value as the ratio of the difference between the two
@@ -106,14 +106,9 @@ A class which represents a rational number as
 
     >>> from justbases import Radix
     >>> Radix(-1, [1], [2], [1], 10)
-    >>> -1.2[1]_10
+    Radix(-1,[1],[2],[1],10)
     >>> Radix(1, [12, 13], [4], [], 16)
-    >>> 12:13.4[]_16
-
-Note that the number after the underscore represents the base, and the
-digits within square brackets represent the repeating portion of the
-number. Individual digits in a decimal representation require a separator,
-here a ':'. This approach supports arbitrary bases.
+    Radix(1,[12, 13],[4],[],16)
 
 The Radix constructor validates and canonicalizes the Radix.
 Validation ensures that the digits are within the appropriate range
@@ -122,7 +117,7 @@ representation for equivalent Radix values. For example, it reduces
 the repeating part to the smallest possible. ::
 
     >>> Radix(1, [], [], [1, 0, 1, 0], 2)
-    >>> .[1:0]_2
+    Radix(1,[],[],[1, 0],2)
 
 Canonicalization and validation are expensive, and may be omitted when
 unnecessary, for example, when an algorithm is known to yield a canonical
@@ -130,7 +125,7 @@ value or when operations, such as ==, which require canonicalization for
 their correctness, are not anticipated. ::
 
     >>> Radix(1, [], [], [1, 0, 1, 0], 2, canonicalize=False)
-    >>> .[1:0:1:0]_2
+    Radix(1,[],[],[1, 0, 1, 0],2)
 
 Although canonicalized Radix objects may be compared for
 equality, they can not be ordered. To compare the values of two Radix
@@ -184,12 +179,23 @@ method arguments set. ::
 
 Display
 -------
-Radix.getString() returns a string representing a Radix object. The form of
-this string can be modified using the config parameter. The justbases-gui
-library is useful for experimenting with the different configuration options,
-which control such things as the choice of representation for digits larger
-than 9, whether or not to strip trailing zeros, and so forth. Consult the
-justbases-gui documentation for its usage.
+justbases has a soft dependency on the justbases_string package. If this
+package is available, it will be loaded and used to calculate the result
+of the __str__() method. If it is not available, the __str__ method will
+invoke the __repr__() method.
+
+For example, if justbases_string has been imported succesfully: ::
+
+    >>> str(Radix(1, [12, 13], [4], [], 16))
+    'cd.4_16'
+
+but if it has not been imported succesfully: ::
+
+    >>> str(Radix(1, [12, 13], [4], [], 16))
+    'Radix(1, [12, 13], [4], [], 16)'
+
+It is possible to set the Radix.STR_CONFIG or Radix.STRING_IMPL values
+to override the default behavior of the __str__() method.
 
 
 Concrete Example: Geographic Coordinates
