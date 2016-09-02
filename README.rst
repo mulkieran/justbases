@@ -39,7 +39,18 @@ Related Packages
   Requires rounding, does not do precise conversion, but does do
   conversion to any specified precision.
 
-* python-baseconv: https://pypi.python.org/pypi/allyourbase
+* baseconvert: https://pypi.python.org/pypi/baseconvert
+
+  Converts between arbitrary bases.
+  Seems to use a heuristic for identifying sequences of repeating digits,
+  which it then encloses in square brackets, rather than constructing the
+  correct sequence of repeating digits by division.
+
+* decimalfp: https://pypi.python.org/pypi/decimalfp
+
+  Seems to be an alternative to the python Decimal class.
+
+* python-baseconv: https://pypi.python.org/pypi/python-baseconv
 
   Converts an int to a string using a one character to digit encoding.
   Also converts in the opposite direction.
@@ -50,6 +61,13 @@ Related Packages
 * python-radix: https://pypi.python.org/pypi/python-radix
 
   Does not handle arbitrary bases. Converts int or int as str to str.
+
+* python-nicefloat: https://pypi.python.org/pypi/python-nicefloat
+
+  Represents a floating point number s.t. if f is any floating point number,
+  float(nicefloat(f)) == f. This property does not hold for float(str(f)),
+  but does for float(repr(f)). The result of nicefloat generally has fewer
+  characters than that of repr.
 
 * numpy: http://docs.scipy.org/doc/numpy/reference/
 
