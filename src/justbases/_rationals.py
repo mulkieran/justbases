@@ -417,7 +417,7 @@ class Radix(object):
             )
 
     def __repr__(self):
-        return 'Radix(%s, %s, %s, %s, %s)' % \
+        return 'Radix(%r, %r, %r, %r, %r)' % \
            (
               self.sign,
               self.integer_part,
