@@ -194,9 +194,8 @@ class Radix(object):
         STR_CONFIG = None
         STR_IMPL = None
 
-    @classmethod
-    def _validate( # pylint: disable=too-many-arguments
-        cls,
+    @staticmethod
+    def _validate(
         sign,
         integer_part,
         non_repeating_part,
@@ -261,8 +260,8 @@ class Radix(object):
 
         return None
 
-    @classmethod
-    def _repeat_length(cls, part):
+    @staticmethod
+    def _repeat_length(part):
         """
         The length of the repeated portions of ``part``.
 
@@ -291,8 +290,8 @@ class Radix(object):
                     return index
         return repeat_len
 
-    @classmethod
-    def _canonicalize_fraction(cls, non_repeating, repeating):
+    @staticmethod
+    def _canonicalize_fraction(non_repeating, repeating):
         """
         If the same fractional value can be represented by stripping repeating
         part from ``non_repeating``, do it.
@@ -363,7 +362,7 @@ class Radix(object):
         linear if validate is True, otherwise constant time
         """
         if validate:
-            error = self._validate(
+            error = Radix._validate(
                sign,
                integer_part,
                non_repeating_part,
@@ -378,9 +377,9 @@ class Radix(object):
                 integer_part = []
 
             repeating_part = \
-               repeating_part[0:self._repeat_length(repeating_part)]
+               repeating_part[0:Radix._repeat_length(repeating_part)]
             (non_repeating_part, repeating_part) = \
-                self._canonicalize_fraction(non_repeating_part, repeating_part)
+                Radix._canonicalize_fraction(non_repeating_part, repeating_part)
             if all(x == 0 for x in repeating_part):
                 repeating_part = []
 
@@ -620,8 +619,8 @@ class _Rounding(object):
 
         return Radix(1, value.integer_part, non_repeating_part, [], value.base)
 
-    @classmethod
-    def _round_positive(cls, value, precision, method):
+    @staticmethod
+    def _round_positive(value, precision, method):
         """
         Round ``value`` to ``precision`` using ``method`` assuming positive.
 
@@ -635,7 +634,7 @@ class _Rounding(object):
         """
         base = value.base
 
-        truncated = cls._truncated(value, precision)
+        truncated = _Rounding._truncated(value, precision)
 
         len_non_repeating = len(value.non_repeating_part)
         if precision <= len_non_repeating:
@@ -677,8 +676,8 @@ class _Rounding(object):
         else:
             return (truncated, -remainder)
 
-    @classmethod
-    def roundFractional(cls, value, precision, method):
+    @staticmethod
+    def roundFractional(value, precision, method):
         """
         Round to precision as number of digits after radix.
 
@@ -716,7 +715,7 @@ class _Rounding(object):
         use_method = method if value.sign > 0 else Rounding.reverse(method)
 
         (result, relation) = \
-           cls._round_positive(use_value, precision, use_method)
+           _Rounding._round_positive(use_value, precision, use_method)
 
         if value != use_value:
             return (-result, -relation)
