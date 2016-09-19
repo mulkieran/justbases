@@ -57,12 +57,16 @@ class RoundingMethods(object):
        ROUND_UP
     ]
 
-    @classmethod
-    def METHODS(cls):
+    @staticmethod
+    def METHODS():
         """ Methods of this class. """
-        return cls._METHODS[:]
+        return RoundingMethods._METHODS[:]
 
-    @classmethod
-    def CONDITIONAL_METHODS(cls):
+    @staticmethod
+    def CONDITIONAL_METHODS():
         """ Conditional rounding methods. """
-        return [cls.ROUND_HALF_DOWN, cls.ROUND_HALF_UP, cls.ROUND_HALF_ZERO]
+        return [
+           RoundingMethods.ROUND_HALF_DOWN,
+           RoundingMethods.ROUND_HALF_UP,
+           RoundingMethods.ROUND_HALF_ZERO
+        ]

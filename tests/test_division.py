@@ -126,9 +126,9 @@ class NatDivisionTestCase(unittest.TestCase):
         """
         (divisor, dividend, base) = strategy
         (integer_part, non_repeating_part, repeating_part, rel) = \
-           NatDivision.division(divisor, dividend, base, precision)
+           NatDivision.division(divisor, dividend, base, precision=precision)
         (integer_part_2, non_repeating_part_2, repeating_part_2, rel_2) = \
-           NatDivision.division(divisor, dividend, base, None)
+           NatDivision.division(divisor, dividend, base, precision=None)
 
         assert rel_2 == 0
         assert integer_part == integer_part_2
@@ -161,24 +161,24 @@ class NatDivisionTestCase(unittest.TestCase):
               divisor,
               dividend,
               base,
-              precision,
-              RoundingMethods.ROUND_UP
+              precision=precision,
+              method=RoundingMethods.ROUND_UP
            )
         (integer_part_2, non_repeating_part_2, repeating_part_2, rel_2) = \
            NatDivision.division(
               divisor,
               dividend,
               base,
-              precision,
-              RoundingMethods.ROUND_DOWN
+              precision=precision,
+              method=RoundingMethods.ROUND_DOWN
            )
         (integer_part_3, non_repeating_part_3, repeating_part_3, rel_3) = \
            NatDivision.division(
               divisor,
               dividend,
               base,
-              precision,
-              RoundingMethods.ROUND_TO_ZERO
+              precision=precision,
+              method=RoundingMethods.ROUND_TO_ZERO
            )
 
         assert integer_part_2 == integer_part_3 and \
@@ -208,8 +208,8 @@ class NatDivisionTestCase(unittest.TestCase):
                   divisor,
                   dividend,
                   base,
-                  precision,
-                  method
+                  precision=precision,
+                  method=method
                )
             rounded_int = \
                Nats.convert_to_int(integer_part_c + non_repeating_part_c, base)
