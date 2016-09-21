@@ -20,6 +20,7 @@ from __future__ import absolute_import
 import itertools
 
 from fractions import Fraction
+from fractions import gcd
 
 from ._constants import RoundingMethods
 from ._errors import BasesValueError
@@ -261,29 +262,24 @@ class NatDivision(object):
                "for all elements, e, 0 <= e < base required"
             )
 
-        shift_length = len(repeating_part)
-        frac_length = len(non_repeating_part)
+        digits = integer_part + non_repeating_part
+        if repeating_part == []:
+            numerator = Nats.convert_to_int(digits, base)
+            denominator = base ** len(non_repeating_part)
+        else:
+            top_digits = digits + repeating_part
 
-        top = Fraction(
-           Nats.convert_to_int(
-              integer_part + non_repeating_part + repeating_part,
-              base
-           ),
-           base ** frac_length
-        )
+            numerator = \
+               Nats.convert_to_int(top_digits, base) - \
+               Nats.convert_to_int(digits, base)
 
-        if shift_length == 0:
-            return (
-               Nats.convert_from_int(top.denominator, base),
-               Nats.convert_from_int(top.numerator, base)
-            )
+            denominator = \
+               (base ** len(non_repeating_part)) * \
+               (base ** len(repeating_part) - 1)
 
-        bottom = Fraction(
-           Nats.convert_to_int(integer_part + non_repeating_part, base),
-           base ** frac_length
-        )
-        result = (top - bottom) / ((base ** shift_length) - 1)
+        divisor = gcd(numerator, denominator)
+
         return (
-           Nats.convert_from_int(result.denominator, base),
-           Nats.convert_from_int(result.numerator, base)
+           Nats.convert_from_int(denominator // divisor, base),
+           Nats.convert_from_int(numerator // divisor, base)
         )
