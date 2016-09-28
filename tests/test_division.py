@@ -28,27 +28,20 @@ from justbases import NatDivision
 from justbases import Nats
 from justbases import RoundingMethods
 
-from ._utils import build_nat
-
-
-_DIVISION_STRATEGY = strategies.integers(min_value=2, max_value=17).flatmap(
-   lambda n: strategies.tuples(
-      build_nat(n, 4).filter(lambda l: len(l) > 0),
-      build_nat(n, 4),
-      strategies.just(n)
-   )
-)
 
 class NatDivisionTestCase(unittest.TestCase):
     """ Tests for division. """
 
-    @given(_DIVISION_STRATEGY)
+    @given(
+       strategies.integers(min_value=1, max_value=2**15),
+       strategies.integers(min_value=0, max_value=2**15),
+       strategies.integers(min_value=2, max_value=17)
+    )
     @settings(max_examples=50)
-    def testInverses(self, strategy):
+    def testInverses(self, divisor, dividend, base):
         """
         Test that division and undivision are inverses.
         """
-        (divisor, dividend, base) = strategy
         (integer_part, non_repeating_part, repeating_part, relation) = \
            NatDivision.division(divisor, dividend, base)
         assert relation == 0
@@ -61,10 +54,7 @@ class NatDivisionTestCase(unittest.TestCase):
         )
         assert denominator != 0
 
-        original = fractions.Fraction(
-           Nats.convert_to_int(dividend, base),
-           Nats.convert_to_int(divisor, base)
-        )
+        original = fractions.Fraction(dividend, divisor)
         result = fractions.Fraction(numerator, denominator)
 
         assert original == result
@@ -74,17 +64,15 @@ class NatDivisionTestCase(unittest.TestCase):
         Test division exceptions.
         """
         with self.assertRaises(BasesError):
-            NatDivision.division([1], [1], -2)
+            NatDivision.division(1, 1, -2)
         with self.assertRaises(BasesError):
-            NatDivision.division([1], [-1], 3)
+            NatDivision.division(1, -1, 3)
         with self.assertRaises(BasesError):
-            NatDivision.division([-1], [1], 3)
+            NatDivision.division(-1, 1, 3)
         with self.assertRaises(BasesError):
-            NatDivision.division([], [1], 3)
+            NatDivision.division(0, 1, 3)
         with self.assertRaises(BasesError):
-            NatDivision.division([0], [1], 3)
-        with self.assertRaises(BasesError):
-            NatDivision.division([2], [1], 3, -1)
+            NatDivision.division(2, 1, 3, -1)
 
     def testExceptionsUndivision(self):
         """
@@ -102,11 +90,13 @@ class NatDivisionTestCase(unittest.TestCase):
             NatDivision.undivision([2], [1], [1], 2)
 
     @given(
-       _DIVISION_STRATEGY,
+       strategies.integers(min_value=1, max_value=2**15),
+       strategies.integers(min_value=0, max_value=2**15),
+       strategies.integers(min_value=2, max_value=17),
        strategies.integers(min_value=0, max_value=32)
     )
     @settings(max_examples=50)
-    def testTruncation(self, strategy, precision):
+    def testTruncation(self, divisor, dividend, base, precision):
         """
         Test just truncating division result to some precision.
 
@@ -120,7 +110,6 @@ class NatDivisionTestCase(unittest.TestCase):
         and is a prefix of non-repeating-part + repeating part when
         precision is not bounded.
         """
-        (divisor, dividend, base) = strategy
         (integer_part, non_repeating_part, repeating_part, rel) = \
            NatDivision.division(divisor, dividend, base, precision=precision)
         (integer_part_2, non_repeating_part_2, repeating_part_2, rel_2) = \
@@ -150,8 +139,6 @@ class NatDivisionTestCase(unittest.TestCase):
         Test that rounding up and rounding down have the right relationship.
         """
         # pylint: disable=too-many-locals
-        divisor = Nats.convert_from_int(divisor, base)
-        dividend = Nats.convert_from_int(dividend, base)
         (integer_part, non_repeating_part, repeating_part, rel) = \
            NatDivision.division(
               divisor,
