@@ -40,7 +40,9 @@ class RoundingTestCase(unittest.TestCase):
 
     @given(
        strategies.one_of(
-          strategies.fractions().filter(lambda x: x > 0 and x < 1),
+          strategies.fractions(min_value=0, max_value=1).filter(
+             lambda x: x != 0 and x != 1
+          ),
           strategies.just(Fraction(1, 2))
        ),
        strategies.one_of(

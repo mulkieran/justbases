@@ -35,7 +35,7 @@ class RationalsTestCase(unittest.TestCase):
     """ Tests for rationals. """
 
     @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
+       strategies.fractions(max_denominator=100),
        strategies.integers(min_value=2)
     )
     @settings(max_examples=50)
@@ -49,7 +49,7 @@ class RationalsTestCase(unittest.TestCase):
         assert result.as_rational() == value
 
     @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
+       strategies.fractions(max_denominator=100),
        strategies.integers(min_value=2, max_value=64),
        strategies.integers(min_value=0, max_value=64),
        strategies.sampled_from(RoundingMethods.METHODS()),
