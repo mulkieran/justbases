@@ -114,31 +114,6 @@ class NatDivision(object):
                 return (0, quotient, [], -fractional)
 
     @staticmethod
-    def _division(divisor, dividend, remainder, base):
-        """
-        Get the quotient and remainder of two natural numbers in any base.
-
-        :param int divisor: the divisor
-        :param dividend: the dividend
-        :type dividend: sequence of int
-        :param int remainder: initial remainder
-        :param int base: the base
-
-        :returns: quotient and remainder
-        :rtype: tuple of (list of int) * int
-
-        Complexity: O(log_{divisor}(quotient))
-        """
-        quotient = []
-        for value in dividend:
-            remainder = remainder * base + value
-            (quot, rem) = divmod(remainder, divisor)
-            quotient.append(quot)
-            if quot > 0:
-                remainder = rem
-        return (quotient, remainder)
-
-    @staticmethod
     def division(
        divisor,
        dividend,
@@ -149,10 +124,8 @@ class NatDivision(object):
         """
         Division of natural numbers.
 
-        :param divisor: the divisor
-        :type divisor: list of int
-        :param dividend: the dividend
-        :type dividend: list of int
+        :param int divisor: the divisor
+        :param int dividend: the dividend
         :param precision: maximum number of fractional digits
         :type precision: int or NoneType
         :param method: rounding method
@@ -176,35 +149,27 @@ class NatDivision(object):
         if precision is not None and precision < 0:
             raise BasesValueError(precision, "precision", "must be at least 0")
 
-        if any(x < 0 or x >= base for x in divisor):
+        if divisor <= 0:
             raise BasesValueError(
                divisor,
                "divisor",
-               "for all elements, e, 0 <= e < base required"
+               "must be a positive natural number"
             )
 
-        if any(x < 0 or x >= base for x in dividend):
+        if dividend < 0:
             raise BasesValueError(
-               divisor,
-               "divisor",
-               "for all elements, e, 0 <= e < base required"
+               dividend,
+               "dividend",
+               "must be a natural number"
             )
 
-        if all(x == 0 for x in divisor):
-            raise BasesValueError(
-               divisor,
-               "divisor",
-               "must be greater than 0"
-            )
+        (quot, rem) = divmod(dividend, divisor)
 
-        int_divisor = Nats.convert_to_int(divisor, base)
-
-        (integer_part, rem) = \
-           NatDivision._division(int_divisor, dividend, 0, base)
+        integer_part = Nats.convert_from_int(quot, base)
 
         (carry, non_repeating_part, repeating_part, relation) = \
            NatDivision._fractional_division(
-              int_divisor,
+              divisor,
               rem,
               base,
               precision=precision,
