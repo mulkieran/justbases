@@ -19,11 +19,8 @@ from __future__ import absolute_import
 
 import abc
 
-from six import add_metaclass
 
-
-@add_metaclass(abc.ABCMeta)
-class BasesError(Exception):
+class BasesError(Exception, metaclass=abc.ABCMeta):
     """
     Supertype of all errors for this package.
     """

@@ -19,8 +19,6 @@ from fractions import Fraction
 
 import unittest
 
-import six
-
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies
@@ -99,7 +97,7 @@ class RationalsTestCase(unittest.TestCase):
         Test rounding to int.
         """
         (result, _) = Rationals.round_to_int(value, method)
-        self.assertIsInstance(result, six.integer_types)
+        self.assertIsInstance(result, int)
 
         (lower, upper) = (result - 1, result + 1)
         self.assertTrue(
