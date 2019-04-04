@@ -16,7 +16,8 @@
 from __future__ import absolute_import
 
 from fractions import Fraction
-
+from os import environ
+from os import sys
 import unittest
 
 from hypothesis import given
@@ -28,6 +29,8 @@ from justbases import Radices
 from justbases import Rationals
 from justbases import RoundingMethods
 
+if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
+    settings.load_profile("tracing")
 
 class RationalsTestCase(unittest.TestCase):
     """ Tests for rationals. """

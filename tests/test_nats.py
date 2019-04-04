@@ -17,7 +17,11 @@ from __future__ import absolute_import
 
 import unittest
 
+from os import environ
+from os import sys
+
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies
 
 from justbases import BasesError
@@ -25,6 +29,9 @@ from justbases import Nats
 
 from ._utils import build_nat
 
+
+if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
+    settings.load_profile("tracing")
 
 _NATS_STRATEGY = strategies.integers(min_value=2).flatmap(
    lambda n: strategies.tuples(build_nat(n, 64), strategies.just(n))

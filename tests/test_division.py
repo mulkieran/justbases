@@ -16,6 +16,8 @@
 from __future__ import absolute_import
 
 import fractions
+from os import environ
+from os import sys
 import unittest
 
 from hypothesis import example
@@ -29,6 +31,8 @@ from justbases import Nats
 from justbases import RoundingMethods
 
 from ._utils import build_nat
+if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
+    settings.load_profile("tracing")
 
 
 _DIVISION_STRATEGY = strategies.integers(min_value=2, max_value=17).flatmap(
