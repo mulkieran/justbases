@@ -220,8 +220,7 @@ class NatDivisionTestCase(unittest.TestCase):
             rounded_int = \
                Nats.convert_to_int(integer_part_c + non_repeating_part_c, base)
             if repeating_part == []:
-                assert rounded_int <= round_up_int and \
-                   rounded_int >= round_down_int
+                assert round_down_int <= rounded_int <= round_up_int
                 if rel == 0:
                     assert round_up_int == round_down_int
                 elif rel == -1:

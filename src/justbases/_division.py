@@ -25,7 +25,7 @@ from ._errors import BasesValueError
 from ._nats import Nats
 
 
-class NatDivision(object):
+class NatDivision():
     """
     Methods for division in arbitrary bases.
     """
@@ -69,27 +69,28 @@ class NatDivision(object):
 
         if method is RoundingMethods.ROUND_DOWN:
             return (0, quotient, [], -1)
-        elif method is RoundingMethods.ROUND_TO_ZERO:
+        if method is RoundingMethods.ROUND_TO_ZERO:
             return (0, quotient, [], -1)
-        elif method is RoundingMethods.ROUND_UP:
+        if method is RoundingMethods.ROUND_UP:
             (carry, quotient) = Nats.carry_in(quotient, 1, base)
             return (carry, quotient, [], 1)
-        else:
-            remainder = fractions.Fraction(remainder, divisor)
-            middle = fractions.Fraction(base, 2)
-            if remainder < middle:
-                return (0, quotient, [], -1)
-            elif remainder > middle:
-                (carry, quotient) = Nats.carry_in(quotient, 1, base)
-                return (carry, quotient, [], 1)
-            else:
-                if method is RoundingMethods.ROUND_HALF_UP:
-                    (carry, quotient) = Nats.carry_in(quotient, 1, base)
-                    return (carry, quotient, [], 1)
-                elif method in \
-                   (RoundingMethods.ROUND_HALF_DOWN,
-                    RoundingMethods.ROUND_HALF_ZERO):
-                    return (0, quotient, [], -1)
+
+        remainder = fractions.Fraction(remainder, divisor)
+        middle = fractions.Fraction(base, 2)
+        if remainder < middle:
+            return (0, quotient, [], -1)
+        if remainder > middle:
+            (carry, quotient) = Nats.carry_in(quotient, 1, base)
+            return (carry, quotient, [], 1)
+
+        if method is RoundingMethods.ROUND_HALF_UP:
+            (carry, quotient) = Nats.carry_in(quotient, 1, base)
+            return (carry, quotient, [], 1)
+        if method in \
+           (RoundingMethods.ROUND_HALF_DOWN,
+            RoundingMethods.ROUND_HALF_ZERO):
+            return (0, quotient, [], -1)
+
         raise BasesValueError( # pragma: no cover
            method,
            "method",
@@ -171,17 +172,16 @@ class NatDivision(object):
 
         if remainder == 0:
             return (0, quotient, [], 0)
-        elif remainder in remainders:
+        if remainder in remainders:
             start = remainders.index(remainder)
             return (0, quotient[:start], quotient[start:], 0)
-        else:
-            return cls._round(
-               quotient,
-               divisor,
-               remainder,
-               base,
-               method
-            )
+        return cls._round(
+           quotient,
+           divisor,
+           remainder,
+           base,
+           method
+        )
 
     @staticmethod
     def _division(divisor, dividend, remainder, base):

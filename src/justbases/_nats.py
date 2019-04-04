@@ -19,7 +19,7 @@ from functools import reduce # pylint: disable=redefined-builtin
 from ._errors import BasesValueError
 
 
-class Nats(object):
+class Nats():
     """
     Methods to convert non-negative ints.
     """

@@ -24,7 +24,6 @@ class BasesError(Exception, metaclass=abc.ABCMeta):
     """
     Supertype of all errors for this package.
     """
-    pass
 
 
 class BasesInvalidOperationError(BasesError): # pragma: no cover
@@ -40,9 +39,8 @@ class BasesInvalidOperationError(BasesError): # pragma: no cover
     def __str__(self):
         if self._other is None:
             return "invalid operation for Radix: %s" % self._operator
-        else:
-            return "invalid operation %s for Radix and %s" % \
-               (self._operator, type(self._other).__name__)
+        return "invalid operation %s for Radix and %s" % \
+           (self._operator, type(self._other).__name__)
 
 
 class BasesValueError(BasesError):
@@ -68,8 +66,7 @@ class BasesValueError(BasesError):
         if self._msg:
             fmt_str = self._FMT_STR + ": %s"
             return fmt_str % (self._value, self._param, self._msg)
-        else:
-            return self._FMT_STR % (self._value, self._param)
+        return self._FMT_STR % (self._value, self._param)
 
 
 class BasesAssertError(BasesError):

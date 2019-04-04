@@ -29,7 +29,7 @@ from ._errors import BasesValueError
 from ._nats import Nats
 
 
-class Radices(object):
+class Radices():
     """
     Methods for Radices.
     """
@@ -76,6 +76,7 @@ class Radices(object):
 
         Complexity: Uncalculated.
         """
+        # pylint: disable=too-many-locals
         if to_base < 2:
             raise BasesValueError(to_base, "to_base", "must be at least 2")
 
@@ -126,7 +127,7 @@ class Radices(object):
         return (result, relation)
 
 
-class Rationals(object):
+class Rationals():
     """
     Miscellaneous methods for rationals.
     """
@@ -175,13 +176,12 @@ class Rationals(object):
         if method is RoundingMethods.ROUND_HALF_ZERO:
             if lower < 0:
                 return (upper, 1) if delta >= Fraction(1, 2) else (lower, -1)
-            else:
-                return (lower, -1) if delta <= Fraction(1, 2) else (upper, 1)
+            return (lower, -1) if delta <= Fraction(1, 2) else (upper, 1)
 
         raise BasesValueError(method, "method")
 
 
-class Radix(object):
+class Radix():
     """
     An object containing information about a rational representation.
 
@@ -365,7 +365,7 @@ class Radix(object):
                base
             )
             if error is not None:
-                raise error
+                raise error # pylint: disable=raising-bad-type
 
         if canonicalize:
             if all(x == 0 for x in integer_part):
@@ -531,7 +531,7 @@ class Radix(object):
         return result
 
 
-class _Rounding(object):
+class _Rounding():
     """
     Rounding of radix objects.
     """
@@ -641,7 +641,7 @@ class _Rounding(object):
         )
 
         if all(x == 0 for x in value.non_repeating_part[precision:]) and \
-           len(value.repeating_part) == 0:
+           value.repeating_part == []:
             return (truncated(), 0)
 
         if method is RoundingMethods.ROUND_TO_ZERO:
@@ -671,12 +671,9 @@ class _Rounding(object):
         middle = Fraction(1, 2)
         if remainder_fraction < middle:
             return (truncated(), -1 * value.sign)
-        elif remainder_fraction > middle:
+        if remainder_fraction > middle:
             return (incremented(), value.sign)
-        else:
-            if cls._conditional_toward_zero(method, value.sign):
-                return (truncated(), -1 * value.sign)
-            else:
-                return (incremented(), value.sign)
 
-        raise BasesAssertError() # pragma: no cover
+        if cls._conditional_toward_zero(method, value.sign):
+            return (truncated(), -1 * value.sign)
+        return (incremented(), value.sign)

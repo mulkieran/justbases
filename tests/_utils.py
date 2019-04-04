@@ -76,15 +76,14 @@ def build_radix(max_base, max_len):
                list3,
                strategies.just(base)
             )
-        else:
-            return strategies.builds(
-               Radix,
-               strategies.sampled_from((-1, 1)),
-               list1,
-               list2,
-               list3,
-               strategies.just(base)
-            )
+        return strategies.builds(
+           Radix,
+           strategies.sampled_from((-1, 1)),
+           list1,
+           list2,
+           list3,
+           strategies.just(base)
+        )
 
     return build_base(max_base).flatmap(make_radix)
 

@@ -26,7 +26,7 @@ from collections import namedtuple
 from ._errors import BasesValueError
 
 
-class Digits(object):
+class Digits():
     """
     Transforms digits as ints to corresponding symbols.
     """
@@ -69,12 +69,11 @@ class Digits(object):
                self._UPPER_DIGITS if self.CONFIG.use_caps else \
                self._LOWER_DIGITS
             return ''.join(digits[x] for x in number)
-        else:
-            separator = '' if base <= 10 else self.CONFIG.separator
-            return separator.join(str(x) for x in number)
+        separator = '' if base <= 10 else self.CONFIG.separator
+        return separator.join(str(x) for x in number)
 
 
-class Strip(object):
+class Strip():
     """
     Handle stripping digits.
     """
@@ -123,11 +122,10 @@ class Strip(object):
            (self.CONFIG.strip_whole and relation == 0 and \
             all(x == 0 for x in number)):
             return Strip._strip_trailing_zeros(number)
-        else:
-            return number
+        return number
 
 
-class Number(object):
+class Number():
     """
     Handle generic number display stuff.
 
@@ -198,13 +196,14 @@ class Number(object):
 _Decorators = namedtuple('_Decorators', ['approx_str'])
 
 
-class Decorators(object):
+class Decorators():
     """
     Handle generic display stuff.
 
     Returns decorators for the value.
     """
 
+    # pylint: disable=inconsistent-return-statements
     @staticmethod
     def relation_to_symbol(relation):
         """
@@ -215,6 +214,7 @@ class Decorators(object):
         :returns: a symbol with the right relation to ``relation``
         :rtype: str
         """
+        # pylint: disable=no-else-return
         if relation == 0:
             return ''
         elif relation == -1:
@@ -248,7 +248,7 @@ class Decorators(object):
         return _Decorators(approx_str=approx_str)
 
 
-class String(object):
+class String():
     """
     Convert size components to string according to configuration.
     """

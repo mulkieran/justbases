@@ -14,7 +14,7 @@
 """ Configuration of the justbytes package. """
 
 
-class BaseConfig(object):
+class BaseConfig():
     """
     Whether and how to show the base.
     """
@@ -44,7 +44,7 @@ class BaseConfig(object):
     __repr__ = __str__
 
 
-class StripConfig(object):
+class StripConfig():
     """
     Stripping trailing zeros.
     """
@@ -80,7 +80,7 @@ class StripConfig(object):
     __repr__ = __str__
 
 
-class DigitsConfig(object):
+class DigitsConfig():
     """
     How to display digits.
     """
@@ -121,7 +121,7 @@ class DigitsConfig(object):
     __repr__ = __str__
 
 
-class DisplayConfig(object):
+class DisplayConfig():
     """
     Superficial aspects of display.
     """
@@ -168,7 +168,7 @@ class DisplayConfig(object):
     __repr__ = __str__
 
 
-class BasesConfig(object):
+class BasesConfig():
     """
     Configuration class for any bases things.
     """

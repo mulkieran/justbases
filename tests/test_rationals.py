@@ -104,8 +104,7 @@ class RationalsTestCase(unittest.TestCase):
 
         (lower, upper) = (result - 1, result + 1)
         self.assertTrue(
-           (lower <= value and value <= result) or \
-           (result <= value and value <= upper)
+           (lower <= value <= result) or (result <= value <= upper)
         )
 
     @given(strategies.integers(min_value=1, max_value=9))
