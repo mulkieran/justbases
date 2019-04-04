@@ -47,7 +47,7 @@ class NatDivisionTestCase(unittest.TestCase):
     """ Tests for division. """
 
     @given(_DIVISION_STRATEGY)
-    @settings(max_examples=50)
+    @settings(max_examples=50, deadline=None)
     def testInverses(self, strategy):
         """
         Test that division and undivision are inverses.
@@ -115,7 +115,7 @@ class NatDivisionTestCase(unittest.TestCase):
        _DIVISION_STRATEGY,
        strategies.integers(min_value=0, max_value=32)
     )
-    @settings(max_examples=50)
+    @settings(max_examples=50, deadline=None)
     def testTruncation(self, strategy, precision):
         """
         Test just truncating division result to some precision.

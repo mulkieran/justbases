@@ -42,7 +42,7 @@ class RadixTestCase(unittest.TestCase):
        build_radix(16, 3),
        build_base(16)
     )
-    @settings(max_examples=50)
+    @settings(max_examples=50, deadline=None)
     def testInBase(self, radix, base):
         """
         Test that roundtrip is identity modulo number of 0s in
