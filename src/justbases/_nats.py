@@ -28,8 +28,8 @@ class Nats(object):
     Methods to convert non-negative ints.
     """
 
-    @staticmethod
-    def convert(value, from_base, to_base):
+    @classmethod
+    def convert(cls, value, from_base, to_base):
         """
         Convert value from a base to a base.
 
@@ -49,8 +49,8 @@ class Nats(object):
 
         Complexity: O(len(value))
         """
-        return Nats.convert_from_int(
-           Nats.convert_to_int(value, from_base),
+        return cls.convert_from_int(
+           cls.convert_to_int(value, from_base),
            to_base
         )
 
@@ -119,8 +119,8 @@ class Nats(object):
         result.reverse()
         return result
 
-    @staticmethod
-    def carry_in(value, carry, base):
+    @classmethod
+    def carry_in(cls, value, carry, base):
         """
         Add a carry digit to a number represented by ``value``.
 
@@ -158,8 +158,8 @@ class Nats(object):
 
         return (carry, list(reversed(result)))
 
-    @staticmethod
-    def roundTo(value, base, precision, method):
+    @classmethod
+    def roundTo(cls, value, base, precision, method):
         """
         Round a natural number to ``precision`` using ``method``.
 
@@ -211,10 +211,10 @@ class Nats(object):
         num_digits = -precision
         ulp = base ** num_digits
         middle = Fraction(ulp, 2)
-        fractional_value = Nats.convert_to_int(right, base)
+        fractional_value = cls.convert_to_int(right, base)
 
         if Rounding.rounding_up(fractional_value, middle, method):
-            (carry_out, new_left) = Nats.carry_in(left, 1, base)
+            (carry_out, new_left) = cls.carry_in(left, 1, base)
             if carry_out != 0:
                 new_left = [carry_out] + new_left
             relation = Fraction(ulp - fractional_value, ulp)

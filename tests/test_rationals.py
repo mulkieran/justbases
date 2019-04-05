@@ -70,13 +70,7 @@ class RationalsTestCase(unittest.TestCase):
         """
         # pylint: disable=too-many-arguments
         (rounded, rel) = \
-           Radices.from_rational(
-              value,
-              base,
-              precision=precision,
-              method=method,
-              expand_repeating=expand
-        )
+           Radices.from_rational(value, base, precision, method, expand)
         (unrounded, urel) = Radices.from_rational(value, base)
 
         assert urel == 0
@@ -103,7 +97,7 @@ class RationalsTestCase(unittest.TestCase):
         with self.assertRaises(BasesError):
             Radices.from_rational(Fraction(1, 2), 0)
         with self.assertRaises(BasesError):
-            Radices.from_rational(Fraction(1, 2), 2, precision=-1)
+            Radices.from_rational(Fraction(1, 2), 2, -1)
 
     @given(
        strategies.fractions(),

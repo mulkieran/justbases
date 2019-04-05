@@ -64,8 +64,9 @@ class NatDivision(object):
             remainder = rem if quot > 0 else remainder
         return (quotient, remainders, remainder)
 
-    @staticmethod
+    @classmethod
     def _fractional_division(
+       cls,
        divisor,
        remainder,
        base,
@@ -91,13 +92,9 @@ class NatDivision(object):
 
         Complexity: O(precision) if precision is not None else O(divisor)
         """
+        # pylint: disable=too-many-arguments
         (quotient, remainders, remainder) = \
-           NatDivision._divide(
-              divisor,
-              remainder,
-              base,
-              precision=precision
-           )
+           cls._divide(divisor, remainder, base, precision)
 
         if remainder == 0:
             return (0, quotient, [], 0)
@@ -137,8 +134,9 @@ class NatDivision(object):
                 remainder = rem
         return (quotient, remainder)
 
-    @staticmethod
+    @classmethod
     def division(
+       cls,
        divisor,
        dividend,
        base,
@@ -168,6 +166,7 @@ class NatDivision(object):
 
         Complexity: Uncalculated
         """
+        # pylint: disable=too-many-arguments
 
         if base < 2:
             raise BasesValueError(base, "base", "must be at least 2")
@@ -198,16 +197,15 @@ class NatDivision(object):
 
         int_divisor = Nats.convert_to_int(divisor, base)
 
-        (integer_part, rem) = \
-           NatDivision._division(int_divisor, dividend, 0, base)
+        (integer_part, rem) = cls._division(int_divisor, dividend, 0, base)
 
         (carry, non_repeating_part, repeating_part, relation) = \
-           NatDivision._fractional_division(
+           cls._fractional_division(
               int_divisor,
               rem,
               base,
-              precision=precision,
-              method=method
+              precision,
+              method
            )
 
         (carry, integer_part) = Nats.carry_in(integer_part, carry, base)
@@ -219,8 +217,14 @@ class NatDivision(object):
            relation
         )
 
-    @staticmethod
-    def undivision(integer_part, non_repeating_part, repeating_part, base):
+    @classmethod
+    def undivision(
+       cls,
+       integer_part,
+       non_repeating_part,
+       repeating_part,
+       base
+    ):
         """
         Find divisor and dividend that yield component parts.
 
