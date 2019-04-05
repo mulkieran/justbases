@@ -24,8 +24,11 @@ from justbases import BasesError
 from justbases import Nats
 
 from ._utils import build_nat
-from ._utils import build_nat_with_base
 
+
+_NATS_STRATEGY = strategies.integers(min_value=2).flatmap(
+   lambda n: strategies.tuples(build_nat(n, 64), strategies.just(n))
+)
 
 class NatsTestCase(unittest.TestCase):
     """ Tests for ints. """
@@ -44,7 +47,7 @@ class NatsTestCase(unittest.TestCase):
         assert Nats.convert_to_int(result, to_base) == value
 
     @given(
-       build_nat_with_base(1024, 64),
+       _NATS_STRATEGY,
        strategies.integers(min_value=2, max_value=64)
     )
     def testFromOther(self, nat, to_base):
