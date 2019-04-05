@@ -82,20 +82,6 @@ def build_nat_with_base_and_carry(max_base, max_len):
 
     return build_nat_with_base(max_base, max_len).flatmap(the_func)
 
-def build_precision(min_value, max_value):
-    """
-    Build a precision value.
-
-    :param int min_value: the minimum allowable precision, may be negative
-    :param int max_value: the maximum allowable precision, may be negative
-
-    May return None, which means no precision specified.
-    """
-    return strategies.one_of(
-       strategies.just(None),
-       strategies.integers(min_value, max_value)
-    )
-
 def build_sign():
     """
     Build a sign value.
