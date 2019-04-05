@@ -52,34 +52,24 @@ class RationalsTestCase(unittest.TestCase):
        strategies.fractions().map(lambda x: x.limit_denominator(100)),
        strategies.integers(min_value=2, max_value=64),
        strategies.integers(min_value=0, max_value=64),
-       strategies.sampled_from(RoundingMethods.METHODS()),
-       strategies.booleans()
+       strategies.sampled_from(RoundingMethods.METHODS())
     )
     @settings(max_examples=500)
-    def testRoundingConversion(
-       self,
-       value,
-       base,
-       precision,
-       method,
-       expand
-    ):
+    def testRoundingConversion(self, value, base, precision, method):
         """
         Test that converting and then rounding is the same as converting
         with rounding.
         """
-        # pylint: disable=too-many-arguments
         (rounded, rel) = \
-           Radices.from_rational(value, base, precision, method, expand)
+           Radices.from_rational(value, base, precision, method)
         (unrounded, urel) = Radices.from_rational(value, base)
 
         assert urel == 0
 
         (frounded, frel) = unrounded.rounded(precision, method)
 
-        if expand:
-            assert frounded == rounded
-            assert rel == frel
+        assert frounded == rounded
+        assert rel == frel
 
         rounded_value = rounded.as_rational()
 

@@ -38,8 +38,7 @@ class Radices(object):
        value,
        to_base,
        precision=None,
-       method=RoundingMethods.ROUND_DOWN,
-       expand_repeating=True
+       method=RoundingMethods.ROUND_DOWN
     ):
         """
         Convert rational value to a Radix.
@@ -50,28 +49,12 @@ class Radices(object):
         :type precision: int or NoneType
         :param method: rounding method
         :type method: element of RoundingMethods.METHODS()
-        :param bool expand_repeating: expand repeating part
-
         :returns: the conversion result and its relation to actual result
         :rtype: Radix * Rational
         :raises BasesValueError: if to_base is less than 2
 
-        If precision is None, then calculation will proceed until an
-        exact value is reached. The exact value may include a repeating
-        portion. If precision is set, then calculation will proceed
-        only until the correct number of fractional digits have been
-        calculated and rounding has been performed appropriately.
-
-        If precision is set, but the number of fractional digits,
-        including the part that defines the repeating portion, is less
-        than the precision, the fractional part will be extended and
-        rounded and there will be no repeating part.
-        However, if expand_repeating is set to False, the repeating part
-        will be retained. The default for expand_repeating is True.
-
         Complexity: Uncalculated.
         """
-        # pylint: disable=too-many-locals
         if to_base < 2:
             raise BasesValueError(to_base, "to_base", "must be at least 2")
 
@@ -111,11 +94,9 @@ class Radices(object):
            to_base
         )
 
-        relation *= sign
-
-        if precision is not None and expand_repeating:
+        if precision is not None:
             (result, rel) = result.rounded(precision, method)
-            relation = relation if rel == 0 else rel
+            relation = relation * sign if rel == 0 else rel
 
         return (result, relation)
 
