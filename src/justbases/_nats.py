@@ -14,11 +14,8 @@
 """
 Methods dealing exclusively with natural numbers.
 """
-from fractions import Fraction
 from functools import reduce # pylint: disable=redefined-builtin
-from itertools import dropwhile
 
-from ._constants import RoundingMethods
 from ._errors import BasesValueError
 
 
@@ -118,8 +115,8 @@ class Nats(object):
         result.reverse()
         return result
 
-    @classmethod
-    def carry_in(cls, value, carry, base):
+    @staticmethod
+    def carry_in(value, carry, base):
         """
         Add a carry digit to a number represented by ``value``.
 
@@ -156,107 +153,3 @@ class Nats(object):
             result.append(new_val)
 
         return (carry, list(reversed(result)))
-
-    @classmethod
-    def roundTo(cls, value, base, precision, method):
-        """
-        Round a natural number to ``precision`` using ``method``.
-
-        :param value: the value to round
-        :type value: list of int
-        :param int base: the base of ``value``, must be at least 2
-        :param precision: the precision to round to or None
-        :type precision: int or NoneType
-        :param method: the rounding method
-        :type method: one of RoundingMethods.METHODS()
-
-        :returns: the rounded value and the relation to actual
-        :rtype: (list of int) * Fraction
-
-        The relation of the rounded number to the actual is indicated by
-        a Rational value in the range -1 to 1. This number indicates the
-        proportion of the amount rounded by which the rounded value differs
-        from the actual. If the two are the same, the relation is 0.
-
-        For example, suppose the actual number is 350 and the precision is -2.
-        Then, the rounded number must be either 300 or 400 depending on the
-        method. If it is 300, then the relation is -1/2, if 400, +1/2.
-        """
-        if base < 2:
-            raise BasesValueError(base, "base", "must be at least 2")
-
-        if any(x < 0 or x >= base for x in value):
-            raise BasesValueError(
-               value,
-               "value",
-               "elements must be at least 0 and less than %s" % base
-            )
-
-        if not method in RoundingMethods.METHODS():
-            raise BasesValueError(
-               method,
-               "method",
-               "must be among RoundingMethods.METHODS()"
-            )
-
-        if precision is None or precision >= 0:
-            return (value, 0)
-
-        (left, right) = (value[:precision], value[precision:])
-
-        if all(x == 0 for x in right):
-            return (value, 0)
-
-        num_digits = -precision
-        ulp = base ** num_digits
-        middle = Fraction(ulp, 2)
-        fractional_value = cls.convert_to_int(right, base)
-
-        if cls._rounding_up(fractional_value, middle, method):
-            (carry_out, new_left) = cls.carry_in(left, 1, base)
-            if carry_out != 0:
-                new_left = [carry_out] + new_left
-            relation = Fraction(ulp - fractional_value, ulp)
-        else:
-            new_left = left
-            relation = -Fraction(fractional_value, ulp)
-
-        new_left = new_left + num_digits * [0]
-        new_left = [x for x in dropwhile(lambda x: x == 0, new_left)]
-        return (new_left, relation)
-
-    @classmethod
-    def _rounding_up(cls, value, middle, method):
-        """
-        Find rounding direction base on ``method``.
-
-        :param int value: the value that determines the direction
-        :param Fraction middle: the middle possible value
-        :param method: the rounding method
-
-        :returns: True if rounding up, False if down
-        :rtype: boolean
-        """
-        # pylint: disable=too-many-return-statements
-        if method is RoundingMethods.ROUND_DOWN:
-            return False
-
-        if method is RoundingMethods.ROUND_TO_ZERO:
-            return False
-
-        if method is RoundingMethods.ROUND_UP:
-            return True
-
-        if value < middle:
-            return True
-
-        if value > middle:
-            return False
-
-        if value == middle:
-            if method is RoundingMethods.ROUND_HALF_UP:
-                return True
-            if method is RoundingMethods.ROUND_HALF_DOWN:
-                return False
-            if method is RoundingMethods.ROUND_HALF_ZERO:
-                return False
