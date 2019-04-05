@@ -225,7 +225,6 @@ class Radix(object):
 
         Complexity: O(len(integer_part + non_repeating_part + repeating_part))
         """
-        # pylint: disable=too-many-return-statements
         if any(x < 0 or x >= base for x in integer_part):
             return BasesValueError(
                integer_part,
@@ -252,16 +251,6 @@ class Radix(object):
                sign,
                "sign",
                "must be an int between -1 and 1"
-            )
-
-        if sign == 0 and \
-           (any(x != 0 for x in integer_part) or \
-           any(x != 0 for x in non_repeating_part) or \
-           any(x != 0 for x in repeating_part)):
-            return BasesValueError(
-               sign,
-               "sign",
-               "can not be 0 unless number is also zero"
             )
 
         return None
