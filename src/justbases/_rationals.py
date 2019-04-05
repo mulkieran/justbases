@@ -426,33 +426,6 @@ class Radix(object):
     def __ge__(self, other):
         raise BasesInvalidOperationError(">=")
 
-    def __abs__(self):
-        return Radix(
-           abs(self.sign),
-           self.integer_part[:],
-           self.non_repeating_part[:],
-           self.repeating_part[:],
-           self.base
-        )
-
-    def __neg__(self):
-        return Radix(
-           -self.sign,
-           self.integer_part[:],
-           self.non_repeating_part[:],
-           self.repeating_part[:],
-           self.base
-        )
-
-    def __pos__(self):
-        return Radix(
-           self.sign,
-           self.integer_part[:],
-           self.non_repeating_part[:],
-           self.repeating_part[:],
-           self.base
-        )
-
     def __copy__(self): # pragma: no cover
         return Radix(
            self.sign,
