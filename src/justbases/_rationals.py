@@ -520,7 +520,11 @@ class Radix(object):
               self.repeating_part,
               self.base
            )
-        return Fraction(numerator, denominator) * self.sign
+        result = Fraction(
+           Nats.convert_to_int(numerator, self.base),
+           Nats.convert_to_int(denominator, self.base)
+        )
+        return result * self.sign
 
     def as_int(self, method):
         """

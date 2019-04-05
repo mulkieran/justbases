@@ -234,7 +234,7 @@ class NatDivision(object):
         :param int base: the base
 
         :returns: divisor and dividend in lowest terms
-        :rtype: tuple of int * int
+        :rtype: tuple of list of int * list of int
 
         Complexity: O(len(non_repeating_part + repeating_part + integer_part))
         """
@@ -278,4 +278,8 @@ class NatDivision(object):
                (base ** len(repeating_part) - 1)
 
         divisor = gcd(numerator, denominator)
-        return (denominator // divisor, numerator // divisor)
+
+        return (
+           Nats.convert_from_int(denominator // divisor, base),
+           Nats.convert_from_int(numerator // divisor, base)
+        )
