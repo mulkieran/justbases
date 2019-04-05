@@ -127,28 +127,40 @@ class Rationals(object):
 
         Complexity: O(1)
         """
+        # pylint: disable=too-many-return-statements
         if value.denominator == 1:
             return (value.numerator, 0)
 
-        if value < 0:
-            use_value = -value
-            use_method = Rounding.reverse(method)
+        int_value = int(value)
+        if int_value < value:
+            (lower, upper) = (int_value, int_value + 1)
         else:
-            use_method = method
-            use_value = value
+            (lower, upper) = (int_value - 1, int_value)
 
-        int_value = int(use_value)
-        (lower, upper) = (int_value, int_value + 1)
+        if method is RoundingMethods.ROUND_DOWN:
+            return (lower, -1)
 
-        if Rounding.rounding_up(use_value - lower, Fraction(1, 2), use_method):
-            (use_result, relation) = (upper, 1)
-        else:
-            (use_result, relation) = (lower, -1)
+        if method is RoundingMethods.ROUND_UP:
+            return (upper, 1)
 
-        if value != use_value:
-            return (-use_result, -relation)
-        else:
-            return (use_result, relation)
+        if method is RoundingMethods.ROUND_TO_ZERO:
+            return (upper, 1) if lower < 0 else (lower, -1)
+
+        delta = value - lower
+
+        if method is RoundingMethods.ROUND_HALF_UP:
+            return (upper, 1) if delta >= Fraction(1, 2) else (lower, -1)
+
+        if method is RoundingMethods.ROUND_HALF_DOWN:
+            return (lower, -1) if delta <= Fraction(1, 2) else (upper, 1)
+
+        if method is RoundingMethods.ROUND_HALF_ZERO:
+            if lower < 0:
+                return (upper, 1) if delta >= Fraction(1, 2) else (lower, -1)
+            else:
+                return (lower, -1) if delta <= Fraction(1, 2) else (upper, 1)
+
+        raise BasesValueError(method, "method")
 
 
 class Radix(object):
