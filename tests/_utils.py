@@ -143,12 +143,7 @@ def build_radix(max_base, max_len):
     return build_base(max_base).flatmap(make_radix)
 
 
-def build_display_config(
-   approx_config,
-   base_config,
-   digits_config,
-   strip_config
-):
+def build_display_config(base_config, digits_config, strip_config):
     """
     Builds a well-formed display configuration.
 
@@ -158,7 +153,7 @@ def build_display_config(
     """
     return strategies.builds(
        DisplayConfig,
-       approx_config=approx_config,
+       show_approx_str=strategies.booleans(),
        base_config=base_config,
        digits_config=digits_config,
        strip_config=strip_config
