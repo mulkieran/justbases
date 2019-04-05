@@ -106,9 +106,9 @@ A class which represents a rational number as
 
     >>> from justbases import Radix
     >>> Radix(-1, [1], [2], [1], 10)
-    Radix(-1, [1], [2], [1], 10)
+    Radix(-1,[1],[2],[1],10)
     >>> Radix(1, [12, 13], [4], [], 16)
-    Radix(1, [12, 13], [4], [], 16)
+    Radix(1,[12, 13],[4],[],16)
 
 The Radix constructor validates and canonicalizes the Radix.
 Validation ensures that the digits are within the appropriate range
@@ -117,7 +117,7 @@ representation for equivalent Radix values. For example, it reduces
 the repeating part to the smallest possible. ::
 
     >>> Radix(1, [], [], [1, 0, 1, 0], 2)
-    Radix(1, [], [], [1, 0], 2)
+    Radix(1,[],[],[1, 0],2)
 
 Canonicalization and validation are expensive, and may be omitted when
 unnecessary, for example, when an algorithm is known to yield a canonical
@@ -125,7 +125,7 @@ value or when operations, such as ==, which require canonicalization for
 their correctness, are not anticipated. ::
 
     >>> Radix(1, [], [], [1, 0, 1, 0], 2, canonicalize=False)
-    Radix(1, [], [], [1, 0, 1, 0], 2)
+    Radix(1,[],[],[1, 0, 1, 0],2)
 
 Although canonicalized Radix objects may be compared for
 equality, they can not be ordered. To compare the values of two Radix
@@ -139,16 +139,16 @@ The first element of the pair is the result, the second indicates the
 relation of the result to the actual value. ::
 
     >>> Radices.from_rational(Fraction(1, 3), 2)
-    (Radix(1, [], [], [0, 1], 2), 0)
+    (Radix(1,[],[],[0, 1],2), 0)
     >>> Radix(1, [], [], [0, 1], 2).as_rational()
     Fraction(1, 3)
     >>> Radices.from_rational(Fraction(60, 1), 60)
-    (Radix(1, [1, 0], [], [], 60), 0)
+    (Radix(1,[1, 0],[],[],60), 0)
 
 Radix objects can be converted between arbitrary bases. ::
 
     >>> Radix(1, [], [], [0, 1], 2).in_base(3)
-    Radix(1, [], [1], [], 3)
+    Radix(1,[],[1],[],3)
 
 Rationals: Rounding Rationals
 ----------------------------
@@ -165,16 +165,16 @@ The second element of the pair indicates the direction of rounding. ::
 
     >>> from justbases import RoundingMethods
     >>> Radix(1, [], [], [0, 1], 2).rounded(5, RoundingMethods.ROUND_UP)
-    (Radix(1, [], [0, 1, 0, 1, 1], [], 2), Fraction(1, 3))
+    (Radix(1,[],[0, 1, 0, 1, 1],[],2), Fraction(1, 3))
     >>> Radix(1, [], [], [0, 1], 2).rounded(5, RoundingMethods.ROUND_HALF_DOWN)
-    (Radix(1, [], [0, 1, 0, 1, 1], [], 2), Fraction(1, 3))
+    (Radix(1,[],[0, 1, 0, 1, 1],[],2), Fraction(1, 3))
 
 If the goal is to obtain a radix value from a rounded rational quantity it is
 more efficient to use Radices.from_rational() with precision and
 method arguments set. ::
 
     >>> Radices.from_rational(Fraction(1, 3), 2, 1, RoundingMethods.ROUND_UP)
-    (Radix(1, [], [1], [], 2), Fraction(1, 3))
+    (Radix(1,[],[1],[],2), Fraction(1, 3))
 
 
 Display
@@ -210,10 +210,10 @@ a given latitude into alternative formats. ::
     Fraction(1279, 30) # latitude as a rational number
     >>> (radix, _) = Radices.from_rational(latitude_rational, 10)
     >>> radix
-    Radix(1, [4, 2], [6], [3], 10)
+    Radix(1,[4, 2],[6],[3],10)
     >>> radix.rounded(2, RoundingMethods.ROUND_TO_ZERO)
-    (Radix(1, [4, 2], [6, 3], [], 10), Fraction(-1, 3)
+    (Radix(1,[4, 2],[6, 3],[],10), Fraction(-1, 3)
     >>> radix.in_base(60)
-    Radix(1, [42], [38], [], 60)
+    Radix(1,[42],[38],[],60)
     >>> radix.in_base(3600)
-    Radix(1, [42], [2280], [], 3600)
+    Radix(1,[42],[2280],[],3600)
