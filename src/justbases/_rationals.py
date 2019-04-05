@@ -44,7 +44,7 @@ class Radices(object):
        method=RoundingMethods.ROUND_DOWN
     ):
         """
-        Convert rational value to a Radix.
+        Convert rational value to a base.
 
         :param Rational value: the value to convert
         :param int to_base: base of result, must be at least 2
@@ -68,17 +68,19 @@ class Radices(object):
             non_repeating_part = [] if precision is None else precision * [0]
             return (Radix(0, [], non_repeating_part, [], to_base), 0)
 
-        denominator = Nats.convert_from_int(value.denominator, to_base)
-
-        sign = -1 if value < 0 else 1
-        if sign == -1:
-            use_value = -value
-            use_method = Rounding.reverse(method)
+        if value < 0:
+            sign = -1
         else:
-            use_value = value
-            use_method = method
+            sign = 1
 
-        numerator = Nats.convert_from_int(use_value.numerator, to_base)
+        div_method = method
+
+        if sign == -1:
+            value = -value
+            div_method = Rounding.reverse(method)
+
+        numerator = Nats.convert_from_int(value.numerator, to_base)
+        denominator = Nats.convert_from_int(value.denominator, to_base)
 
         (integer_part, non_repeating_part, repeating_part, relation) = \
            NatDivision.division(
@@ -86,8 +88,10 @@ class Radices(object):
               numerator,
               to_base,
               precision,
-              use_method
+              div_method
            )
+
+        relation = relation * sign
 
         result = Radix(
            sign,
@@ -99,7 +103,7 @@ class Radices(object):
 
         if precision is not None:
             (result, rel) = result.rounded(precision, method)
-            relation = relation * sign if rel == 0 else rel
+            relation = relation if rel == 0 else rel
 
         return (result, relation)
 
