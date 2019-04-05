@@ -17,9 +17,8 @@ Long division in any bases.
 
 from __future__ import absolute_import
 
+import fractions
 import itertools
-
-from fractions import Fraction
 
 from ._constants import RoundingMethods
 from ._errors import BasesValueError
@@ -102,8 +101,9 @@ class NatDivision(object):
             start = remainders.index(remainder)
             return (0, quotient[:start], quotient[start:], 0)
         else:
-            fractional = Fraction(remainder, divisor)
-            if Rounding.rounding_up(fractional, Fraction(1, 2), method):
+            fractional = fractions.Fraction(remainder, divisor)
+            middle = fractions.Fraction(1, 2)
+            if Rounding.rounding_up(fractional, middle, method):
                 (carry, quotient) = Nats.carry_in(quotient, 1, base)
                 return (carry, quotient, [], 1)
             else:
@@ -266,7 +266,7 @@ class NatDivision(object):
         shift_length = len(repeating_part)
         frac_length = len(non_repeating_part)
 
-        top = Fraction(
+        top = fractions.Fraction(
            Nats.convert_to_int(
               integer_part + non_repeating_part + repeating_part,
               base
@@ -280,7 +280,7 @@ class NatDivision(object):
                Nats.convert_from_int(top.numerator, base)
             )
 
-        bottom = Fraction(
+        bottom = fractions.Fraction(
            Nats.convert_to_int(integer_part + non_repeating_part, base),
            base ** frac_length
         )
