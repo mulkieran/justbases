@@ -82,6 +82,8 @@ class Radices(object):
             non_repeating_part = [] if precision is None else precision * [0]
             return (Radix(0, [], non_repeating_part, [], to_base), 0)
 
+        denominator = Nats.convert_from_int(value.denominator, to_base)
+
         sign = -1 if value < 0 else 1
         if sign == -1:
             use_value = -value
@@ -90,10 +92,12 @@ class Radices(object):
             use_value = value
             use_method = method
 
+        numerator = Nats.convert_from_int(use_value.numerator, to_base)
+
         (integer_part, non_repeating_part, repeating_part, relation) = \
            NatDivision.division(
-              value.denominator,
-              use_value.numerator,
+              denominator,
+              numerator,
               to_base,
               precision,
               use_method
