@@ -67,9 +67,9 @@ class NatDivision(object):
         if remainder == 0: # pragma: no cover
             return (0, quotient, [], 0)
 
-        fractional = fractions.Fraction(remainder, divisor)
+        remainder = fractions.Fraction(remainder, divisor)
         middle = fractions.Fraction(base, 2)
-        if Rounding.rounding_up(fractional, middle, method):
+        if Rounding.rounding_up(remainder, middle, method):
             (carry, quotient) = Nats.carry_in(quotient, 1, base)
             return (carry, quotient, [], 1)
         else:
