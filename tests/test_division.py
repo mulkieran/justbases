@@ -89,6 +89,8 @@ class NatDivisionTestCase(unittest.TestCase):
             NatDivision.division([0], [1], 3)
         with self.assertRaises(BasesError):
             NatDivision.division([2], [1], 3, -1)
+        with self.assertRaises(BasesError):
+            NatDivision.division([3], [1], 10, 0, None)
 
     def testExceptionsUndivision(self):
         """

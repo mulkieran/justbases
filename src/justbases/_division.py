@@ -31,6 +31,50 @@ class NatDivision(object):
     Methods for division in arbitrary bases.
     """
 
+    @classmethod
+    def _round(
+       cls,
+       quotient,
+       divisor,
+       remainder,
+       base,
+       method=RoundingMethods.ROUND_DOWN
+    ):
+        """
+        Round the quotient.
+
+        :param quotient: current quotient
+        :type quotient: list of int
+        :param int divisor: the divisor
+        :param int remainder: the remainder
+        :param int base: the base
+        :param method: the rounding method
+        :raises BasesValueError:
+
+        :returns: carry-out digit, non_repeating and repeating parts
+        :rtype: tuple of int * list of int * list of int * int
+
+        Complexity: O(len(quotient))
+        """
+        # pylint: disable=too-many-arguments
+        if method not in RoundingMethods.METHODS():
+            raise BasesValueError(
+               method,
+               "method",
+               "must be one of RoundingMethods.METHODS"
+            )
+
+        if remainder == 0: # pragma: no cover
+            return (0, quotient, [], 0)
+
+        fractional = fractions.Fraction(remainder, divisor)
+        middle = fractions.Fraction(1, 2)
+        if Rounding.rounding_up(fractional, middle, method):
+            (carry, quotient) = Nats.carry_in(quotient, 1, base)
+            return (carry, quotient, [], 1)
+        else:
+            return (0, quotient, [], -1)
+
     @staticmethod
     def _divide(divisor, remainder, base, precision=None):
         """
@@ -73,8 +117,7 @@ class NatDivision(object):
        method=RoundingMethods.ROUND_DOWN
     ):
         """
-        Get the repeating and non-repeating part by dividing the remainder by
-        the divisor.
+        Get the repeating and non-repeating part.
 
         :param int divisor: the divisor
         :param int remainder: the remainder
@@ -84,7 +127,7 @@ class NatDivision(object):
         :param method: rounding method
         :type method: element of RoundignMethods.METHODS
 
-        :returns: carry-out digit, non_repeating and repeating parts, relation
+        :returns: carry-out digit, non_repeating and repeating parts
         :rtype: tuple of int * list of int * list of int * int
 
         :raises BasesValueError:
@@ -101,13 +144,13 @@ class NatDivision(object):
             start = remainders.index(remainder)
             return (0, quotient[:start], quotient[start:], 0)
         else:
-            fractional = fractions.Fraction(remainder, divisor)
-            middle = fractions.Fraction(1, 2)
-            if Rounding.rounding_up(fractional, middle, method):
-                (carry, quotient) = Nats.carry_in(quotient, 1, base)
-                return (carry, quotient, [], 1)
-            else:
-                return (0, quotient, [], -1)
+            return cls._round(
+               quotient,
+               divisor,
+               remainder,
+               base,
+               method
+            )
 
     @staticmethod
     def _division(divisor, dividend, remainder, base):
