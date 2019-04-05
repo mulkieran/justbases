@@ -74,9 +74,9 @@ class RationalsTestCase(unittest.TestCase):
         rounded_value = rounded.as_rational()
 
         if rounded_value > value:
-            assert rel > 0 and rel < 1
+            assert rel == 1
         elif rounded_value < value:
-            assert rel < 0 and rel > -1
+            assert rel == -1
         else:
             assert rel == 0
 
@@ -118,86 +118,86 @@ class RationalsTestCase(unittest.TestCase):
         (result, rel) = \
            Rationals.round_to_int(value, RoundingMethods.ROUND_DOWN)
         self.assertEqual(result, 0)
-        self.assertEqual(rel, -value)
+        self.assertEqual(rel, -1)
 
         (result, rel) = \
            Rationals.round_to_int(-value, RoundingMethods.ROUND_DOWN)
         self.assertEqual(result, -1)
-        self.assertEqual(rel, value - 1)
+        self.assertEqual(rel, -1)
 
         (result, rel) = \
            Rationals.round_to_int(value, RoundingMethods.ROUND_UP)
         self.assertEqual(result, 1)
-        self.assertEqual(rel, 1 - value)
+        self.assertEqual(rel, 1)
 
         (result, rel) = \
            Rationals.round_to_int(-value, RoundingMethods.ROUND_UP)
         self.assertEqual(result, 0)
-        self.assertEqual(rel, value)
+        self.assertEqual(rel, 1)
 
         (result, rel) = \
            Rationals.round_to_int(value, RoundingMethods.ROUND_TO_ZERO)
         self.assertEqual(result, 0)
-        self.assertEqual(rel, -value)
+        self.assertEqual(rel, -1)
 
         (result, rel) = \
            Rationals.round_to_int(-value, RoundingMethods.ROUND_TO_ZERO)
         self.assertEqual(result, 0)
-        self.assertEqual(rel, value)
+        self.assertEqual(rel, 1)
 
         (result, rel) = \
            Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_UP)
         if numerator < 5:
             self.assertEqual(result, 0)
-            self.assertEqual(rel, -value)
+            self.assertEqual(rel, -1)
         else:
             self.assertEqual(result, 1)
-            self.assertEqual(rel, 1 - value)
+            self.assertEqual(rel, 1)
 
         (result, rel) = \
            Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_UP)
         if numerator <= 5:
             self.assertEqual(result, 0)
-            self.assertEqual(rel, value)
+            self.assertEqual(rel, 1)
         else:
             self.assertEqual(result, -1)
-            self.assertEqual(rel, value - 1)
+            self.assertEqual(rel, -1)
 
         (result, rel) = \
            Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_DOWN)
         if numerator > 5:
             self.assertEqual(result, 1)
-            self.assertEqual(rel, 1 - value)
+            self.assertEqual(rel, 1)
         else:
             self.assertEqual(result, 0)
-            self.assertEqual(rel, -value)
+            self.assertEqual(rel, -1)
 
         (result, rel) = \
            Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_DOWN)
         if numerator >= 5:
             self.assertEqual(result, -1)
-            self.assertEqual(rel, value - 1)
+            self.assertEqual(rel, -1)
         else:
             self.assertEqual(result, 0)
-            self.assertEqual(rel, value)
+            self.assertEqual(rel, 1)
 
         (result, rel) = \
            Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_ZERO)
         if numerator > 5:
             self.assertEqual(result, 1)
-            self.assertEqual(rel, 1 - value)
+            self.assertEqual(rel, 1)
         else:
             self.assertEqual(result, 0)
-            self.assertEqual(rel, -value)
+            self.assertEqual(rel, -1)
 
         (result, rel) = \
            Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_ZERO)
         if numerator > 5:
             self.assertEqual(result, -1)
-            self.assertEqual(rel, value - 1)
+            self.assertEqual(rel, -1)
         else:
             self.assertEqual(result, 0)
-            self.assertEqual(rel, value)
+            self.assertEqual(rel, 1)
 
 
     def testRoundingExceptions(self):

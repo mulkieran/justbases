@@ -267,9 +267,9 @@ class RoundingTestCase(unittest.TestCase):
         assert value + ulp >= rational_result
 
         if rational_result > value:
-            assert relation > 0 and relation < 1
+            assert relation == 1
         elif rational_result < value:
-            assert relation < 0 and relation > -1
+            assert relation == -1
         else:
             assert relation == 0
 
