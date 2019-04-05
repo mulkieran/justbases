@@ -36,8 +36,6 @@ Contents:
   * String -- display of Radices
 """
 
-from ._approx_display import ApproxPrefix
-
 from ._constants import RoundingMethods
 
 from ._config import ApproxConfig
