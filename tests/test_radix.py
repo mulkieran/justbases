@@ -75,13 +75,14 @@ class RadixTestCase(unittest.TestCase):
         with self.assertRaises(BasesError):
             Radix(0, [1], [], [], 2)
 
-    @given(build_radix(1024, 10))
+    @given(build_radix(36, 10))
     @settings(max_examples=10)
     def testStr(self, radix):
         """
-        Make sure that result is calculated and is non-empty.
+        Check basic properties of __str__.
         """
-        self.assertTrue(str(radix))
+        result = str(radix)
+        assert result.startswith("-") == (radix.sign == -1)
 
     @given(build_radix(1024, 10))
     @settings(max_examples=10)

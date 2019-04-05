@@ -17,7 +17,10 @@ from __future__ import absolute_import
 
 import itertools
 
+from justbases import BaseConfig
+from justbases import DisplayConfig
 from justbases import Radix
+from justbases import StripConfig
 
 from hypothesis import strategies
 
@@ -138,3 +141,46 @@ def build_radix(max_base, max_len):
             )
 
     return build_base(max_base).flatmap(make_radix)
+
+
+def build_display_config(
+   approx_config,
+   base_config,
+   digits_config,
+   strip_config
+):
+    """
+    Builds a well-formed display configuration.
+
+    :param BaseConfig base_config: the base config
+    :param DigitsConfig digits_config: the digits config
+    :param StripConfig strip_config: the strip config
+    """
+    return strategies.builds(
+       DisplayConfig,
+       approx_config=approx_config,
+       base_config=base_config,
+       digits_config=digits_config,
+       strip_config=strip_config
+    )
+
+def build_strip_config():
+    """
+    Build strip config.
+    """
+    return strategies.builds(
+       StripConfig,
+       strategies.booleans(),
+       strategies.booleans(),
+       strategies.booleans()
+    )
+
+def build_base_config():
+    """
+    Build base config.
+    """
+    return strategies.builds(
+       BaseConfig,
+       strategies.booleans(),
+       strategies.booleans()
+    )

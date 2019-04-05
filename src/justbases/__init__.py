@@ -36,7 +36,18 @@ Contents:
   * String -- display of Radices
 """
 
+from ._approx_display import ApproxPrefix
+
 from ._constants import RoundingMethods
+
+from ._config import ApproxConfig
+from ._config import BasesConfig
+from ._config import BaseConfig
+from ._config import DigitsConfig
+from ._config import DisplayConfig
+from ._config import StripConfig
+
+from ._display import String
 
 from ._division import NatDivision
 

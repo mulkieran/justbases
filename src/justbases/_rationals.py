@@ -20,6 +20,8 @@ import itertools
 from fractions import Fraction
 
 from ._constants import RoundingMethods
+from ._config import BasesConfig
+from ._display import String
 from ._division import NatDivision
 from ._errors import BasesInvalidOperationError
 from ._errors import BasesValueError
@@ -166,14 +168,6 @@ class Radix(object):
        "_",
        "%(base)s"
     ])
-
-    try: # pragma: no cover
-        import justbases_string
-        STR_CONFIG = justbases_string.DisplayConfig()
-        STR_IMPL = justbases_string.String
-    except ImportError: # pragma: no cover
-        STR_CONFIG = None
-        STR_IMPL = None
 
     @classmethod
     def _validate( # pylint: disable=too-many-arguments
@@ -385,17 +379,17 @@ class Radix(object):
         self.non_repeating_part = non_repeating_part
         self.repeating_part = repeating_part
 
+    def getString(self, config, relation=0):
+        """
+        Return a representation of a Radix according to config.
+
+        :param DisplayConfig config: configuration
+        :param Rational relation: the relation of this value to actual value
+        """
+        return String(config, self.base).xform(self, relation)
+
     def __str__(self):
-        if self.STR_CONFIG is None or self.STR_IMPL is None: # pragma: no cover
-            return repr(self)
-        else: # pragma: no cover
-            return self.STR_IMPL(self.STR_CONFIG, self.base).xform(
-               self.sign,
-               self.integer_part,
-               self.non_repeating_part,
-               self.repeating_part,
-               0
-            )
+        return self.getString(BasesConfig.DISPLAY_CONFIG, 0)
 
     def __repr__(self):
         return 'Radix(%s,%s,%s,%s,%s)' % \
