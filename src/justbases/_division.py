@@ -78,8 +78,7 @@ class NatDivision(object):
     @staticmethod
     def _divide(divisor, remainder, quotient, remainders, base, precision=None):
         """
-        Given a divisor and remainder, continue division until precision is
-        reached or an exact value is calculated.
+        Given a divisor and dividend, continue until precision is reached.
 
         :param int divisor: the divisor
         :param int remainder: the remainder
@@ -166,7 +165,7 @@ class NatDivision(object):
     @staticmethod
     def _division(divisor, dividend, remainder, base):
         """
-        Get the quotient and remainder of two natural numbers in any base.
+        Get the quotient and remainder
 
         :param int divisor: the divisor
         :param dividend: the dividend
@@ -247,13 +246,12 @@ class NatDivision(object):
                "must be greater than 0"
             )
 
-        int_divisor = Nats.convert_to_int(divisor, base)
+        divisor = Nats.convert_to_int(divisor, base)
 
-        (integer_part, rem) = cls._division(int_divisor, dividend, 0, base)
-
+        (integer_part, rem) = cls._division(divisor, dividend, 0, base)
         (carry, non_repeating_part, repeating_part, relation) = \
            cls._fractional_division(
-              int_divisor,
+              divisor,
               rem,
               base,
               precision,
