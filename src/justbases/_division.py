@@ -76,7 +76,7 @@ class NatDivision(object):
             return (0, quotient, [], -1)
 
     @staticmethod
-    def _divide(divisor, remainder, base, precision=None):
+    def _divide(divisor, remainder, quotient, remainders, base, precision=None):
         """
         Given a divisor and remainder, continue division until precision is
         reached or an exact value is calculated.
@@ -87,16 +87,17 @@ class NatDivision(object):
         :param precision: maximum number of fractional digits to compute
         :type precision: int or NoneType
 
-        :returns: the quotient, the list of remainders, and the remainder
-        :rtype: (list of int) * (list of int) * int
+        :returns: the remainder
+        :rtype: int
+
+        ``quotient`` and ``remainders`` are set by side effects
 
         Complexity: O(precision) if precision is not None else O(divisor)
         """
+        # pylint: disable=too-many-arguments
 
         indices = itertools.count() if precision is None else range(precision)
 
-        quotient = []
-        remainders = []
         for _ in indices:
             if remainder == 0 or remainder in remainders:
                 break
@@ -107,7 +108,7 @@ class NatDivision(object):
                 remainder = rem * base
             else:
                 remainder = remainder * base
-        return (quotient, remainders, remainder)
+        return remainder
 
     @classmethod
     def _fractional_division(
@@ -137,9 +138,13 @@ class NatDivision(object):
         Complexity: O(precision) if precision is not None else O(divisor)
         """
         # pylint: disable=too-many-arguments
-        (quotient, remainders, remainder) = cls._divide(
+        quotient = []
+        remainders = []
+        remainder = cls._divide(
            divisor,
            remainder * base,
+           quotient,
+           remainders,
            base,
            precision
         )
