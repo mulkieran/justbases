@@ -99,7 +99,7 @@ class NatDivision(object):
     @staticmethod
     def _divide(divisor, remainder, quotient, remainders, base, precision=None):
         """
-        Given a divisor and dividend, continue until precision is reached.
+        Given a divisor and dividend, continue until precision in is reached.
 
         :param int divisor: the divisor
         :param int remainder: the remainder
@@ -189,7 +189,7 @@ class NatDivision(object):
         Get the quotient and remainder
 
         :param int divisor: the divisor
-        :param dividend: the dividend
+        :param dividend: the divident
         :type dividend: sequence of int
         :param int remainder: initial remainder
         :param int base: the base
