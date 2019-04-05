@@ -23,7 +23,6 @@ import itertools
 from ._constants import RoundingMethods
 from ._errors import BasesValueError
 from ._nats import Nats
-from ._rounding import Rounding
 
 
 class NatDivision(object):
@@ -56,6 +55,7 @@ class NatDivision(object):
 
         Complexity: O(len(quotient))
         """
+        # pylint: disable=too-many-return-statements
         # pylint: disable=too-many-arguments
         if method not in RoundingMethods.METHODS():
             raise BasesValueError(
@@ -67,13 +67,34 @@ class NatDivision(object):
         if remainder == 0: # pragma: no cover
             return (0, quotient, [], 0)
 
-        remainder = fractions.Fraction(remainder, divisor)
-        middle = fractions.Fraction(base, 2)
-        if Rounding.rounding_up(remainder, middle, method):
+        if method is RoundingMethods.ROUND_DOWN:
+            return (0, quotient, [], -1)
+        elif method is RoundingMethods.ROUND_TO_ZERO:
+            return (0, quotient, [], -1)
+        elif method is RoundingMethods.ROUND_UP:
             (carry, quotient) = Nats.carry_in(quotient, 1, base)
             return (carry, quotient, [], 1)
         else:
-            return (0, quotient, [], -1)
+            remainder = fractions.Fraction(remainder, divisor)
+            middle = fractions.Fraction(base, 2)
+            if remainder < middle:
+                return (0, quotient, [], -1)
+            elif remainder > middle:
+                (carry, quotient) = Nats.carry_in(quotient, 1, base)
+                return (carry, quotient, [], 1)
+            else:
+                if method is RoundingMethods.ROUND_HALF_UP:
+                    (carry, quotient) = Nats.carry_in(quotient, 1, base)
+                    return (carry, quotient, [], 1)
+                elif method in \
+                   (RoundingMethods.ROUND_HALF_DOWN,
+                    RoundingMethods.ROUND_HALF_ZERO):
+                    return (0, quotient, [], -1)
+        raise BasesValueError( # pragma: no cover
+           method,
+           "method",
+           "must be one of RoundingMethods.METHODS"
+        )
 
     @staticmethod
     def _divide(divisor, remainder, quotient, remainders, base, precision=None):
