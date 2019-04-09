@@ -1,22 +1,28 @@
-# Copyright (C) 2015 Anne Mulhern
+# Copyright (C) 2015 - 2019 Red Hat, Inc.
 #
-# This copyrighted material is made available to anyone wishing to use,
-# modify, copy, or redistribute it subject to the terms and conditions of
-# the GNU General Public License v.2, or (at your option) any later version.
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY expressed or implied, including the implied warranties of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-# Public License for more details.  You should have received a copy of the
-# GNU General Public License along with this program; if not, write to the
-# Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# Anne Mulhern <mulhern@cs.wisc.edu>
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; If not, see <http://www.gnu.org/licenses/>.
+#
+# Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
+# Other Author(s): Anne Mulhern <mulhern@cs.wisc.edu>
 
 """ Test for rational conversions. """
 
 from __future__ import absolute_import
 
 from fractions import Fraction
-
+from os import environ
+from os import sys
 import unittest
 
 from hypothesis import given
@@ -24,7 +30,6 @@ from hypothesis import settings
 from hypothesis import strategies
 
 from justbases import BasesError
-from justbases import Nats
 from justbases import Radix
 from justbases import Rationals
 from justbases import RoundingMethods
@@ -32,6 +37,8 @@ from justbases import RoundingMethods
 from ._utils import build_base
 from ._utils import build_radix
 
+if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
+    settings.load_profile("tracing")
 
 class RadixTestCase(unittest.TestCase):
     """ Tests for radix. """
@@ -40,7 +47,7 @@ class RadixTestCase(unittest.TestCase):
        build_radix(16, 3),
        build_base(16)
     )
-    @settings(max_examples=50)
+    @settings(max_examples=50, deadline=None)
     def testInBase(self, radix, base):
         """
         Test that roundtrip is identity modulo number of 0s in
@@ -72,16 +79,15 @@ class RadixTestCase(unittest.TestCase):
             Radix(True, [1], [0], [1], 2)
         with self.assertRaises(BasesError):
             Radix(1, [1], [0], [1], 2).in_base(0)
-        with self.assertRaises(BasesError):
-            Radix(0, [1], [], [], 2)
 
-    @given(build_radix(1024, 10))
+    @given(build_radix(36, 10))
     @settings(max_examples=10)
     def testStr(self, radix):
         """
-        Make sure that result is calculated and is non-empty.
+        Check basic properties of __str__.
         """
-        self.assertTrue(str(radix))
+        result = str(radix)
+        assert result.startswith("-") == (radix.sign == -1)
 
     @given(build_radix(1024, 10))
     @settings(max_examples=10)
@@ -163,83 +169,6 @@ class RadixTestCase(unittest.TestCase):
         self.assertEqual(radix.non_repeating_part, [3, 3])
         self.assertEqual(radix.repeating_part, [2, 3, 1])
 
-    @given(build_radix(1024, 10))
-    def testUlp(self, radix):
-        """
-        Verify that ulp has correct relation to ``radix``.
-        """
-        result = radix.ulp
-        if radix.repeating_part != []:
-            self.assertIsNone(result)
-        else:
-            (carry_out, non_repeating_part) = \
-               Nats.carry_in(radix.non_repeating_part, 1, radix.base)
-            (carry_out, integer_part) = \
-               Nats.carry_in(radix.integer_part, carry_out, radix.base)
-            if carry_out != 0:
-                integer_part = [carry_out] + integer_part
-            new = Radix(
-               radix.sign if radix.sign != 0 else 1,
-               integer_part,
-               non_repeating_part,
-               [],
-               radix.base
-            )
-            difference = new.as_rational() - radix.as_rational()
-            if radix.sign < 0:
-                self.assertEqual(difference, -result)
-            else:
-                self.assertEqual(difference, result)
-
-    @given(build_radix(1024, 10), build_radix(1024, 10))
-    @settings(max_examples=50)
-    def testHashEqual(self, radix1, radix2):
-        """
-        Test that hash has the hash property.
-        """
-        hash1 = hash(radix1)
-        hash2 = hash(radix2)
-        if radix1 == radix2:
-            self.assertEqual(hash1, hash2)
-
-    @given(build_radix(1024, 10))
-    @settings(max_examples=50)
-    def testAbs(self, radix):
-        """
-        Test abs().
-        """
-        result = abs(radix)
-        self.assertEqual(result.integer_part, radix.integer_part)
-        self.assertEqual(result.non_repeating_part, radix.non_repeating_part)
-        self.assertEqual(result.repeating_part, radix.repeating_part)
-        self.assertEqual(result.base, radix.base)
-        self.assertEqual(result.sign, abs(radix.sign))
-
-    @given(build_radix(1024, 10))
-    @settings(max_examples=50)
-    def testPos(self, radix):
-        """
-        Test pos().
-        """
-        result = +radix
-        self.assertEqual(result.integer_part, radix.integer_part)
-        self.assertEqual(result.non_repeating_part, radix.non_repeating_part)
-        self.assertEqual(result.repeating_part, radix.repeating_part)
-        self.assertEqual(result.base, radix.base)
-        self.assertEqual(result.sign, +radix.sign)
-
-    @given(build_radix(1024, 10))
-    @settings(max_examples=50)
-    def testNeg(self, radix):
-        """
-        Test neg().
-        """
-        result = -radix
-        self.assertEqual(result.integer_part, radix.integer_part)
-        self.assertEqual(result.non_repeating_part, radix.non_repeating_part)
-        self.assertEqual(result.repeating_part, radix.repeating_part)
-        self.assertEqual(result.base, radix.base)
-        self.assertEqual(result.sign, -radix.sign)
 
 class RoundingTestCase(unittest.TestCase):
     """ Tests for rounding Radixes. """
@@ -266,9 +195,9 @@ class RoundingTestCase(unittest.TestCase):
         assert value + ulp >= rational_result
 
         if rational_result > value:
-            assert relation > 0 and relation < 1
+            assert relation == 1
         elif rational_result < value:
-            assert relation < 0 and relation > -1
+            assert relation == -1
         else:
             assert relation == 0
 

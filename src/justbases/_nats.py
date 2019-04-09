@@ -1,35 +1,36 @@
-# Copyright (C) 2015 Anne Mulhern
+# Copyright (C) 2015 - 2019 Red Hat, Inc.
 #
-# This copyrighted material is made available to anyone wishing to use,
-# modify, copy, or redistribute it subject to the terms and conditions of
-# the GNU General Public License v.2, or (at your option) any later version.
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY expressed or implied, including the implied warranties of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-# Public License for more details.  You should have received a copy of the
-# GNU General Public License along with this program; if not, write to the
-# Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# Anne Mulhern <mulhern@cs.wisc.edu>
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; If not, see <http://www.gnu.org/licenses/>.
+#
+# Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
+# Other Author(s): Anne Mulhern <mulhern@cs.wisc.edu>
 
 """
 Methods dealing exclusively with natural numbers.
 """
-from fractions import Fraction
 from functools import reduce # pylint: disable=redefined-builtin
-from itertools import dropwhile
 
-from ._constants import RoundingMethods
 from ._errors import BasesValueError
-from ._rounding import Rounding
 
 
-class Nats(object):
+class Nats():
     """
     Methods to convert non-negative ints.
     """
 
-    @staticmethod
-    def convert(value, from_base, to_base):
+    @classmethod
+    def convert(cls, value, from_base, to_base):
         """
         Convert value from a base to a base.
 
@@ -49,8 +50,8 @@ class Nats(object):
 
         Complexity: O(len(value))
         """
-        return Nats.convert_from_int(
-           Nats.convert_to_int(value, from_base),
+        return cls.convert_from_int(
+           cls.convert_to_int(value, from_base),
            to_base
         )
 
@@ -157,71 +158,3 @@ class Nats(object):
             result.append(new_val)
 
         return (carry, list(reversed(result)))
-
-    @staticmethod
-    def roundTo(value, base, precision, method):
-        """
-        Round a natural number to ``precision`` using ``method``.
-
-        :param value: the value to round
-        :type value: list of int
-        :param int base: the base of ``value``, must be at least 2
-        :param precision: the precision to round to or None
-        :type precision: int or NoneType
-        :param method: the rounding method
-        :type method: one of RoundingMethods.METHODS()
-
-        :returns: the rounded value and the relation to actual
-        :rtype: (list of int) * Fraction
-
-        The relation of the rounded number to the actual is indicated by
-        a Rational value in the range -1 to 1. This number indicates the
-        proportion of the amount rounded by which the rounded value differs
-        from the actual. If the two are the same, the relation is 0.
-
-        For example, suppose the actual number is 350 and the precision is -2.
-        Then, the rounded number must be either 300 or 400 depending on the
-        method. If it is 300, then the relation is -1/2, if 400, +1/2.
-        """
-        if base < 2:
-            raise BasesValueError(base, "base", "must be at least 2")
-
-        if any(x < 0 or x >= base for x in value):
-            raise BasesValueError(
-               value,
-               "value",
-               "elements must be at least 0 and less than %s" % base
-            )
-
-        if not method in RoundingMethods.METHODS():
-            raise BasesValueError(
-               method,
-               "method",
-               "must be among RoundingMethods.METHODS()"
-            )
-
-        if precision is None or precision >= 0:
-            return (value, 0)
-
-        (left, right) = (value[:precision], value[precision:])
-
-        if all(x == 0 for x in right):
-            return (value, 0)
-
-        num_digits = -precision
-        ulp = base ** num_digits
-        middle = Fraction(ulp, 2)
-        fractional_value = Nats.convert_to_int(right, base)
-
-        if Rounding.rounding_up(fractional_value, middle, method):
-            (carry_out, new_left) = Nats.carry_in(left, 1, base)
-            if carry_out != 0:
-                new_left = [carry_out] + new_left
-            relation = Fraction(ulp - fractional_value, ulp)
-        else:
-            new_left = left
-            relation = -Fraction(fractional_value, ulp)
-
-        new_left = new_left + num_digits * [0]
-        new_left = [x for x in dropwhile(lambda x: x == 0, new_left)]
-        return (new_left, relation)

@@ -1,15 +1,20 @@
-# Copyright (C) 2015 Anne Mulhern
+# Copyright (C) 2015 - 2019 Red Hat, Inc.
 #
-# This copyrighted material is made available to anyone wishing to use,
-# modify, copy, or redistribute it subject to the terms and conditions of
-# the GNU General Public License v.2, or (at your option) any later version.
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY expressed or implied, including the implied warranties of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-# Public License for more details.  You should have received a copy of the
-# GNU General Public License along with this program; if not, write to the
-# Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# Anne Mulhern <mulhern@cs.wisc.edu>
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; If not, see <http://www.gnu.org/licenses/>.
+#
+# Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
+# Other Author(s): Anne Mulhern <mulhern@cs.wisc.edu>
 
 """ Test for integer conversions. """
 
@@ -17,19 +22,25 @@ from __future__ import absolute_import
 
 import unittest
 
-from fractions import Fraction
+from os import environ
+from os import sys
 
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies
 
 from justbases import BasesError
 from justbases import Nats
-from justbases import RoundingMethods
 
-from ._utils import build_nat_with_base
-from ._utils import build_nat_with_base_and_carry
-from ._utils import build_precision
+from ._utils import build_nat
 
+
+if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
+    settings.load_profile("tracing")
+
+_NATS_STRATEGY = strategies.integers(min_value=2).flatmap(
+   lambda n: strategies.tuples(build_nat(n, 64), strategies.just(n))
+)
 
 class NatsTestCase(unittest.TestCase):
     """ Tests for ints. """
@@ -48,7 +59,7 @@ class NatsTestCase(unittest.TestCase):
         assert Nats.convert_to_int(result, to_base) == value
 
     @given(
-       build_nat_with_base(1024, 64),
+       _NATS_STRATEGY,
        strategies.integers(min_value=2, max_value=64)
     )
     def testFromOther(self, nat, to_base):
@@ -78,21 +89,22 @@ class NatsTestCase(unittest.TestCase):
             Nats.carry_in([1], -1, 2)
         with self.assertRaises(BasesError):
             Nats.carry_in([1], 1, 1)
-        with self.assertRaises(BasesError):
-            Nats.roundTo([1], 0, 2, RoundingMethods.ROUND_DOWN)
-        with self.assertRaises(BasesError):
-            Nats.roundTo([3], 2, 2, RoundingMethods.ROUND_DOWN)
-        with self.assertRaises(BasesError):
-            Nats.roundTo([1], 2, 2, None)
 
-    @given(build_nat_with_base_and_carry(1024, 64))
+    _CARRY_STRATEGY = strategies.integers(min_value=2).flatmap(
+       lambda n: strategies.tuples(
+          build_nat(n, 64),
+          strategies.integers(min_value=1, max_value=(n - 1)),
+          strategies.just(n)
+       )
+    )
+    @given(_CARRY_STRATEGY)
     def testCarryIn(self, strategy):
         """
         Test carry_in.
 
         :param strategy: the strategy (tuple of value, carry, base)
         """
-        (value, base, carry) = strategy
+        (value, carry, base) = strategy
         (carry_out, result) = Nats.carry_in(value, carry, base)
         assert len(result) == len(value)
 
@@ -107,40 +119,3 @@ class NatsTestCase(unittest.TestCase):
            result2[0] == carry_out and result2[1:] == result
 
         assert not (len(result2) == len(result)) or result2 == result
-
-    @given(
-       build_nat_with_base(1024, 64),
-       build_precision(-128, 64),
-       strategies.sampled_from(RoundingMethods.METHODS())
-    )
-    def testRoundTo(self, nat, precision, method):
-        """
-        Test proper functioning of Nats.roundTo().
-        """
-        (subject, base) = nat
-        (result, relation) = Nats.roundTo(subject, base, precision, method)
-
-        if precision is None or precision >= 0:
-            self.assertEqual(result, subject)
-            self.assertEqual(relation, 0)
-            return
-
-        num_digits = -precision
-        padding = num_digits * [0]
-
-        if result != []:
-            self.assertEqual(result[precision:], padding)
-
-        if num_digits > len(subject):
-            self.assertIn(result, ([], [1] + padding))
-
-        int_subject = Nats.convert_to_int(subject, base)
-        int_result = Nats.convert_to_int(result, base)
-
-        self.assertEqual(
-           relation,
-           Fraction(int_result - int_subject, base ** num_digits)
-        )
-
-        self.assertGreater(relation, -1)
-        self.assertLess(relation, 1)

@@ -1,21 +1,28 @@
-# Copyright (C) 2015 Anne Mulhern
+# Copyright (C) 2015 - 2019 Red Hat, Inc.
 #
-# This copyrighted material is made available to anyone wishing to use,
-# modify, copy, or redistribute it subject to the terms and conditions of
-# the GNU General Public License v.2, or (at your option) any later version.
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY expressed or implied, including the implied warranties of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-# Public License for more details.  You should have received a copy of the
-# GNU General Public License along with this program; if not, write to the
-# Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# Anne Mulhern <mulhern@cs.wisc.edu>
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; If not, see <http://www.gnu.org/licenses/>.
+#
+# Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
+# Other Author(s): Anne Mulhern <mulhern@cs.wisc.edu>
 
 """ Test for integer conversions. """
 
 from __future__ import absolute_import
 
 import fractions
+from os import environ
+from os import sys
 import unittest
 
 from hypothesis import example
@@ -28,20 +35,29 @@ from justbases import NatDivision
 from justbases import Nats
 from justbases import RoundingMethods
 
+from ._utils import build_nat
+if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
+    settings.load_profile("tracing")
+
+
+_DIVISION_STRATEGY = strategies.integers(min_value=2, max_value=17).flatmap(
+   lambda n: strategies.tuples(
+      build_nat(n, 4).filter(lambda l: len(l) > 0),
+      build_nat(n, 4),
+      strategies.just(n)
+   )
+)
 
 class NatDivisionTestCase(unittest.TestCase):
     """ Tests for division. """
 
-    @given(
-       strategies.integers(min_value=1, max_value=2**15),
-       strategies.integers(min_value=0, max_value=2**15),
-       strategies.integers(min_value=2, max_value=17)
-    )
-    @settings(max_examples=50)
-    def testInverses(self, divisor, dividend, base):
+    @given(_DIVISION_STRATEGY)
+    @settings(max_examples=50, deadline=None)
+    def testInverses(self, strategy):
         """
         Test that division and undivision are inverses.
         """
+        (divisor, dividend, base) = strategy
         (integer_part, non_repeating_part, repeating_part, relation) = \
            NatDivision.division(divisor, dividend, base)
         assert relation == 0
@@ -52,10 +68,17 @@ class NatDivisionTestCase(unittest.TestCase):
            repeating_part,
            base
         )
-        assert denominator != 0
+        assert numerator == [] or numerator[0] != 0
+        assert denominator != [] and denominator[0] != 0
 
-        original = fractions.Fraction(dividend, divisor)
-        result = fractions.Fraction(numerator, denominator)
+        original = fractions.Fraction(
+           Nats.convert_to_int(dividend, base),
+           Nats.convert_to_int(divisor, base)
+        )
+        result = fractions.Fraction(
+           Nats.convert_to_int(numerator, base),
+           Nats.convert_to_int(denominator, base)
+        )
 
         assert original == result
 
@@ -64,15 +87,19 @@ class NatDivisionTestCase(unittest.TestCase):
         Test division exceptions.
         """
         with self.assertRaises(BasesError):
-            NatDivision.division(1, 1, -2)
+            NatDivision.division([1], [1], -2)
         with self.assertRaises(BasesError):
-            NatDivision.division(1, -1, 3)
+            NatDivision.division([1], [-1], 3)
         with self.assertRaises(BasesError):
-            NatDivision.division(-1, 1, 3)
+            NatDivision.division([-1], [1], 3)
         with self.assertRaises(BasesError):
-            NatDivision.division(0, 1, 3)
+            NatDivision.division([], [1], 3)
         with self.assertRaises(BasesError):
-            NatDivision.division(2, 1, 3, -1)
+            NatDivision.division([0], [1], 3)
+        with self.assertRaises(BasesError):
+            NatDivision.division([2], [1], 3, -1)
+        with self.assertRaises(BasesError):
+            NatDivision.division([3], [1], 10, 0, None)
 
     def testExceptionsUndivision(self):
         """
@@ -90,13 +117,11 @@ class NatDivisionTestCase(unittest.TestCase):
             NatDivision.undivision([2], [1], [1], 2)
 
     @given(
-       strategies.integers(min_value=1, max_value=2**15),
-       strategies.integers(min_value=0, max_value=2**15),
-       strategies.integers(min_value=2, max_value=17),
+       _DIVISION_STRATEGY,
        strategies.integers(min_value=0, max_value=32)
     )
-    @settings(max_examples=50)
-    def testTruncation(self, divisor, dividend, base, precision):
+    @settings(max_examples=50, deadline=None)
+    def testTruncation(self, strategy, precision):
         """
         Test just truncating division result to some precision.
 
@@ -110,16 +135,17 @@ class NatDivisionTestCase(unittest.TestCase):
         and is a prefix of non-repeating-part + repeating part when
         precision is not bounded.
         """
+        (divisor, dividend, base) = strategy
         (integer_part, non_repeating_part, repeating_part, rel) = \
-           NatDivision.division(divisor, dividend, base, precision=precision)
+           NatDivision.division(divisor, dividend, base, precision)
         (integer_part_2, non_repeating_part_2, repeating_part_2, rel_2) = \
-           NatDivision.division(divisor, dividend, base, precision=None)
+           NatDivision.division(divisor, dividend, base, None)
 
         assert rel_2 == 0
         assert integer_part == integer_part_2
         assert len(repeating_part) + len(non_repeating_part) <= precision
 
-        assert repeating_part_2 == repeating_part or rel < 0
+        assert repeating_part_2 == repeating_part or rel == -1
 
         assert not(repeating_part_2 != [] and repeating_part == []) or \
            (len(non_repeating_part) == precision and \
@@ -139,29 +165,31 @@ class NatDivisionTestCase(unittest.TestCase):
         Test that rounding up and rounding down have the right relationship.
         """
         # pylint: disable=too-many-locals
+        divisor = Nats.convert_from_int(divisor, base)
+        dividend = Nats.convert_from_int(dividend, base)
         (integer_part, non_repeating_part, repeating_part, rel) = \
            NatDivision.division(
               divisor,
               dividend,
               base,
-              precision=precision,
-              method=RoundingMethods.ROUND_UP
+              precision,
+              RoundingMethods.ROUND_UP
            )
         (integer_part_2, non_repeating_part_2, repeating_part_2, rel_2) = \
            NatDivision.division(
               divisor,
               dividend,
               base,
-              precision=precision,
-              method=RoundingMethods.ROUND_DOWN
+              precision,
+              RoundingMethods.ROUND_DOWN
            )
         (integer_part_3, non_repeating_part_3, repeating_part_3, rel_3) = \
            NatDivision.division(
               divisor,
               dividend,
               base,
-              precision=precision,
-              method=RoundingMethods.ROUND_TO_ZERO
+              precision,
+              RoundingMethods.ROUND_TO_ZERO
            )
 
         assert integer_part_2 == integer_part_3 and \
@@ -191,17 +219,16 @@ class NatDivisionTestCase(unittest.TestCase):
                   divisor,
                   dividend,
                   base,
-                  precision=precision,
-                  method=method
+                  precision,
+                  method
                )
             rounded_int = \
                Nats.convert_to_int(integer_part_c + non_repeating_part_c, base)
             if repeating_part == []:
-                assert rounded_int <= round_up_int and \
-                   rounded_int >= round_down_int
+                assert round_down_int <= rounded_int <= round_up_int
                 if rel == 0:
                     assert round_up_int == round_down_int
-                elif rel < 0:
+                elif rel == -1:
                     assert rounded_int == round_down_int
                 else:
                     assert rounded_int == round_up_int

@@ -1,15 +1,20 @@
-# Copyright (C) 2015 Anne Mulhern
+# Copyright (C) 2015 - 2019 Red Hat, Inc.
 #
-# This copyrighted material is made available to anyone wishing to use,
-# modify, copy, or redistribute it subject to the terms and conditions of
-# the GNU General Public License v.2, or (at your option) any later version.
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY expressed or implied, including the implied warranties of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-# Public License for more details.  You should have received a copy of the
-# GNU General Public License along with this program; if not, write to the
-# Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# Anne Mulhern <mulhern@cs.wisc.edu>
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; If not, see <http://www.gnu.org/licenses/>.
+#
+# Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
+# Other Authors: Anne Mulhern <mulhern@cs.wisc.edu>
 
 """
 Long division in any bases.
@@ -17,27 +22,90 @@ Long division in any bases.
 
 from __future__ import absolute_import
 
+import fractions
 import itertools
-
-from fractions import Fraction
-from fractions import gcd
 
 from ._constants import RoundingMethods
 from ._errors import BasesValueError
 from ._nats import Nats
-from ._rounding import Rounding
 
 
-class NatDivision(object):
+class NatDivision():
     """
     Methods for division in arbitrary bases.
     """
 
-    @staticmethod
-    def _divide(divisor, remainder, base, precision=None):
+    @classmethod
+    def _round(
+       cls,
+       quotient,
+       divisor,
+       remainder,
+       base,
+       method=RoundingMethods.ROUND_DOWN
+    ):
         """
-        Given a divisor and remainder, continue division until precision is
-        reached or an exact value is calculated.
+        Round the quotient.
+
+        :param quotient: current quotient
+        :type quotient: list of int
+        :param int divisor: the divisor
+        :param int remainder: the remainder
+        :param int base: the base
+        :param method: the rounding method
+        :raises BasesValueError:
+
+        :returns: carry-out digit, non_repeating and repeating parts
+        :rtype: tuple of int * list of int * list of int * int
+
+        Complexity: O(len(quotient))
+        """
+        # pylint: disable=too-many-return-statements
+        # pylint: disable=too-many-arguments
+        if method not in RoundingMethods.METHODS():
+            raise BasesValueError(
+               method,
+               "method",
+               "must be one of RoundingMethods.METHODS"
+            )
+
+        if remainder == 0: # pragma: no cover
+            return (0, quotient, [], 0)
+
+        if method is RoundingMethods.ROUND_DOWN:
+            return (0, quotient, [], -1)
+        if method is RoundingMethods.ROUND_TO_ZERO:
+            return (0, quotient, [], -1)
+        if method is RoundingMethods.ROUND_UP:
+            (carry, quotient) = Nats.carry_in(quotient, 1, base)
+            return (carry, quotient, [], 1)
+
+        remainder = fractions.Fraction(remainder, divisor)
+        middle = fractions.Fraction(base, 2)
+        if remainder < middle:
+            return (0, quotient, [], -1)
+        if remainder > middle:
+            (carry, quotient) = Nats.carry_in(quotient, 1, base)
+            return (carry, quotient, [], 1)
+
+        if method is RoundingMethods.ROUND_HALF_UP:
+            (carry, quotient) = Nats.carry_in(quotient, 1, base)
+            return (carry, quotient, [], 1)
+        if method in \
+           (RoundingMethods.ROUND_HALF_DOWN,
+            RoundingMethods.ROUND_HALF_ZERO):
+            return (0, quotient, [], -1)
+
+        raise BasesValueError( # pragma: no cover
+           method,
+           "method",
+           "must be one of RoundingMethods.METHODS"
+        )
+
+    @staticmethod
+    def _divide(divisor, remainder, quotient, remainders, base, precision=None):
+        """
+        Given a divisor and dividend, continue until precision in is reached.
 
         :param int divisor: the divisor
         :param int remainder: the remainder
@@ -45,28 +113,32 @@ class NatDivision(object):
         :param precision: maximum number of fractional digits to compute
         :type precision: int or NoneType
 
-        :returns: the quotient, the list of remainders, and the remainder
-        :rtype: (list of int) * (list of int) * int
+        :returns: the remainder
+        :rtype: int
+
+        ``quotient`` and ``remainders`` are set by side effects
 
         Complexity: O(precision) if precision is not None else O(divisor)
         """
+        # pylint: disable=too-many-arguments
 
         indices = itertools.count() if precision is None else range(precision)
 
-        quotient = []
-        remainders = []
         for _ in indices:
             if remainder == 0 or remainder in remainders:
                 break
             remainders.append(remainder)
-            remainder = remainder * base
             (quot, rem) = divmod(remainder, divisor)
             quotient.append(quot)
-            remainder = rem if quot > 0 else remainder
-        return (quotient, remainders, remainder)
+            if quot > 0:
+                remainder = rem * base
+            else:
+                remainder = remainder * base
+        return remainder
 
-    @staticmethod
+    @classmethod
     def _fractional_division(
+       cls,
        divisor,
        remainder,
        base,
@@ -74,8 +146,7 @@ class NatDivision(object):
        method=RoundingMethods.ROUND_DOWN
     ):
         """
-        Get the repeating and non-repeating part by dividing the remainder by
-        the divisor.
+        Get the repeating and non-repeating part.
 
         :param int divisor: the divisor
         :param int remainder: the remainder
@@ -85,36 +156,66 @@ class NatDivision(object):
         :param method: rounding method
         :type method: element of RoundignMethods.METHODS
 
-        :returns: carry-out digit, non_repeating and repeating parts, relation
+        :returns: carry-out digit, non_repeating and repeating parts
         :rtype: tuple of int * list of int * list of int * int
 
         :raises BasesValueError:
 
         Complexity: O(precision) if precision is not None else O(divisor)
         """
-        (quotient, remainders, remainder) = \
-           NatDivision._divide(
-              divisor,
-              remainder,
-              base,
-              precision=precision
-           )
+        # pylint: disable=too-many-arguments
+        quotient = []
+        remainders = []
+        remainder = cls._divide(
+           divisor,
+           remainder * base,
+           quotient,
+           remainders,
+           base,
+           precision
+        )
 
         if remainder == 0:
             return (0, quotient, [], 0)
-        elif remainder in remainders:
+        if remainder in remainders:
             start = remainders.index(remainder)
             return (0, quotient[:start], quotient[start:], 0)
-        else:
-            fractional = Fraction(remainder, divisor)
-            if Rounding.rounding_up(fractional, Fraction(1, 2), method):
-                (carry, quotient) = Nats.carry_in(quotient, 1, base)
-                return (carry, quotient, [], 1 - fractional)
-            else:
-                return (0, quotient, [], -fractional)
+        return cls._round(
+           quotient,
+           divisor,
+           remainder,
+           base,
+           method
+        )
 
     @staticmethod
+    def _division(divisor, dividend, remainder, base):
+        """
+        Get the quotient and remainder
+
+        :param int divisor: the divisor
+        :param dividend: the divident
+        :type dividend: sequence of int
+        :param int remainder: initial remainder
+        :param int base: the base
+
+        :returns: quotient and remainder
+        :rtype: tuple of (list of int) * int
+
+        Complexity: O(log_{divisor}(quotient))
+        """
+        quotient = []
+        for value in dividend:
+            remainder = remainder * base + value
+            (quot, rem) = divmod(remainder, divisor)
+            quotient.append(quot)
+            if quot > 0:
+                remainder = rem
+        return (quotient, remainder)
+
+    @classmethod
     def division(
+       cls,
        divisor,
        dividend,
        base,
@@ -124,24 +225,25 @@ class NatDivision(object):
         """
         Division of natural numbers.
 
-        :param int divisor: the divisor
-        :param int dividend: the dividend
+        :param divisor: the divisor
+        :type divisor: list of int
+        :param dividend: the dividend
+        :type dividend: list of int
         :param precision: maximum number of fractional digits
         :type precision: int or NoneType
         :param method: rounding method
         :type method: element of RoundignMethods.METHODS
         :returns: the result
-        :rtype: tuple of list of int * list of int * list of int * Rational
+        :rtype: tuple of list of int * list of int * list of int * int
         :raises ConvertError: on invalid values
 
         The last value in the result indicates the relationship of the
-        result to the actual value. It is the ratio of the difference between
-        the result and the actual value to the ulp. It is always between -1 and
-        1, exclusive. If it is positive, then the result is greater than the
-        actual value, if negative, less.
+        result to the actual value. If 0, it is the same, if 1, greater,
+        if -1, less.
 
         Complexity: Uncalculated
         """
+        # pylint: disable=too-many-arguments
 
         if base < 2:
             raise BasesValueError(base, "base", "must be at least 2")
@@ -149,31 +251,37 @@ class NatDivision(object):
         if precision is not None and precision < 0:
             raise BasesValueError(precision, "precision", "must be at least 0")
 
-        if divisor <= 0:
+        if any(x < 0 or x >= base for x in divisor):
             raise BasesValueError(
                divisor,
                "divisor",
-               "must be a positive natural number"
+               "for all elements, e, 0 <= e < base required"
             )
 
-        if dividend < 0:
+        if any(x < 0 or x >= base for x in dividend):
             raise BasesValueError(
-               dividend,
-               "dividend",
-               "must be a natural number"
+               divisor,
+               "divisor",
+               "for all elements, e, 0 <= e < base required"
             )
 
-        (quot, rem) = divmod(dividend, divisor)
+        if all(x == 0 for x in divisor):
+            raise BasesValueError(
+               divisor,
+               "divisor",
+               "must be greater than 0"
+            )
 
-        integer_part = Nats.convert_from_int(quot, base)
+        divisor = Nats.convert_to_int(divisor, base)
 
+        (integer_part, rem) = cls._division(divisor, dividend, 0, base)
         (carry, non_repeating_part, repeating_part, relation) = \
-           NatDivision._fractional_division(
+           cls._fractional_division(
               divisor,
               rem,
               base,
-              precision=precision,
-              method=method
+              precision,
+              method
            )
 
         (carry, integer_part) = Nats.carry_in(integer_part, carry, base)
@@ -185,8 +293,14 @@ class NatDivision(object):
            relation
         )
 
-    @staticmethod
-    def undivision(integer_part, non_repeating_part, repeating_part, base):
+    @classmethod
+    def undivision(
+       cls,
+       integer_part,
+       non_repeating_part,
+       repeating_part,
+       base
+    ):
         """
         Find divisor and dividend that yield component parts.
 
@@ -199,7 +313,7 @@ class NatDivision(object):
         :param int base: the base
 
         :returns: divisor and dividend in lowest terms
-        :rtype: tuple of int * int
+        :rtype: tuple of list of int * list of int
 
         Complexity: O(len(non_repeating_part + repeating_part + integer_part))
         """
@@ -227,20 +341,29 @@ class NatDivision(object):
                "for all elements, e, 0 <= e < base required"
             )
 
-        digits = integer_part + non_repeating_part
-        if repeating_part == []:
-            numerator = Nats.convert_to_int(digits, base)
-            denominator = base ** len(non_repeating_part)
-        else:
-            top_digits = digits + repeating_part
+        shift_length = len(repeating_part)
+        frac_length = len(non_repeating_part)
 
-            numerator = \
-               Nats.convert_to_int(top_digits, base) - \
-               Nats.convert_to_int(digits, base)
+        top = fractions.Fraction(
+           Nats.convert_to_int(
+              integer_part + non_repeating_part + repeating_part,
+              base
+           ),
+           base ** frac_length
+        )
 
-            denominator = \
-               (base ** len(non_repeating_part)) * \
-               (base ** len(repeating_part) - 1)
+        if shift_length == 0:
+            return (
+               Nats.convert_from_int(top.denominator, base),
+               Nats.convert_from_int(top.numerator, base)
+            )
 
-        divisor = gcd(numerator, denominator)
-        return (denominator // divisor, numerator // divisor)
+        bottom = fractions.Fraction(
+           Nats.convert_to_int(integer_part + non_repeating_part, base),
+           base ** frac_length
+        )
+        result = (top - bottom) / ((base ** shift_length) - 1)
+        return (
+           Nats.convert_from_int(result.denominator, base),
+           Nats.convert_from_int(result.numerator, base)
+        )
