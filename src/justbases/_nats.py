@@ -19,12 +19,12 @@
 """
 Methods dealing exclusively with natural numbers.
 """
-from functools import reduce # pylint: disable=redefined-builtin
+from functools import reduce  # pylint: disable=redefined-builtin
 
 from ._errors import BasesValueError
 
 
-class Nats():
+class Nats:
     """
     Methods to convert non-negative ints.
     """
@@ -50,10 +50,7 @@ class Nats():
 
         Complexity: O(len(value))
         """
-        return cls.convert_from_int(
-           cls.convert_to_int(value, from_base),
-           to_base
-        )
+        return cls.convert_from_int(cls.convert_to_int(value, from_base), to_base)
 
     @staticmethod
     def convert_to_int(value, from_base):
@@ -76,17 +73,13 @@ class Nats():
         Complexity: O(len(value))
         """
         if from_base < 2:
-            raise BasesValueError(
-               from_base,
-               "from_base",
-               "must be greater than 2"
-            )
+            raise BasesValueError(from_base, "from_base", "must be greater than 2")
 
         if any(x < 0 or x >= from_base for x in value):
             raise BasesValueError(
-               value,
-               "value",
-               "elements must be at least 0 and less than %s" % from_base
+                value,
+                "value",
+                "elements must be at least 0 and less than %s" % from_base,
             )
         return reduce(lambda x, y: x * from_base + y, value, 0)
 
@@ -140,17 +133,11 @@ class Nats():
 
         if any(x < 0 or x >= base for x in value):
             raise BasesValueError(
-               value,
-               "value",
-               "elements must be at least 0 and less than %s" % base
+                value, "value", "elements must be at least 0 and less than %s" % base
             )
 
         if carry < 0 or carry >= base:
-            raise BasesValueError(
-               carry,
-               "carry",
-               "carry must be less than %s" % base
-            )
+            raise BasesValueError(carry, "carry", "carry must be less than %s" % base)
 
         result = []
         for val in reversed(value):

@@ -21,8 +21,9 @@ Constants required by the package.
 """
 
 
-class _RoundingMethod():
+class _RoundingMethod:
     """ Class to generate rounding method enumeration. """
+
     # pylint: disable=too-few-public-methods
 
     def __init__(self, doc):
@@ -42,8 +43,9 @@ class _RoundingMethod():
     doc = property(lambda s: s._doc, doc="explanation of rounding method")
 
 
-class RoundingMethods():
+class RoundingMethods:
     """ Static class for accessing rounding methods. """
+
     # pylint: disable=too-few-public-methods
 
     ROUND_DOWN = _RoundingMethod("Round down.")
@@ -54,12 +56,12 @@ class RoundingMethods():
     ROUND_UP = _RoundingMethod("Round up.")
 
     _METHODS = [
-       ROUND_DOWN,
-       ROUND_HALF_DOWN,
-       ROUND_HALF_UP,
-       ROUND_HALF_ZERO,
-       ROUND_TO_ZERO,
-       ROUND_UP
+        ROUND_DOWN,
+        ROUND_HALF_DOWN,
+        ROUND_HALF_UP,
+        ROUND_HALF_ZERO,
+        ROUND_TO_ZERO,
+        ROUND_UP,
     ]
 
     @classmethod

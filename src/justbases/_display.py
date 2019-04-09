@@ -25,10 +25,11 @@ from collections import namedtuple
 from ._errors import BasesValueError
 
 
-class Digits():
+class Digits:
     """
     Transforms digits as ints to corresponding symbols.
     """
+
     # pylint: disable=too-few-public-methods
 
     _LOWER_DIGITS = string.digits + string.ascii_lowercase
@@ -48,9 +49,9 @@ class Digits():
         if config.use_letters:
             if base > self._MAX_SIZE_BASE_FOR_CHARS:
                 raise BasesValueError(
-                   base,
-                   "base",
-                   "must be no greater than number of available characters"
+                    base,
+                    "base",
+                    "must be no greater than number of available characters",
                 )
         self.CONFIG = config
 
@@ -64,20 +65,18 @@ class Digits():
         :raises BasesValueError: if config is unsuitable for number
         """
         if self.CONFIG.use_letters:
-            digits = \
-               self._UPPER_DIGITS if self.CONFIG.use_caps else \
-               self._LOWER_DIGITS
-            return ''.join(digits[x] for x in number)
-        separator = '' if base <= 10 else self.CONFIG.separator
+            digits = self._UPPER_DIGITS if self.CONFIG.use_caps else self._LOWER_DIGITS
+            return "".join(digits[x] for x in number)
+        separator = "" if base <= 10 else self.CONFIG.separator
         return separator.join(str(x) for x in number)
 
 
-class Strip():
+class Strip:
     """
     Handle stripping digits.
     """
-    # pylint: disable=too-few-public-methods
 
+    # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _strip_trailing_zeros(value):
@@ -91,9 +90,7 @@ class Strip():
         :rtype: list of int
         """
         return list(
-           reversed(
-              list(itertools.dropwhile(lambda x: x == 0, reversed(value)))
-           )
+            reversed(list(itertools.dropwhile(lambda x: x == 0, reversed(value))))
         )
 
     def __init__(self, config, base):
@@ -116,32 +113,40 @@ class Strip():
         """
 
         # pylint: disable=too-many-boolean-expressions
-        if (self.CONFIG.strip) or \
-           (self.CONFIG.strip_exact and relation == 0) or \
-           (self.CONFIG.strip_whole and relation == 0 and \
-            all(x == 0 for x in number)):
+        if (
+            (self.CONFIG.strip)
+            or (self.CONFIG.strip_exact and relation == 0)
+            or (
+                self.CONFIG.strip_whole
+                and relation == 0
+                and all(x == 0 for x in number)
+            )
+        ):
             return Strip._strip_trailing_zeros(number)
         return number
 
 
-class Number():
+class Number:
     """
     Handle generic number display stuff.
 
     Returns modifications to the number string.
     """
+
     # pylint: disable=too-few-public-methods
 
-    _FMT_STR = "".join([
-       "%(sign)s",
-       "%(base_prefix)s",
-       "%(left)s",
-       "%(radix)s",
-       "%(right)s",
-       "%(repeating)s",
-       "%(base_separator)s",
-       "%(base_subscript)s"
-    ])
+    _FMT_STR = "".join(
+        [
+            "%(sign)s",
+            "%(base_prefix)s",
+            "%(left)s",
+            "%(radix)s",
+            "%(right)s",
+            "%(repeating)s",
+            "%(base_separator)s",
+            "%(base_subscript)s",
+        ]
+    )
 
     def __init__(self, config, base):
         """
@@ -167,35 +172,35 @@ class Number():
         """
         # pylint: disable=too-many-arguments
 
-        base_prefix = ''
+        base_prefix = ""
         if self.CONFIG.use_prefix:
             if base == 8:
-                base_prefix = '0'
+                base_prefix = "0"
             elif base == 16:
-                base_prefix = '0x'
+                base_prefix = "0x"
             else:
-                base_prefix = ''
+                base_prefix = ""
 
-        base_subscript = str(base) if self.CONFIG.use_subscript else ''
+        base_subscript = str(base) if self.CONFIG.use_subscript else ""
 
         result = {
-           'sign' : '-' if sign == -1 else '',
-           'base_prefix' : base_prefix,
-           'left' : left,
-           'radix' : '.' if (right != "" or repeating != "") else "",
-           'right' : right,
-           'repeating' : ("(%s)" % repeating) if repeating != "" else "",
-           'base_separator' : '' if base_subscript == '' else '_',
-           'base_subscript' : base_subscript
+            "sign": "-" if sign == -1 else "",
+            "base_prefix": base_prefix,
+            "left": left,
+            "radix": "." if (right != "" or repeating != "") else "",
+            "right": right,
+            "repeating": ("(%s)" % repeating) if repeating != "" else "",
+            "base_separator": "" if base_subscript == "" else "_",
+            "base_subscript": base_subscript,
         }
 
         return self._FMT_STR % result
 
 
-_Decorators = namedtuple('_Decorators', ['approx_str'])
+_Decorators = namedtuple("_Decorators", ["approx_str"])
 
 
-class Decorators():
+class Decorators:
     """
     Handle generic display stuff.
 
@@ -215,13 +220,13 @@ class Decorators():
         """
         # pylint: disable=no-else-return
         if relation == 0:
-            return ''
+            return ""
         elif relation == -1:
-            return '>'
+            return ">"
         elif relation == 1:
-            return '<'
+            return "<"
         else:
-            assert False # pragma: no cover
+            assert False  # pragma: no cover
 
     def __init__(self, config, base):
         """
@@ -242,22 +247,19 @@ class Decorators():
         if self.CONFIG.show_approx_str:
             approx_str = Decorators.relation_to_symbol(relation)
         else:
-            approx_str = ''
+            approx_str = ""
 
         return _Decorators(approx_str=approx_str)
 
 
-class String():
+class String:
     """
     Convert size components to string according to configuration.
     """
+
     # pylint: disable=too-few-public-methods
 
-    _FMT_STR = "".join([
-       "%(approx)s",
-       "%(space)s",
-       "%(number)s"
-    ])
+    _FMT_STR = "".join(["%(approx)s", "%(space)s", "%(number)s"])
 
     def __init__(self, display, base):
         """
@@ -296,23 +298,19 @@ class String():
             right = self.STRIP.xform(right, relation)
 
         right_str = self.DIGITS.xform(right, radix.base)
-        left_str = self.DIGITS.xform(left, radix.base) or '0'
+        left_str = self.DIGITS.xform(left, radix.base) or "0"
         repeating_str = self.DIGITS.xform(repeating, radix.base)
 
         number = self.NUMBER.xform(
-           left_str,
-           right_str,
-           repeating_str,
-           radix.base,
-           radix.sign
+            left_str, right_str, repeating_str, radix.base, radix.sign
         )
 
         decorators = self.DECORATORS.decorators(relation)
 
         result = {
-           'approx' : decorators.approx_str,
-           'space' : ' ' if decorators.approx_str else '',
-           'number' : number
+            "approx": decorators.approx_str,
+            "space": " " if decorators.approx_str else "",
+            "number": number,
         }
 
         return self._FMT_STR % result

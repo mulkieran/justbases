@@ -19,16 +19,16 @@
 """ Configuration of the justbytes package. """
 
 
-class BaseConfig():
+class BaseConfig:
     """
     Whether and how to show the base.
     """
+
     # pylint: disable=too-few-public-methods
 
-    _FMT_STR = ", ".join([
-       "use_prefix=%(use_prefix)s",
-       "use_subscript=%(use_subscript)s"
-    ])
+    _FMT_STR = ", ".join(
+        ["use_prefix=%(use_prefix)s", "use_subscript=%(use_subscript)s"]
+    )
 
     def __init__(self, use_prefix=False, use_subscript=True):
         """
@@ -40,26 +40,27 @@ class BaseConfig():
         self.use_prefix = use_prefix
         self.use_subscript = use_subscript
 
-    def __str__(self): # pragma: no cover
-        values = {
-           'use_prefix' : self.use_prefix,
-           'use_subscript' : self.use_subscript
-        }
+    def __str__(self):  # pragma: no cover
+        values = {"use_prefix": self.use_prefix, "use_subscript": self.use_subscript}
         return "BaseConfig(%s)" % (self._FMT_STR % values)
+
     __repr__ = __str__
 
 
-class StripConfig():
+class StripConfig:
     """
     Stripping trailing zeros.
     """
+
     # pylint: disable=too-few-public-methods
 
-    _FMT_STR = ", ".join([
-       "strip=%(strip)s",
-       "strip_exact=%(strip_exact)s",
-       "strip_whole=%(strip_whole)s"
-    ])
+    _FMT_STR = ", ".join(
+        [
+            "strip=%(strip)s",
+            "strip_exact=%(strip_exact)s",
+            "strip_whole=%(strip_whole)s",
+        ]
+    )
 
     def __init__(self, strip=False, strip_exact=False, strip_whole=True):
         """
@@ -75,34 +76,33 @@ class StripConfig():
         self.strip_exact = strip_exact
         self.strip_whole = strip_whole
 
-    def __str__(self): # pragma: no cover
+    def __str__(self):  # pragma: no cover
         values = {
-           'strip' : self.strip,
-           'strip_exact' : self.strip_exact,
-           'strip_whole' : self.strip_whole
+            "strip": self.strip,
+            "strip_exact": self.strip_exact,
+            "strip_whole": self.strip_whole,
         }
         return "StripConfig(%s)" % (self._FMT_STR % values)
+
     __repr__ = __str__
 
 
-class DigitsConfig():
+class DigitsConfig:
     """
     How to display digits.
     """
+
     # pylint: disable=too-few-public-methods
 
-    _FMT_STR = ", ".join([
-       "separator=%(separator)s",
-       "use_caps=%(use_caps)s",
-       "use_letters=%(use_letters)s"
-    ])
+    _FMT_STR = ", ".join(
+        [
+            "separator=%(separator)s",
+            "use_caps=%(use_caps)s",
+            "use_letters=%(use_letters)s",
+        ]
+    )
 
-    def __init__(
-       self,
-       separator='~',
-       use_caps=False,
-       use_letters=True
-    ):
+    def __init__(self, separator="~", use_caps=False, use_letters=True):
         """
         Initializer.
 
@@ -116,35 +116,39 @@ class DigitsConfig():
         self.use_caps = use_caps
         self.use_letters = use_letters
 
-    def __str__(self): # pragma: no cover
+    def __str__(self):  # pragma: no cover
         values = {
-           'separator' : self.separator,
-           'use_caps' : self.use_caps,
-           'use_letters' : self.use_letters
+            "separator": self.separator,
+            "use_caps": self.use_caps,
+            "use_letters": self.use_letters,
         }
         return "DigitsConfig(%s)" % (self._FMT_STR % values)
+
     __repr__ = __str__
 
 
-class DisplayConfig():
+class DisplayConfig:
     """
     Superficial aspects of display.
     """
+
     # pylint: disable=too-few-public-methods
 
-    _FMT_STR = ", ".join([
-       "show_approx_str=%(show_approx_str)s",
-       "base_config=%(base_config)s",
-       "digits_config=%(digits_config)s",
-       "strip_config-%(strip_config)s"
-    ])
+    _FMT_STR = ", ".join(
+        [
+            "show_approx_str=%(show_approx_str)s",
+            "base_config=%(base_config)s",
+            "digits_config=%(digits_config)s",
+            "strip_config-%(strip_config)s",
+        ]
+    )
 
     def __init__(
-       self,
-       show_approx_str=True,
-       base_config=BaseConfig(),
-       digits_config=DigitsConfig(),
-       strip_config=StripConfig()
+        self,
+        show_approx_str=True,
+        base_config=BaseConfig(),
+        digits_config=DigitsConfig(),
+        strip_config=StripConfig(),
     ):
         """
         Initializer.
@@ -162,27 +166,29 @@ class DisplayConfig():
         self.digits_config = digits_config
         self.strip_config = strip_config
 
-    def __str__(self): # pragma: no cover
+    def __str__(self):  # pragma: no cover
         values = {
-           'show_approx_str' : self.show_approx_str,
-           'base_config' : self.base_config,
-           'digits_config' : self.digits_config,
-           'strip_config' : self.strip_config
+            "show_approx_str": self.show_approx_str,
+            "base_config": self.base_config,
+            "digits_config": self.digits_config,
+            "strip_config": self.strip_config,
         }
         return "DisplayConfig(%s)" % (self._FMT_STR % values)
+
     __repr__ = __str__
 
 
-class BasesConfig():
+class BasesConfig:
     """
     Configuration class for any bases things.
     """
+
     # pylint: disable=too-few-public-methods
 
     DISPLAY_CONFIG = DisplayConfig()
 
     @classmethod
-    def set_display_config(cls, config): # pragma: no cover
+    def set_display_config(cls, config):  # pragma: no cover
         """
         Set configuration for superficial aspects of display.
 
@@ -192,5 +198,5 @@ class BasesConfig():
             show_approx_str=config.show_approx_str,
             base_config=config.base_config,
             digits_config=config.digits_config,
-            strip_config=config.strip_config
+            strip_config=config.strip_config,
         )

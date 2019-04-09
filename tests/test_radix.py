@@ -37,16 +37,14 @@ from justbases import RoundingMethods
 from ._utils import build_base
 from ._utils import build_radix
 
-if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
+if sys.gettrace() is not None or environ.get("TRAVIS") is not None:
     settings.load_profile("tracing")
+
 
 class RadixTestCase(unittest.TestCase):
     """ Tests for radix. """
 
-    @given(
-       build_radix(16, 3),
-       build_base(16)
-    )
+    @given(build_radix(16, 3), build_base(16))
     @settings(max_examples=50, deadline=None)
     def testInBase(self, radix, base):
         """
@@ -54,10 +52,12 @@ class RadixTestCase(unittest.TestCase):
         non repeating part.
         """
         result = radix.in_base(base).in_base(radix.base)
-        assert result.sign == radix.sign and \
-           result.integer_part == radix.integer_part and \
-           result.repeating_part == radix.repeating_part and \
-           result.base == radix.base
+        assert (
+            result.sign == radix.sign
+            and result.integer_part == radix.integer_part
+            and result.repeating_part == radix.repeating_part
+            and result.base == radix.base
+        )
 
         length = len(result.non_repeating_part)
         assert result.non_repeating_part == radix.non_repeating_part[:length]
@@ -95,7 +95,7 @@ class RadixTestCase(unittest.TestCase):
         """
         Make sure that result is evalable.
         """
-        assert eval(repr(radix)) == radix # pylint: disable=eval-used
+        assert eval(repr(radix)) == radix  # pylint: disable=eval-used
 
     def testOptions(self):
         """
@@ -107,19 +107,13 @@ class RadixTestCase(unittest.TestCase):
         """
         Test == operator.
         """
-        self.assertEqual(
-           Radix(1, [1], [], [], 2),
-           Radix(1, [1], [], [], 2),
-        )
+        self.assertEqual(Radix(1, [1], [], [], 2), Radix(1, [1], [], [], 2))
 
     def testInEquality(self):
         """
         Test != operator.
         """
-        self.assertNotEqual(
-           Radix(0, [], [], [], 3),
-           Radix(0, [], [], [], 2),
-        )
+        self.assertNotEqual(Radix(0, [], [], [], 3), Radix(0, [], [], [], 2))
 
     def testOperatorExceptions(self):
         """
@@ -174,9 +168,9 @@ class RoundingTestCase(unittest.TestCase):
     """ Tests for rounding Radixes. """
 
     @given(
-       build_radix(16, 10),
-       strategies.integers(min_value=0, max_value=64),
-       strategies.sampled_from(RoundingMethods.METHODS())
+        build_radix(16, 10),
+        strategies.integers(min_value=0, max_value=64),
+        strategies.sampled_from(RoundingMethods.METHODS()),
     )
     @settings(max_examples=50)
     def testRoundFraction(self, radix, precision, method):
@@ -201,48 +195,52 @@ class RoundingTestCase(unittest.TestCase):
         else:
             assert relation == 0
 
-    @given(
-       build_radix(16, 10),
-       strategies.integers(min_value=0, max_value=64)
-    )
+    @given(build_radix(16, 10), strategies.integers(min_value=0, max_value=64))
     @settings(max_examples=50)
     def testRoundRelation(self, radix, precision):
         """
         Test that all results have the correct relation.
         """
         results = dict(
-           (method, radix.rounded(precision, method)[0]) for \
-              method in RoundingMethods.METHODS()
+            (method, radix.rounded(precision, method)[0])
+            for method in RoundingMethods.METHODS()
         )
 
         for _, result in results.items():
             assert len(result.non_repeating_part) == precision
 
         if radix.sign in (0, 1):
-            assert results[RoundingMethods.ROUND_DOWN] == \
-               results[RoundingMethods.ROUND_TO_ZERO]
-            assert results[RoundingMethods.ROUND_HALF_DOWN] == \
-               results[RoundingMethods.ROUND_HALF_ZERO]
+            assert (
+                results[RoundingMethods.ROUND_DOWN]
+                == results[RoundingMethods.ROUND_TO_ZERO]
+            )
+            assert (
+                results[RoundingMethods.ROUND_HALF_DOWN]
+                == results[RoundingMethods.ROUND_HALF_ZERO]
+            )
         else:
-            assert results[RoundingMethods.ROUND_UP] == \
-               results[RoundingMethods.ROUND_TO_ZERO]
-            assert results[RoundingMethods.ROUND_HALF_UP] == \
-               results[RoundingMethods.ROUND_HALF_ZERO]
+            assert (
+                results[RoundingMethods.ROUND_UP]
+                == results[RoundingMethods.ROUND_TO_ZERO]
+            )
+            assert (
+                results[RoundingMethods.ROUND_HALF_UP]
+                == results[RoundingMethods.ROUND_HALF_ZERO]
+            )
 
         order = [
-           RoundingMethods.ROUND_UP,
-           RoundingMethods.ROUND_HALF_UP,
-           RoundingMethods.ROUND_HALF_DOWN,
-           RoundingMethods.ROUND_DOWN
+            RoundingMethods.ROUND_UP,
+            RoundingMethods.ROUND_HALF_UP,
+            RoundingMethods.ROUND_HALF_DOWN,
+            RoundingMethods.ROUND_DOWN,
         ]
         for index in range(len(order) - 1):
-            assert results[order[index]].as_rational() >= \
-               results[order[index + 1]].as_rational()
+            assert (
+                results[order[index]].as_rational()
+                >= results[order[index + 1]].as_rational()
+            )
 
-    @given(
-       build_radix(64, 5),
-       strategies.sampled_from(RoundingMethods.METHODS())
-    )
+    @given(build_radix(64, 5), strategies.sampled_from(RoundingMethods.METHODS()))
     @settings(max_examples=50)
     def testAsInt(self, radix, method):
         """
@@ -257,12 +255,6 @@ class RoundingTestCase(unittest.TestCase):
         Test exception.
         """
         with self.assertRaises(BasesError):
-            Radix(0, [], [], [], 2).rounded(
-               -1,
-               RoundingMethods.ROUND_DOWN
-            )
+            Radix(0, [], [], [], 2).rounded(-1, RoundingMethods.ROUND_DOWN)
         with self.assertRaises(BasesError):
-            Radix(0, [], [], [], 2).rounded(
-               0,
-               None
-            )
+            Radix(0, [], [], [], 2).rounded(0, None)

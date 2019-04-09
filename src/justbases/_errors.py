@@ -31,7 +31,7 @@ class BasesError(Exception, metaclass=abc.ABCMeta):
     """
 
 
-class BasesInvalidOperationError(BasesError): # pragma: no cover
+class BasesInvalidOperationError(BasesError):  # pragma: no cover
     """
     Invalid operation.
     """
@@ -44,8 +44,10 @@ class BasesInvalidOperationError(BasesError): # pragma: no cover
     def __str__(self):
         if self._other is None:
             return "invalid operation for Radix: %s" % self._operator
-        return "invalid operation %s for Radix and %s" % \
-           (self._operator, type(self._other).__name__)
+        return "invalid operation %s for Radix and %s" % (
+            self._operator,
+            type(self._other).__name__,
+        )
 
 
 class BasesValueError(BasesError):
@@ -53,6 +55,7 @@ class BasesValueError(BasesError):
 
         May also be raised when the parameter has an unacceptable type.
     """
+
     _FMT_STR = "value '%s' for parameter %s is unacceptable"
 
     def __init__(self, value, param, msg=None):
@@ -67,7 +70,7 @@ class BasesValueError(BasesError):
         self._param = param
         self._msg = msg
 
-    def __str__(self): # pragma: no cover
+    def __str__(self):  # pragma: no cover
         if self._msg:
             fmt_str = self._FMT_STR + ": %s"
             return fmt_str % (self._value, self._param, self._msg)
