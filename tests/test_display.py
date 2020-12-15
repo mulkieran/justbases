@@ -24,7 +24,7 @@ import unittest
 # isort: THIRDPARTY
 from hypothesis import given, settings, strategies
 
-# isort: FIRSTPARTY
+# isort: LOCAL
 from justbases import BaseConfig, BasesConfig, BasesError, DigitsConfig, StripConfig
 from justbases._display import Digits, Number, String, Strip
 
