@@ -21,7 +21,7 @@
 # isort: STDLIB
 import unittest
 
-# isort: FIRSTPARTY
+# isort: LOCAL
 from justbases import RoundingMethods
 
 

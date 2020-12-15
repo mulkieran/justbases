@@ -26,7 +26,7 @@ from os import sys
 # isort: THIRDPARTY
 from hypothesis import example, given, settings, strategies
 
-# isort: FIRSTPARTY
+# isort: LOCAL
 from justbases import BasesError, NatDivision, Nats, RoundingMethods
 
 # isort considers this third party, but it is not
