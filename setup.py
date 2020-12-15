@@ -16,29 +16,32 @@
 # Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
 # Other Author(s): Anne Mulhern <mulhern@cs.wisc.edu>
 
+"""
+Python packaging file for setup tools.
+"""
+
 # isort: STDLIB
 import os
-import sys
 
 # isort: THIRDPARTY
 import setuptools
 
-if sys.version_info[0] < 3:
-    from codecs import open
-
 
 def local_file(name):
+    """
+    Function to obtain the relative path of a filename.
+    """
     return os.path.relpath(os.path.join(os.path.dirname(__file__), name))
 
 
 README = local_file("README.rst")
 
 with open(local_file("src/justbases/version.py")) as o:
-    exec(o.read())
+    exec(o.read())  # pylint: disable=exec-used
 
 setuptools.setup(
     name="justbases",
-    version=__version__,
+    version=__version__,  # pylint: disable=undefined-variable
     author="Anne Mulhern",
     author_email="mulhern@cs.wisc.edu",
     description="conversion of ints and rationals to any base",
