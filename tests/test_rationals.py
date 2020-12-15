@@ -18,31 +18,30 @@
 
 """ Test for rational conversions. """
 
+# isort: FUTURE
 from __future__ import absolute_import
 
-from fractions import Fraction
-from os import environ
-from os import sys
+# isort: STDLIB
 import unittest
+from fractions import Fraction
+from os import sys
 
-from hypothesis import given
-from hypothesis import settings
-from hypothesis import strategies
+# isort: THIRDPARTY
+from hypothesis import given, settings, strategies
 
-from justbases import BasesError
-from justbases import Radices
-from justbases import Rationals
-from justbases import RoundingMethods
+# isort: FIRSTPARTY
+from justbases import BasesError, Radices, Rationals, RoundingMethods
 
-if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
+if sys.gettrace() is not None:
     settings.load_profile("tracing")
+
 
 class RationalsTestCase(unittest.TestCase):
     """ Tests for rationals. """
 
     @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
-       strategies.integers(min_value=2)
+        strategies.fractions().map(lambda x: x.limit_denominator(100)),
+        strategies.integers(min_value=2),
     )
     @settings(max_examples=50)
     def testInverses(self, value, to_base):
@@ -55,10 +54,10 @@ class RationalsTestCase(unittest.TestCase):
         assert result.as_rational() == value
 
     @given(
-       strategies.fractions().map(lambda x: x.limit_denominator(100)),
-       strategies.integers(min_value=2, max_value=64),
-       strategies.integers(min_value=0, max_value=64),
-       strategies.sampled_from(RoundingMethods.METHODS())
+        strategies.fractions().map(lambda x: x.limit_denominator(100)),
+        strategies.integers(min_value=2, max_value=64),
+        strategies.integers(min_value=0, max_value=64),
+        strategies.sampled_from(RoundingMethods.METHODS()),
     )
     @settings(max_examples=500)
     def testRoundingConversion(self, value, base, precision, method):
@@ -66,8 +65,7 @@ class RationalsTestCase(unittest.TestCase):
         Test that converting and then rounding is the same as converting
         with rounding.
         """
-        (rounded, rel) = \
-           Radices.from_rational(value, base, precision, method)
+        (rounded, rel) = Radices.from_rational(value, base, precision, method)
         (unrounded, urel) = Radices.from_rational(value, base)
 
         assert urel == 0
@@ -95,10 +93,7 @@ class RationalsTestCase(unittest.TestCase):
         with self.assertRaises(BasesError):
             Radices.from_rational(Fraction(1, 2), 2, -1)
 
-    @given(
-       strategies.fractions(),
-       strategies.sampled_from(RoundingMethods.METHODS())
-    )
+    @given(strategies.fractions(), strategies.sampled_from(RoundingMethods.METHODS()))
     @settings(max_examples=50)
     def testRounding(self, value, method):
         """
@@ -108,9 +103,7 @@ class RationalsTestCase(unittest.TestCase):
         self.assertIsInstance(result, int)
 
         (lower, upper) = (result - 1, result + 1)
-        self.assertTrue(
-           (lower <= value <= result) or (result <= value <= upper)
-        )
+        self.assertTrue((lower <= value <= result) or (result <= value <= upper))
 
     @given(strategies.integers(min_value=1, max_value=9))
     @settings(max_examples=20)
@@ -120,38 +113,31 @@ class RationalsTestCase(unittest.TestCase):
         """
         # pylint: disable=too-many-statements
         value = Fraction(numerator, 10)
-        (result, rel) = \
-           Rationals.round_to_int(value, RoundingMethods.ROUND_DOWN)
+        (result, rel) = Rationals.round_to_int(value, RoundingMethods.ROUND_DOWN)
         self.assertEqual(result, 0)
         self.assertEqual(rel, -1)
 
-        (result, rel) = \
-           Rationals.round_to_int(-value, RoundingMethods.ROUND_DOWN)
+        (result, rel) = Rationals.round_to_int(-value, RoundingMethods.ROUND_DOWN)
         self.assertEqual(result, -1)
         self.assertEqual(rel, -1)
 
-        (result, rel) = \
-           Rationals.round_to_int(value, RoundingMethods.ROUND_UP)
+        (result, rel) = Rationals.round_to_int(value, RoundingMethods.ROUND_UP)
         self.assertEqual(result, 1)
         self.assertEqual(rel, 1)
 
-        (result, rel) = \
-           Rationals.round_to_int(-value, RoundingMethods.ROUND_UP)
+        (result, rel) = Rationals.round_to_int(-value, RoundingMethods.ROUND_UP)
         self.assertEqual(result, 0)
         self.assertEqual(rel, 1)
 
-        (result, rel) = \
-           Rationals.round_to_int(value, RoundingMethods.ROUND_TO_ZERO)
+        (result, rel) = Rationals.round_to_int(value, RoundingMethods.ROUND_TO_ZERO)
         self.assertEqual(result, 0)
         self.assertEqual(rel, -1)
 
-        (result, rel) = \
-           Rationals.round_to_int(-value, RoundingMethods.ROUND_TO_ZERO)
+        (result, rel) = Rationals.round_to_int(-value, RoundingMethods.ROUND_TO_ZERO)
         self.assertEqual(result, 0)
         self.assertEqual(rel, 1)
 
-        (result, rel) = \
-           Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_UP)
+        (result, rel) = Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_UP)
         if numerator < 5:
             self.assertEqual(result, 0)
             self.assertEqual(rel, -1)
@@ -159,8 +145,7 @@ class RationalsTestCase(unittest.TestCase):
             self.assertEqual(result, 1)
             self.assertEqual(rel, 1)
 
-        (result, rel) = \
-           Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_UP)
+        (result, rel) = Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_UP)
         if numerator <= 5:
             self.assertEqual(result, 0)
             self.assertEqual(rel, 1)
@@ -168,8 +153,7 @@ class RationalsTestCase(unittest.TestCase):
             self.assertEqual(result, -1)
             self.assertEqual(rel, -1)
 
-        (result, rel) = \
-           Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_DOWN)
+        (result, rel) = Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_DOWN)
         if numerator > 5:
             self.assertEqual(result, 1)
             self.assertEqual(rel, 1)
@@ -177,8 +161,7 @@ class RationalsTestCase(unittest.TestCase):
             self.assertEqual(result, 0)
             self.assertEqual(rel, -1)
 
-        (result, rel) = \
-           Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_DOWN)
+        (result, rel) = Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_DOWN)
         if numerator >= 5:
             self.assertEqual(result, -1)
             self.assertEqual(rel, -1)
@@ -186,8 +169,7 @@ class RationalsTestCase(unittest.TestCase):
             self.assertEqual(result, 0)
             self.assertEqual(rel, 1)
 
-        (result, rel) = \
-           Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_ZERO)
+        (result, rel) = Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_ZERO)
         if numerator > 5:
             self.assertEqual(result, 1)
             self.assertEqual(rel, 1)
@@ -195,15 +177,13 @@ class RationalsTestCase(unittest.TestCase):
             self.assertEqual(result, 0)
             self.assertEqual(rel, -1)
 
-        (result, rel) = \
-           Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_ZERO)
+        (result, rel) = Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_ZERO)
         if numerator > 5:
             self.assertEqual(result, -1)
             self.assertEqual(rel, -1)
         else:
             self.assertEqual(result, 0)
             self.assertEqual(rel, 1)
-
 
     def testRoundingExceptions(self):
         """

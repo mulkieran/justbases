@@ -1,0 +1,64 @@
+---
+name: justbases CI
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # MANDATORY CHECKS THAT USE TOX
+  tox-checks:
+    strategy:
+      matrix:
+        task: [lint, test, coverage]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8.6
+      - name: Install dependencies
+        run: |
+          pip3 install tox==3.15.2
+      - name: Run test
+        run: make -f Makefile ${{ matrix.task }}
+
+  # FORMAT
+  fmt:
+    env:
+      TASK: fmt-travis
+      PYTHON: 3.8.6
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON }}
+      - name: Install dependencies
+        run: |
+          pip3 install black==19.10b
+          pip3 install isort==4.3.21
+      - name: Run test
+        run: make -f Makefile $TASK
+
+  # VERIFICATION OF TEST INFRASTRUCTURE
+  yamllint:
+    env:
+      TASK: yamllint
+      PYTHON: 3.8.6
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON }}
+      - name: Install dependencies
+        run: pip3 install yamllint==1.25.0
+      - name: Run yamllint
+        run: make -f Makefile $TASK
