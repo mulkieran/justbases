@@ -18,10 +18,10 @@
 
 """ Test for integer conversions. """
 
-from __future__ import absolute_import
-
+# isort: STDLIB
 import unittest
 
+# isort: FIRSTPARTY
 from justbases import RoundingMethods
 
 

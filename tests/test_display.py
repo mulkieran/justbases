@@ -18,31 +18,27 @@
 
 """ Test for utility functions. """
 
+# isort: STDLIB
 import unittest
 
-from justbases import BasesConfig
-from justbases import BasesError
-from justbases import BaseConfig
-from justbases import DigitsConfig
-from justbases import StripConfig
+# isort: THIRDPARTY
+from hypothesis import given, settings, strategies
 
-from justbases._display import Digits
-from justbases._display import Number
-from justbases._display import String
-from justbases._display import Strip
+# isort: FIRSTPARTY
+from justbases import BaseConfig, BasesConfig, BasesError, DigitsConfig, StripConfig
+from justbases._display import Digits, Number, String, Strip
 
-from hypothesis import given
-from hypothesis import settings
-from hypothesis import strategies
-
-from ._utils import build_base
-from ._utils import build_base_config
-from ._utils import build_display_config
-from ._utils import build_nat
-from ._utils import build_radix
-from ._utils import build_relation
-from ._utils import build_sign
-from ._utils import build_strip_config
+# isort considers this third party, but it is not
+from tests._utils import (  # isort:skip
+    build_base,
+    build_base_config,
+    build_display_config,
+    build_nat,
+    build_radix,
+    build_relation,
+    build_sign,
+    build_strip_config,
+)
 
 
 class TestString(unittest.TestCase):
@@ -51,13 +47,13 @@ class TestString(unittest.TestCase):
     """
 
     @given(
-       build_radix(1024, 10),
-       build_display_config(
-          strategies.just(BaseConfig()),
-          strategies.just(DigitsConfig(use_letters=False)),
-          build_strip_config()
-       ),
-       build_relation()
+        build_radix(1024, 10),
+        build_display_config(
+            strategies.just(BaseConfig()),
+            strategies.just(DigitsConfig(use_letters=False)),
+            build_strip_config(),
+        ),
+        build_relation(),
     )
     @settings(max_examples=100)
     def testFormat(self, radix, display, relation):
@@ -65,8 +61,9 @@ class TestString(unittest.TestCase):
         Verify that a xformed string with a repeating part shows that part.
         """
         result = String(display, radix.base).xform(radix, relation)
-        assert (radix.repeating_part != [] and \
-           not display.base_config.use_subscript) == (result[-1] == ")")
+        assert (
+            radix.repeating_part != [] and not display.base_config.use_subscript
+        ) == (result[-1] == ")")
 
 
 class TestDigits(unittest.TestCase):
@@ -81,8 +78,8 @@ class TestDigits(unittest.TestCase):
         with self.assertRaises(BasesError):
             # pylint: disable=protected-access
             Digits(
-               BasesConfig.DISPLAY_CONFIG.digits_config,
-               Digits._MAX_SIZE_BASE_FOR_CHARS + 1
+                BasesConfig.DISPLAY_CONFIG.digits_config,
+                Digits._MAX_SIZE_BASE_FOR_CHARS + 1,
             )
 
 
@@ -92,26 +89,16 @@ class TestNumber(unittest.TestCase):
     """
 
     @given(
-       strategies.text(alphabet=strategies.characters(), max_size=10),
-       strategies.text(
-          alphabet=strategies.characters(),
-          min_size=1,
-          max_size=10
-       ),
-       strategies.text(alphabet=strategies.characters(), max_size=10),
-       build_base_config(),
-       build_base(16),
-       build_sign()
+        strategies.text(alphabet=strategies.characters(), max_size=10),
+        strategies.text(alphabet=strategies.characters(), min_size=1, max_size=10),
+        strategies.text(alphabet=strategies.characters(), max_size=10),
+        build_base_config(),
+        build_base(16),
+        build_sign(),
     )
     @settings(max_examples=100)
     def testXform(
-       self,
-       integer_part,
-       non_repeating_part,
-       repeating_part,
-       config,
-       base,
-       sign
+        self, integer_part, non_repeating_part, repeating_part, config, base, sign
     ):
         """
         Test xform.
@@ -119,22 +106,15 @@ class TestNumber(unittest.TestCase):
         # pylint: disable=too-many-arguments
 
         result = Number(config, base).xform(
-           integer_part,
-           non_repeating_part,
-           repeating_part,
-           base,
-           sign
+            integer_part, non_repeating_part, repeating_part, base, sign
         )
         if config.use_prefix and base == 16 and sign != -1:
-            self.assertTrue(result.startswith('0x'))
+            self.assertTrue(result.startswith("0x"))
         if config.use_prefix and base == 8 and sign != -1:
-            self.assertTrue(result.startswith('0'))
+            self.assertTrue(result.startswith("0"))
         if config.use_subscript:
             base_str = str(base)
-            self.assertEqual(
-               result.rfind(base_str) + len(base_str),
-               len(result)
-            )
+            self.assertEqual(result.rfind(base_str) + len(base_str), len(result))
 
 
 class TestStrip(unittest.TestCase):
@@ -143,10 +123,7 @@ class TestStrip(unittest.TestCase):
     """
 
     @given(
-       build_nat(10, 3),
-       build_strip_config(),
-       build_relation(),
-       build_base(16),
+        build_nat(10, 3), build_strip_config(), build_relation(), build_base(16),
     )
     @settings(max_examples=100)
     def testXform(self, number, config, relation, base):

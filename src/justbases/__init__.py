@@ -36,24 +36,11 @@ Contents:
   * String -- display of Radices
 """
 
+from ._config import BaseConfig, BasesConfig, DigitsConfig, DisplayConfig, StripConfig
 from ._constants import RoundingMethods
-
-from ._config import BasesConfig
-from ._config import BaseConfig
-from ._config import DigitsConfig
-from ._config import DisplayConfig
-from ._config import StripConfig
-
 from ._display import String
-
 from ._division import NatDivision
-
 from ._errors import BasesError
-
 from ._nats import Nats
-
-from ._rationals import Radices
-from ._rationals import Radix
-from ._rationals import Rationals
-
+from ._rationals import Radices, Radix, Rationals
 from .version import __version__

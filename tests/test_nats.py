@@ -18,36 +18,32 @@
 
 """ Test for integer conversions. """
 
-from __future__ import absolute_import
-
+# isort: STDLIB
 import unittest
-
-from os import environ
 from os import sys
 
-from hypothesis import given
-from hypothesis import settings
-from hypothesis import strategies
+# isort: THIRDPARTY
+from hypothesis import given, settings, strategies
 
-from justbases import BasesError
-from justbases import Nats
+# isort: FIRSTPARTY
+from justbases import BasesError, Nats
 
-from ._utils import build_nat
+# isort considers this third party, but it is not
+from tests._utils import build_nat  # isort:skip
 
-
-if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
+if sys.gettrace() is not None:
     settings.load_profile("tracing")
 
 _NATS_STRATEGY = strategies.integers(min_value=2).flatmap(
-   lambda n: strategies.tuples(build_nat(n, 64), strategies.just(n))
+    lambda n: strategies.tuples(build_nat(n, 64), strategies.just(n))
 )
+
 
 class NatsTestCase(unittest.TestCase):
     """ Tests for ints. """
 
     @given(
-       strategies.integers(min_value=0),
-       strategies.integers(min_value=2),
+        strategies.integers(min_value=0), strategies.integers(min_value=2),
     )
     def testFromInt(self, value, to_base):
         """
@@ -58,16 +54,14 @@ class NatsTestCase(unittest.TestCase):
         assert result[:1] != [0]
         assert Nats.convert_to_int(result, to_base) == value
 
-    @given(
-       _NATS_STRATEGY,
-       strategies.integers(min_value=2, max_value=64)
-    )
+    @given(_NATS_STRATEGY, strategies.integers(min_value=2, max_value=64))
     def testFromOther(self, nat, to_base):
         """ Test roundtrip from number in arbitrary base. """
         (subject, from_base) = nat
         result = Nats.convert(subject, from_base, to_base)
-        assert Nats.convert_to_int(result, to_base) == \
-            Nats.convert_to_int(subject, from_base)
+        assert Nats.convert_to_int(result, to_base) == Nats.convert_to_int(
+            subject, from_base
+        )
 
     def testExceptions(self):
         """ Test throwing exception. """
@@ -91,12 +85,13 @@ class NatsTestCase(unittest.TestCase):
             Nats.carry_in([1], 1, 1)
 
     _CARRY_STRATEGY = strategies.integers(min_value=2).flatmap(
-       lambda n: strategies.tuples(
-          build_nat(n, 64),
-          strategies.integers(min_value=1, max_value=(n - 1)),
-          strategies.just(n)
-       )
+        lambda n: strategies.tuples(
+            build_nat(n, 64),
+            strategies.integers(min_value=1, max_value=(n - 1)),
+            strategies.just(n),
+        )
     )
+
     @given(_CARRY_STRATEGY)
     def testCarryIn(self, strategy):
         """
@@ -108,14 +103,14 @@ class NatsTestCase(unittest.TestCase):
         (carry_out, result) = Nats.carry_in(value, carry, base)
         assert len(result) == len(value)
 
-        result2 = Nats.convert_from_int(
-           Nats.convert_to_int(value, base) + carry,
-           base
-        )
+        result2 = Nats.convert_from_int(Nats.convert_to_int(value, base) + carry, base)
 
         assert len(result2) >= len(result)
 
-        assert (len(result2) == len(result)) or \
-           result2[0] == carry_out and result2[1:] == result
+        assert (
+            (len(result2) == len(result))
+            or result2[0] == carry_out
+            and result2[1:] == result
+        )
 
         assert not (len(result2) == len(result)) or result2 == result

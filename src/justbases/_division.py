@@ -20,8 +20,7 @@
 Long division in any bases.
 """
 
-from __future__ import absolute_import
-
+# isort: STDLIB
 import fractions
 import itertools
 
@@ -30,19 +29,14 @@ from ._errors import BasesValueError
 from ._nats import Nats
 
 
-class NatDivision():
+class NatDivision:
     """
     Methods for division in arbitrary bases.
     """
 
     @classmethod
     def _round(
-       cls,
-       quotient,
-       divisor,
-       remainder,
-       base,
-       method=RoundingMethods.ROUND_DOWN
+        cls, quotient, divisor, remainder, base, method=RoundingMethods.ROUND_DOWN
     ):
         """
         Round the quotient.
@@ -64,12 +58,10 @@ class NatDivision():
         # pylint: disable=too-many-arguments
         if method not in RoundingMethods.METHODS():
             raise BasesValueError(
-               method,
-               "method",
-               "must be one of RoundingMethods.METHODS"
+                method, "method", "must be one of RoundingMethods.METHODS"
             )
 
-        if remainder == 0: # pragma: no cover
+        if remainder == 0:  # pragma: no cover
             return (0, quotient, [], 0)
 
         if method is RoundingMethods.ROUND_DOWN:
@@ -91,15 +83,11 @@ class NatDivision():
         if method is RoundingMethods.ROUND_HALF_UP:
             (carry, quotient) = Nats.carry_in(quotient, 1, base)
             return (carry, quotient, [], 1)
-        if method in \
-           (RoundingMethods.ROUND_HALF_DOWN,
-            RoundingMethods.ROUND_HALF_ZERO):
+        if method in (RoundingMethods.ROUND_HALF_DOWN, RoundingMethods.ROUND_HALF_ZERO):
             return (0, quotient, [], -1)
 
-        raise BasesValueError( # pragma: no cover
-           method,
-           "method",
-           "must be one of RoundingMethods.METHODS"
+        raise BasesValueError(  # pragma: no cover
+            method, "method", "must be one of RoundingMethods.METHODS"
         )
 
     @staticmethod
@@ -138,12 +126,7 @@ class NatDivision():
 
     @classmethod
     def _fractional_division(
-       cls,
-       divisor,
-       remainder,
-       base,
-       precision=None,
-       method=RoundingMethods.ROUND_DOWN
+        cls, divisor, remainder, base, precision=None, method=RoundingMethods.ROUND_DOWN
     ):
         """
         Get the repeating and non-repeating part.
@@ -167,12 +150,7 @@ class NatDivision():
         quotient = []
         remainders = []
         remainder = cls._divide(
-           divisor,
-           remainder * base,
-           quotient,
-           remainders,
-           base,
-           precision
+            divisor, remainder * base, quotient, remainders, base, precision
         )
 
         if remainder == 0:
@@ -180,13 +158,7 @@ class NatDivision():
         if remainder in remainders:
             start = remainders.index(remainder)
             return (0, quotient[:start], quotient[start:], 0)
-        return cls._round(
-           quotient,
-           divisor,
-           remainder,
-           base,
-           method
-        )
+        return cls._round(quotient, divisor, remainder, base, method)
 
     @staticmethod
     def _division(divisor, dividend, remainder, base):
@@ -215,13 +187,8 @@ class NatDivision():
 
     @classmethod
     def division(
-       cls,
-       divisor,
-       dividend,
-       base,
-       precision=None,
-       method=RoundingMethods.ROUND_DOWN
-      ):
+        cls, divisor, dividend, base, precision=None, method=RoundingMethods.ROUND_DOWN
+    ):
         """
         Division of natural numbers.
 
@@ -253,54 +220,38 @@ class NatDivision():
 
         if any(x < 0 or x >= base for x in divisor):
             raise BasesValueError(
-               divisor,
-               "divisor",
-               "for all elements, e, 0 <= e < base required"
+                divisor, "divisor", "for all elements, e, 0 <= e < base required"
             )
 
         if any(x < 0 or x >= base for x in dividend):
             raise BasesValueError(
-               divisor,
-               "divisor",
-               "for all elements, e, 0 <= e < base required"
+                divisor, "divisor", "for all elements, e, 0 <= e < base required"
             )
 
         if all(x == 0 for x in divisor):
-            raise BasesValueError(
-               divisor,
-               "divisor",
-               "must be greater than 0"
-            )
+            raise BasesValueError(divisor, "divisor", "must be greater than 0")
 
         divisor = Nats.convert_to_int(divisor, base)
 
         (integer_part, rem) = cls._division(divisor, dividend, 0, base)
-        (carry, non_repeating_part, repeating_part, relation) = \
-           cls._fractional_division(
-              divisor,
-              rem,
-              base,
-              precision,
-              method
-           )
+        (
+            carry,
+            non_repeating_part,
+            repeating_part,
+            relation,
+        ) = cls._fractional_division(divisor, rem, base, precision, method)
 
         (carry, integer_part) = Nats.carry_in(integer_part, carry, base)
 
         return (
-           list(itertools.dropwhile(lambda x: x == 0, [carry] + integer_part)),
-           non_repeating_part,
-           repeating_part,
-           relation
+            list(itertools.dropwhile(lambda x: x == 0, [carry] + integer_part)),
+            non_repeating_part,
+            repeating_part,
+            relation,
         )
 
     @classmethod
-    def undivision(
-       cls,
-       integer_part,
-       non_repeating_part,
-       repeating_part,
-       base
-    ):
+    def undivision(cls, integer_part, non_repeating_part, repeating_part, base):
         """
         Find divisor and dividend that yield component parts.
 
@@ -322,48 +273,47 @@ class NatDivision():
 
         if any(x < 0 or x >= base for x in integer_part):
             raise BasesValueError(
-               integer_part,
-               "integer_part",
-               "for all elements, e, 0 <= e < base required"
+                integer_part,
+                "integer_part",
+                "for all elements, e, 0 <= e < base required",
             )
 
         if any(x < 0 or x >= base for x in non_repeating_part):
             raise BasesValueError(
-               non_repeating_part,
-               "non_repeating_part",
-               "for all elements, e, 0 <= e < base required"
+                non_repeating_part,
+                "non_repeating_part",
+                "for all elements, e, 0 <= e < base required",
             )
 
         if any(x < 0 or x >= base for x in repeating_part):
             raise BasesValueError(
-               repeating_part,
-               "repeating_part",
-               "for all elements, e, 0 <= e < base required"
+                repeating_part,
+                "repeating_part",
+                "for all elements, e, 0 <= e < base required",
             )
 
         shift_length = len(repeating_part)
         frac_length = len(non_repeating_part)
 
         top = fractions.Fraction(
-           Nats.convert_to_int(
-              integer_part + non_repeating_part + repeating_part,
-              base
-           ),
-           base ** frac_length
+            Nats.convert_to_int(
+                integer_part + non_repeating_part + repeating_part, base
+            ),
+            base ** frac_length,
         )
 
         if shift_length == 0:
             return (
-               Nats.convert_from_int(top.denominator, base),
-               Nats.convert_from_int(top.numerator, base)
+                Nats.convert_from_int(top.denominator, base),
+                Nats.convert_from_int(top.numerator, base),
             )
 
         bottom = fractions.Fraction(
-           Nats.convert_to_int(integer_part + non_repeating_part, base),
-           base ** frac_length
+            Nats.convert_to_int(integer_part + non_repeating_part, base),
+            base ** frac_length,
         )
         result = (top - bottom) / ((base ** shift_length) - 1)
         return (
-           Nats.convert_from_int(result.denominator, base),
-           Nats.convert_from_int(result.numerator, base)
+            Nats.convert_from_int(result.denominator, base),
+            Nats.convert_from_int(result.numerator, base),
         )

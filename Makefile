@@ -8,6 +8,16 @@ lint:
 coverage:
 	$(TOX) -c tox.ini -e coverage
 
+.PHONY: fmt
+fmt:
+	isort --recursive check.py setup.py src tests
+	black .
+
+.PHONY: fmt-travis
+fmt-travis:
+	isort --recursive --diff --check-only check.py setup.py src tests
+	black . --check
+
 .PHONY: test
 test:
 	$(TOX) -c tox.ini -e test
@@ -32,3 +42,7 @@ upload-release:
 .PHONY: docs
 docs:
 	cd doc/_build/html; zip -r ../../../docs *
+
+.PHONY: yamllint
+yamllint:
+	yamllint --strict .github/workflows/main.yml
