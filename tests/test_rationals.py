@@ -18,9 +18,6 @@
 
 """ Test for rational conversions. """
 
-# isort: FUTURE
-from __future__ import absolute_import
-
 # isort: STDLIB
 import unittest
 from fractions import Fraction

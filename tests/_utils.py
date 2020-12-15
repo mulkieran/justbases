@@ -18,9 +18,6 @@
 
 """ Test utilities. """
 
-# isort: FUTURE
-from __future__ import absolute_import
-
 # isort: STDLIB
 import itertools
 

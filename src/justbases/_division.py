@@ -20,9 +20,6 @@
 Long division in any bases.
 """
 
-# isort: FUTURE
-from __future__ import absolute_import
-
 # isort: STDLIB
 import fractions
 import itertools
