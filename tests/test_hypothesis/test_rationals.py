@@ -27,7 +27,7 @@ from os import sys
 from hypothesis import given, settings, strategies
 
 # isort: LOCAL
-from justbases import BasesError, Radices, Rationals, RoundingMethods
+from justbases import Radices, Rationals, RoundingMethods
 
 if sys.gettrace() is not None:
     settings.load_profile("tracing")
@@ -80,15 +80,6 @@ class RationalsTestCase(unittest.TestCase):
             assert rel == -1
         else:
             assert rel == 0
-
-    def testExceptions(self):
-        """
-        Test exceptions.
-        """
-        with self.assertRaises(BasesError):
-            Radices.from_rational(Fraction(1, 2), 0)
-        with self.assertRaises(BasesError):
-            Radices.from_rational(Fraction(1, 2), 2, -1)
 
     @given(strategies.fractions(), strategies.sampled_from(RoundingMethods.METHODS()))
     @settings(max_examples=50)
@@ -181,11 +172,3 @@ class RationalsTestCase(unittest.TestCase):
         else:
             self.assertEqual(result, 0)
             self.assertEqual(rel, 1)
-
-    def testRoundingExceptions(self):
-        """
-        Test exceptions.
-        """
-        # pylint: disable=pointless-statement
-        with self.assertRaises(BasesError):
-            Rationals.round_to_int(Fraction(1, 2), None)
