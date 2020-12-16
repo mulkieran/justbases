@@ -1,0 +1,11 @@
+justbases 0.15 (UNRELEASED)
+===========================
+
+
+- Split tests into two kinds, deterministic and Hypothesis-based:
+  https://github.com/mulkieran/justbases/pull/69
+
+- Tidies and Maintenance:
+  https://github.com/mulkieran/justbases/pull/67
+  https://github.com/mulkieran/justbases/pull/66
+  https://github.com/mulkieran/justbases/pull/65
