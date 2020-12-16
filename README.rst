@@ -49,3 +49,11 @@ Related Packages
 * numpy: http://docs.scipy.org/doc/numpy/reference/
 
   Converts int to str in bases between 2 and 36.
+
+
+Packaging
+---------
+Downstream packagers, if incorporating testing into their packaging, are
+encouraged to use only the tests in the test_deterministic module, to
+avoid testing failures that may arise due to the non-deterministic behavior
+of Hypothesis tests.
