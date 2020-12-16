@@ -26,10 +26,10 @@ from os import sys
 from hypothesis import given, settings, strategies
 
 # isort: LOCAL
-from justbases import BasesError, Nats
+from justbases import Nats
 
 # isort considers this third party, but it is not
-from tests._utils import build_nat  # isort:skip
+from tests.test_hypothesis._utils import build_nat  # isort:skip
 
 if sys.gettrace() is not None:
     settings.load_profile("tracing")
@@ -62,27 +62,6 @@ class NatsTestCase(unittest.TestCase):
         assert Nats.convert_to_int(result, to_base) == Nats.convert_to_int(
             subject, from_base
         )
-
-    def testExceptions(self):
-        """ Test throwing exception. """
-        with self.assertRaises(BasesError):
-            Nats.convert_from_int(-32, 2)
-        with self.assertRaises(BasesError):
-            Nats.convert_from_int(32, -2)
-        with self.assertRaises(BasesError):
-            Nats.convert([1], 1, 2)
-        with self.assertRaises(BasesError):
-            Nats.convert([1], 2, 1)
-        with self.assertRaises(BasesError):
-            Nats.convert_to_int([1], 1)
-        with self.assertRaises(BasesError):
-            Nats.convert_to_int([-1], 2)
-        with self.assertRaises(BasesError):
-            Nats.carry_in([-1], 1, 2)
-        with self.assertRaises(BasesError):
-            Nats.carry_in([1], -1, 2)
-        with self.assertRaises(BasesError):
-            Nats.carry_in([1], 1, 1)
 
     _CARRY_STRATEGY = strategies.integers(min_value=2).flatmap(
         lambda n: strategies.tuples(
