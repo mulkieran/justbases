@@ -25,11 +25,11 @@ import unittest
 from hypothesis import given, settings, strategies
 
 # isort: LOCAL
-from justbases import BaseConfig, BasesConfig, BasesError, DigitsConfig, StripConfig
-from justbases._display import Digits, Number, String, Strip
+from justbases import BaseConfig, DigitsConfig, StripConfig
+from justbases._display import Number, String, Strip
 
 # isort considers this third party, but it is not
-from tests._utils import (  # isort:skip
+from tests.test_hypothesis._utils import (  # isort:skip
     build_base,
     build_base_config,
     build_display_config,
@@ -64,23 +64,6 @@ class TestString(unittest.TestCase):
         assert (
             radix.repeating_part != [] and not display.base_config.use_subscript
         ) == (result[-1] == ")")
-
-
-class TestDigits(unittest.TestCase):
-    """
-    Test Digits methods.
-    """
-
-    def testExceptions(self):
-        """
-        Test exceptions.
-        """
-        with self.assertRaises(BasesError):
-            # pylint: disable=protected-access
-            Digits(
-                BasesConfig.DISPLAY_CONFIG.digits_config,
-                Digits._MAX_SIZE_BASE_FOR_CHARS + 1,
-            )
 
 
 class TestNumber(unittest.TestCase):

@@ -27,10 +27,10 @@ from os import sys
 from hypothesis import example, given, settings, strategies
 
 # isort: LOCAL
-from justbases import BasesError, NatDivision, Nats, RoundingMethods
+from justbases import NatDivision, Nats, RoundingMethods
 
 # isort considers this third party, but it is not
-from tests._utils import build_nat  # isort:skip
+from tests.test_hypothesis._utils import build_nat  # isort:skip
 
 if sys.gettrace() is not None:
     settings.load_profile("tracing")
@@ -77,40 +77,6 @@ class NatDivisionTestCase(unittest.TestCase):
         )
 
         assert original == result
-
-    def testExceptionsDivision(self):
-        """
-        Test division exceptions.
-        """
-        with self.assertRaises(BasesError):
-            NatDivision.division([1], [1], -2)
-        with self.assertRaises(BasesError):
-            NatDivision.division([1], [-1], 3)
-        with self.assertRaises(BasesError):
-            NatDivision.division([-1], [1], 3)
-        with self.assertRaises(BasesError):
-            NatDivision.division([], [1], 3)
-        with self.assertRaises(BasesError):
-            NatDivision.division([0], [1], 3)
-        with self.assertRaises(BasesError):
-            NatDivision.division([2], [1], 3, -1)
-        with self.assertRaises(BasesError):
-            NatDivision.division([3], [1], 10, 0, None)
-
-    def testExceptionsUndivision(self):
-        """
-        Test undivision exceptions.
-        """
-        with self.assertRaises(BasesError):
-            NatDivision.undivision([1], [1], [1], -2)
-        with self.assertRaises(BasesError):
-            NatDivision.undivision([1], [1], [-1], 2)
-        with self.assertRaises(BasesError):
-            NatDivision.undivision([1], [-1], [1], 2)
-        with self.assertRaises(BasesError):
-            NatDivision.undivision([-1], [1], [1], 2)
-        with self.assertRaises(BasesError):
-            NatDivision.undivision([2], [1], [1], 2)
 
     @given(_DIVISION_STRATEGY, strategies.integers(min_value=0, max_value=32))
     @settings(max_examples=50, deadline=None)
