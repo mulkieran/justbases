@@ -27,9 +27,9 @@ class _RoundingMethod:
     # pylint: disable=too-few-public-methods
 
     def __init__(self, doc):
-        """ Initializer.
+        """Initializer.
 
-            :param str doc: explanation of the rounding method
+        :param str doc: explanation of the rounding method
         """
         self._doc = doc
 

@@ -56,7 +56,8 @@ class RadixTestCase(unittest.TestCase):
         Test == operator.
         """
         self.assertEqual(
-            Radix(1, [1], [], [], 2), Radix(1, [1], [], [], 2),
+            Radix(1, [1], [], [], 2),
+            Radix(1, [1], [], [], 2),
         )
 
     def testInEquality(self):
@@ -64,7 +65,8 @@ class RadixTestCase(unittest.TestCase):
         Test != operator.
         """
         self.assertNotEqual(
-            Radix(0, [], [], [], 3), Radix(0, [], [], [], 2),
+            Radix(0, [], [], [], 3),
+            Radix(0, [], [], [], 2),
         )
 
     def testOperatorExceptions(self):

@@ -106,7 +106,10 @@ class TestStrip(unittest.TestCase):
     """
 
     @given(
-        build_nat(10, 3), build_strip_config(), build_relation(), build_base(16),
+        build_nat(10, 3),
+        build_strip_config(),
+        build_relation(),
+        build_base(16),
     )
     @settings(max_examples=100)
     def testXform(self, number, config, relation, base):
