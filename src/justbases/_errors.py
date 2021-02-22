@@ -53,7 +53,8 @@ class BasesInvalidOperationError(BasesError):  # pragma: no cover
 
 
 class BasesValueError(BasesError):
-    """Raised when a parameter has an unacceptable value.
+    """
+    Raised when a parameter has an unacceptable value.
 
     May also be raised when the parameter has an unacceptable type.
     """
@@ -61,7 +62,8 @@ class BasesValueError(BasesError):
     _FMT_STR = "value '%s' for parameter %s is unacceptable"
 
     def __init__(self, value, param, msg=None):
-        """Initializer.
+        """
+        Initializer.
 
         :param object value: the value
         :param str param: the parameter
