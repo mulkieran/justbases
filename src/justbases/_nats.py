@@ -127,7 +127,7 @@ class Nats:
         :returns: carry-out and result
         :rtype: tuple of int * (list of int)
 
-	Complexity: O(len(value))
+        Complexity: O(len(value))
         """
         if base < 2:
             raise BasesValueError(base, "base", "must be at least 2")

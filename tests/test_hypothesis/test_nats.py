@@ -43,7 +43,8 @@ class NatsTestCase(unittest.TestCase):
     """ Tests for ints. """
 
     @given(
-        strategies.integers(min_value=0), strategies.integers(min_value=2),
+        strategies.integers(min_value=0),
+        strategies.integers(min_value=2),
     )
     def testFromInt(self, value, to_base):
         """
