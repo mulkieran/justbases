@@ -22,10 +22,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.8.6
+          python-version: 3.9.2
       - name: Install dependencies
         run: |
-          pip3 install tox==3.15.2
+          pip3 install tox==3.19.0
       - name: Run test
         run: make -f Makefile ${{ matrix.task }}
 
@@ -33,7 +33,7 @@ jobs:
   fmt:
     env:
       TASK: fmt-travis
-      PYTHON: 3.8.6
+      PYTHON: 3.9.2
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip3 install black==20.8b1
-          pip3 install isort==4.3.21
+          pip3 install isort==5.6.4
       - name: Run test
         run: make -f Makefile $TASK
 
@@ -51,7 +51,7 @@ jobs:
   yamllint:
     env:
       TASK: yamllint
-      PYTHON: 3.8.6
+      PYTHON: 3.9.2
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
