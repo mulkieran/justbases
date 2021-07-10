@@ -34,7 +34,7 @@ Related Packages
   Requires rounding, does not do precise conversion, but does do
   conversion to any specified precision.
 
-* python-baseconv: https://pypi.python.org/pypi/allyourbase
+* python-baseconv: https://pypi.python.org/pypi/python-baseconv
 
   Converts an int to a string using a one character to digit encoding.
   Also converts in the opposite direction.
