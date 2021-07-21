@@ -74,6 +74,7 @@ class RadixTestCase(unittest.TestCase):
         Make sure that result is evalable.
         """
         # pylint: disable=import-outside-toplevel, unused-import
+        # isort: LOCAL
         from justbases import Radix
 
         assert eval(repr(radix)) == radix  # pylint: disable=eval-used
