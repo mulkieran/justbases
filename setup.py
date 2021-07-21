@@ -39,13 +39,17 @@ README = local_file("README.rst")
 with open(local_file("src/justbases/version.py")) as o:
     exec(o.read())  # pylint: disable=exec-used
 
+
+with open(local_file("README.rst"), encoding="utf-8") as o:
+    long_description = o.read()
+
 setuptools.setup(
     name="justbases",
     version=__version__,  # pylint: disable=undefined-variable
     author="Anne Mulhern",
     author_email="mulhern@cs.wisc.edu",
     description="conversion of ints and rationals to any base",
-    long_description=open(README, encoding="utf-8").read(),
+    long_description=long_description,
     platforms=["Linux"],
     license="LGPLv2+",
     classifiers=[
