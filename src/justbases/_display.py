@@ -17,6 +17,9 @@
 
 """ Handling lists of digits. """
 
+# pylint: disable=invalid-name
+
+
 # isort: STDLIB
 import itertools
 import string

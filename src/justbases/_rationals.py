@@ -19,6 +19,7 @@
 """
 Methods dealing with rationals.
 """
+
 # isort: STDLIB
 import copy
 import itertools
@@ -378,7 +379,7 @@ class Radix:
         self.non_repeating_part = non_repeating_part
         self.repeating_part = repeating_part
 
-    def getString(self, config, relation=0):
+    def getString(self, config, relation=0):  # pylint: disable=invalid-name
         """
         Return a representation of a Radix according to config.
 
@@ -563,7 +564,7 @@ class _Rounding:
         )
 
     @classmethod
-    def roundFractional(cls, value, precision, method):
+    def roundFractional(cls, value, precision, method):  # pylint: disable=invalid-name
         """
         Round to precision as number of digits after radix.
 

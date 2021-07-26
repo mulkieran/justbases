@@ -66,11 +66,11 @@ class RoundingMethods:
     ]
 
     @classmethod
-    def METHODS(cls):
+    def METHODS(cls):  # pylint: disable=invalid-name
         """ Methods of this class. """
         return cls._METHODS[:]
 
     @classmethod
-    def CONDITIONAL_METHODS(cls):
+    def CONDITIONAL_METHODS(cls):  # pylint: disable=invalid-name
         """ Conditional rounding methods. """
         return [cls.ROUND_HALF_DOWN, cls.ROUND_HALF_UP, cls.ROUND_HALF_ZERO]
