@@ -30,7 +30,6 @@ arg_map = {
         "--reports=no",
         "--disable=I",
         "--disable=duplicate-code",
-        "--disable=no-self-use",
         "--msg-template='{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'",
     ],
 }

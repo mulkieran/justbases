@@ -95,7 +95,7 @@ class RadixTestCase(unittest.TestCase):
         """
         Carry from non_repeating_part to integer_part and then out.
         """
-        assert Radix(1, [3], [3], [3], 4) == Radix(1, [1, 0], [], [], 4)
+        self.assertEqual(Radix(1, [3], [3], [3], 4), Radix(1, [1, 0], [], [], 4))
 
     def test_repeating_repeat_part(self):
         """

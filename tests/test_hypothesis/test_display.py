@@ -61,9 +61,10 @@ class TestString(unittest.TestCase):
         Verify that a xformed string with a repeating part shows that part.
         """
         result = String(display, radix.base).xform(radix, relation)
-        assert (
-            radix.repeating_part != [] and not display.base_config.use_subscript
-        ) == (result[-1] == ")")
+        self.assertEqual(
+            radix.repeating_part != [] and not display.base_config.use_subscript,
+            result[-1] == ")",
+        )
 
 
 class TestNumber(unittest.TestCase):
