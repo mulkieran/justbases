@@ -29,7 +29,6 @@ arg_map = {
     "tests": [
         "--reports=no",
         "--disable=I",
-        "--disable=duplicate-code",
         "--msg-template='{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'",
     ],
 }
