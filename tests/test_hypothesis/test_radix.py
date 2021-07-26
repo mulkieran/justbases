@@ -41,35 +41,33 @@ class RadixTestCase(unittest.TestCase):
 
     @given(build_radix(16, 3), build_base(16))
     @settings(max_examples=50, deadline=None)
-    def testInBase(self, radix, base):
+    def test_in_base(self, radix, base):
         """
         Test that roundtrip is identity modulo number of 0s in
         non repeating part.
         """
         result = radix.in_base(base).in_base(radix.base)
-        assert (
-            result.sign == radix.sign
-            and result.integer_part == radix.integer_part
-            and result.repeating_part == radix.repeating_part
-            and result.base == radix.base
-        )
+        self.assertEqual(result.sign, radix.sign)
+        self.assertEqual(result.integer_part, radix.integer_part)
+        self.assertEqual(result.repeating_part, radix.repeating_part)
+        self.assertEqual(result.base, radix.base)
 
         length = len(result.non_repeating_part)
-        assert result.non_repeating_part == radix.non_repeating_part[:length]
-        assert all(x == 0 for x in radix.non_repeating_part[length:])
+        self.assertEqual(result.non_repeating_part, radix.non_repeating_part[:length])
+        self.assertTrue(all(x == 0 for x in radix.non_repeating_part[length:]))
 
     @given(build_radix(36, 10))
     @settings(max_examples=10)
-    def testStr(self, radix):
+    def test_str(self, radix):
         """
         Check basic properties of __str__.
         """
         result = str(radix)
-        assert result.startswith("-") == (radix.sign == -1)
+        self.assertEqual(result.startswith("-"), (radix.sign == -1))
 
     @given(build_radix(1024, 10))
     @settings(max_examples=10)
-    def testRepr(self, radix):
+    def test_repr(self, radix):
         """
         Make sure that result is evalable.
         """
@@ -77,7 +75,7 @@ class RadixTestCase(unittest.TestCase):
         # isort: LOCAL
         from justbases import Radix
 
-        assert eval(repr(radix)) == radix  # pylint: disable=eval-used
+        self.assertEqual(eval(repr(radix)), radix)  # pylint: disable=eval-used
 
 
 class RoundingTestCase(unittest.TestCase):
@@ -89,7 +87,7 @@ class RoundingTestCase(unittest.TestCase):
         strategies.sampled_from(RoundingMethods.METHODS()),
     )
     @settings(max_examples=50)
-    def testRoundFraction(self, radix, precision, method):
+    def test_round_fraction(self, radix, precision, method):
         """
         Test that rounding yields the correct number of digits.
 
@@ -97,23 +95,23 @@ class RoundingTestCase(unittest.TestCase):
         """
         value = radix.as_rational()
         (result, relation) = radix.rounded(precision, method)
-        assert len(result.non_repeating_part) == precision
+        self.assertEqual(len(result.non_repeating_part), precision)
 
         ulp = Fraction(1, radix.base ** precision)
         rational_result = result.as_rational()
-        assert value - ulp <= rational_result
-        assert value + ulp >= rational_result
+        self.assertLessEqual(value - ulp, rational_result)
+        self.assertGreaterEqual(value + ulp, rational_result)
 
         if rational_result > value:
-            assert relation == 1
+            self.assertEqual(relation, 1)
         elif rational_result < value:
-            assert relation == -1
+            self.assertEqual(relation, -1)
         else:
-            assert relation == 0
+            self.assertEqual(relation, 0)
 
     @given(build_radix(16, 10), strategies.integers(min_value=0, max_value=64))
     @settings(max_examples=50)
-    def testRoundRelation(self, radix, precision):
+    def test_round_relation(self, radix, precision):
         """
         Test that all results have the correct relation.
         """
@@ -123,25 +121,25 @@ class RoundingTestCase(unittest.TestCase):
         )
 
         for _, result in results.items():
-            assert len(result.non_repeating_part) == precision
+            self.assertEqual(len(result.non_repeating_part), precision)
 
         if radix.sign in (0, 1):
-            assert (
-                results[RoundingMethods.ROUND_DOWN]
-                == results[RoundingMethods.ROUND_TO_ZERO]
+            self.assertEqual(
+                results[RoundingMethods.ROUND_DOWN],
+                results[RoundingMethods.ROUND_TO_ZERO],
             )
-            assert (
-                results[RoundingMethods.ROUND_HALF_DOWN]
-                == results[RoundingMethods.ROUND_HALF_ZERO]
+            self.assertEqual(
+                results[RoundingMethods.ROUND_HALF_DOWN],
+                results[RoundingMethods.ROUND_HALF_ZERO],
             )
         else:
-            assert (
-                results[RoundingMethods.ROUND_UP]
-                == results[RoundingMethods.ROUND_TO_ZERO]
+            self.assertEqual(
+                results[RoundingMethods.ROUND_UP],
+                results[RoundingMethods.ROUND_TO_ZERO],
             )
-            assert (
-                results[RoundingMethods.ROUND_HALF_UP]
-                == results[RoundingMethods.ROUND_HALF_ZERO]
+            self.assertEqual(
+                results[RoundingMethods.ROUND_HALF_UP],
+                results[RoundingMethods.ROUND_HALF_ZERO],
             )
 
         order = [
@@ -151,17 +149,17 @@ class RoundingTestCase(unittest.TestCase):
             RoundingMethods.ROUND_DOWN,
         ]
         for index in range(len(order) - 1):
-            assert (
-                results[order[index]].as_rational()
-                >= results[order[index + 1]].as_rational()
+            self.assertGreaterEqual(
+                results[order[index]].as_rational(),
+                results[order[index + 1]].as_rational(),
             )
 
     @given(build_radix(64, 5), strategies.sampled_from(RoundingMethods.METHODS()))
     @settings(max_examples=50)
-    def testAsInt(self, radix, method):
+    def test_as_int(self, radix, method):
         """
         Test equivalence with two paths.
         """
         result1 = Rationals.round_to_int(radix.as_rational(), method)
         result2 = radix.as_int(method)
-        assert result1 == result2
+        self.assertEqual(result1, result2)

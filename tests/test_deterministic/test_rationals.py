@@ -29,7 +29,7 @@ from justbases import BasesError, Radices, Rationals
 class RationalsTestCase(unittest.TestCase):
     """ Tests for rationals. """
 
-    def testExceptions(self):
+    def test_exceptions(self):
         """
         Test exceptions.
         """
@@ -38,7 +38,7 @@ class RationalsTestCase(unittest.TestCase):
         with self.assertRaises(BasesError):
             Radices.from_rational(Fraction(1, 2), 2, -1)
 
-    def testRoundingExceptions(self):
+    def test_rounding_exceptions(self):
         """
         Test exceptions.
         """

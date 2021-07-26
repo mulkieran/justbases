@@ -50,7 +50,7 @@ class NatDivisionTestCase(unittest.TestCase):
 
     @given(_DIVISION_STRATEGY)
     @settings(max_examples=50, deadline=None)
-    def testInverses(self, strategy):
+    def test_inverses(self, strategy):
         """
         Test that division and undivision are inverses.
         """
@@ -61,13 +61,14 @@ class NatDivisionTestCase(unittest.TestCase):
             repeating_part,
             relation,
         ) = NatDivision.division(divisor, dividend, base)
-        assert relation == 0
+        self.assertEqual(relation, 0)
 
         (denominator, numerator) = NatDivision.undivision(
             integer_part, non_repeating_part, repeating_part, base
         )
-        assert numerator == [] or numerator[0] != 0
-        assert denominator != [] and denominator[0] != 0
+        self.assertTrue(numerator == [] or numerator[0] != 0)
+        self.assertNotEqual(denominator, [])
+        self.assertNotEqual(denominator[0], 0)
 
         original = fractions.Fraction(
             Nats.convert_to_int(dividend, base), Nats.convert_to_int(divisor, base)
@@ -76,11 +77,11 @@ class NatDivisionTestCase(unittest.TestCase):
             Nats.convert_to_int(numerator, base), Nats.convert_to_int(denominator, base)
         )
 
-        assert original == result
+        self.assertEqual(original, result)
 
     @given(_DIVISION_STRATEGY, strategies.integers(min_value=0, max_value=32))
     @settings(max_examples=50, deadline=None)
-    def testTruncation(self, strategy, precision):
+    def test_truncation(self, strategy, precision):
         """
         Test just truncating division result to some precision.
 
@@ -105,16 +106,19 @@ class NatDivisionTestCase(unittest.TestCase):
             rel_2,
         ) = NatDivision.division(divisor, dividend, base, None)
 
-        assert rel_2 == 0
-        assert integer_part == integer_part_2
-        assert len(repeating_part) + len(non_repeating_part) <= precision
+        self.assertEqual(rel_2, 0)
+        self.assertEqual(integer_part, integer_part_2)
+        self.assertLessEqual(len(repeating_part) + len(non_repeating_part), precision)
 
-        assert repeating_part_2 == repeating_part or rel == -1
+        self.assertTrue(repeating_part_2 == repeating_part or rel == -1)
 
-        assert not (repeating_part_2 != [] and repeating_part == []) or (
-            len(non_repeating_part) == precision
-            and non_repeating_part
-            == (non_repeating_part_2 + repeating_part_2)[:precision]
+        self.assertTrue(
+            not (repeating_part_2 != [] and repeating_part == [])
+            or (
+                len(non_repeating_part) == precision
+                and non_repeating_part
+                == (non_repeating_part_2 + repeating_part_2)[:precision]
+            )
         )
 
     @given(
@@ -125,7 +129,7 @@ class NatDivisionTestCase(unittest.TestCase):
     )
     @example(200, 10, 10, 1)
     @settings(max_examples=50)
-    def testUpDown(self, divisor, dividend, base, precision):
+    def test_up_down(self, divisor, dividend, base, precision):
         """
         Test that rounding up and rounding down have the right relationship.
         """
@@ -152,14 +156,13 @@ class NatDivisionTestCase(unittest.TestCase):
             divisor, dividend, base, precision, RoundingMethods.ROUND_TO_ZERO
         )
 
-        assert (
-            integer_part_2 == integer_part_3
-            and non_repeating_part_2 == non_repeating_part_3
-            and repeating_part_2 == repeating_part_3
-        )
+        self.assertEqual(integer_part_2, integer_part_3)
+        self.assertEqual(non_repeating_part_2, non_repeating_part_3)
+        self.assertEqual(repeating_part_2, repeating_part_3)
 
-        assert repeating_part != [] or repeating_part_2 == []
-        assert rel >= rel_2 and rel_2 == rel_3
+        self.assertTrue(repeating_part != [] or repeating_part_2 == [])
+        self.assertGreaterEqual(rel, rel_2)
+        self.assertEqual(rel_2, rel_3)
 
         round_up_int = Nats.convert_to_int(integer_part + non_repeating_part, base)
         round_down_int = Nats.convert_to_int(
@@ -167,12 +170,12 @@ class NatDivisionTestCase(unittest.TestCase):
         )
 
         if repeating_part == []:
-            assert round_up_int - round_down_int in (0, 1)
+            self.assertIn(round_up_int - round_down_int, (0, 1))
 
         if rel == 0:
-            assert round_up_int == round_down_int
-            assert rel_2 == 0
-            assert rel_3 == 0
+            self.assertEqual(round_up_int, round_down_int)
+            self.assertEqual(rel_2, 0)
+            self.assertEqual(rel_3, 0)
 
         for method in RoundingMethods.CONDITIONAL_METHODS():
             (integer_part_c, non_repeating_part_c, _, rel) = NatDivision.division(
@@ -182,10 +185,11 @@ class NatDivisionTestCase(unittest.TestCase):
                 integer_part_c + non_repeating_part_c, base
             )
             if repeating_part == []:
-                assert round_down_int <= rounded_int <= round_up_int
+                self.assertLessEqual(round_down_int, rounded_int)
+                self.assertLessEqual(rounded_int, round_up_int)
                 if rel == 0:
-                    assert round_up_int == round_down_int
+                    self.assertEqual(round_up_int, round_down_int)
                 elif rel == -1:
-                    assert rounded_int == round_down_int
+                    self.assertEqual(rounded_int, round_down_int)
                 else:
-                    assert rounded_int == round_up_int
+                    self.assertEqual(rounded_int, round_up_int)

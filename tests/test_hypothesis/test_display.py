@@ -56,14 +56,15 @@ class TestString(unittest.TestCase):
         build_relation(),
     )
     @settings(max_examples=100)
-    def testFormat(self, radix, display, relation):
+    def test_format(self, radix, display, relation):
         """
         Verify that a xformed string with a repeating part shows that part.
         """
         result = String(display, radix.base).xform(radix, relation)
-        assert (
-            radix.repeating_part != [] and not display.base_config.use_subscript
-        ) == (result[-1] == ")")
+        self.assertEqual(
+            radix.repeating_part != [] and not display.base_config.use_subscript,
+            result[-1] == ")",
+        )
 
 
 class TestNumber(unittest.TestCase):
@@ -80,7 +81,7 @@ class TestNumber(unittest.TestCase):
         build_sign(),
     )
     @settings(max_examples=100)
-    def testXform(
+    def test_xform(
         self, integer_part, non_repeating_part, repeating_part, config, base, sign
     ):
         """
@@ -112,7 +113,7 @@ class TestStrip(unittest.TestCase):
         build_base(16),
     )
     @settings(max_examples=100)
-    def testXform(self, number, config, relation, base):
+    def test_xform(self, number, config, relation, base):
         """
         Confirm that option strip strips more than other options.
         """

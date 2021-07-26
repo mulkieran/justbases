@@ -46,22 +46,23 @@ class NatsTestCase(unittest.TestCase):
         strategies.integers(min_value=0),
         strategies.integers(min_value=2),
     )
-    def testFromInt(self, value, to_base):
+    def test_from_int(self, value, to_base):
         """
         convert_to_int(convert_from_int(value, to_base), 10) == value
         No leading zeros in convert_from_int(value, to_base)
         """
         result = Nats.convert_from_int(value, to_base)
-        assert result[:1] != [0]
-        assert Nats.convert_to_int(result, to_base) == value
+        self.assertNotEqual(result[:1], [0])
+        self.assertEqual(Nats.convert_to_int(result, to_base), value)
 
     @given(_NATS_STRATEGY, strategies.integers(min_value=2, max_value=64))
-    def testFromOther(self, nat, to_base):
+    def test_from_other(self, nat, to_base):
         """ Test roundtrip from number in arbitrary base. """
         (subject, from_base) = nat
         result = Nats.convert(subject, from_base, to_base)
-        assert Nats.convert_to_int(result, to_base) == Nats.convert_to_int(
-            subject, from_base
+        self.assertEqual(
+            Nats.convert_to_int(result, to_base),
+            Nats.convert_to_int(subject, from_base),
         )
 
     _CARRY_STRATEGY = strategies.integers(min_value=2).flatmap(
@@ -73,7 +74,7 @@ class NatsTestCase(unittest.TestCase):
     )
 
     @given(_CARRY_STRATEGY)
-    def testCarryIn(self, strategy):
+    def test_carry_in(self, strategy):
         """
         Test carry_in.
 
@@ -81,16 +82,16 @@ class NatsTestCase(unittest.TestCase):
         """
         (value, carry, base) = strategy
         (carry_out, result) = Nats.carry_in(value, carry, base)
-        assert len(result) == len(value)
+        self.assertEqual(len(result), len(value))
 
         result2 = Nats.convert_from_int(Nats.convert_to_int(value, base) + carry, base)
 
-        assert len(result2) >= len(result)
+        self.assertGreaterEqual(len(result2), len(result))
 
-        assert (
+        self.assertTrue(
             (len(result2) == len(result))
             or result2[0] == carry_out
             and result2[1:] == result
         )
 
-        assert not (len(result2) == len(result)) or result2 == result
+        self.assertTrue(not (len(result2) == len(result)) or result2 == result)

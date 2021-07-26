@@ -41,14 +41,14 @@ class RationalsTestCase(unittest.TestCase):
         strategies.integers(min_value=2),
     )
     @settings(max_examples=50)
-    def testInverses(self, value, to_base):
+    def test_inverses(self, value, to_base):
         """
         Test that functions are inverses of each other.
         """
         (result, relation) = Radices.from_rational(value, to_base)
-        assert result.sign in (0, 1) or value < 0
-        assert relation == 0
-        assert result.as_rational() == value
+        self.assertTrue(result.sign in (0, 1) or value < 0)
+        self.assertEqual(relation, 0)
+        self.assertEqual(result.as_rational(), value)
 
     @given(
         strategies.fractions().map(lambda x: x.limit_denominator(100)),
@@ -57,7 +57,7 @@ class RationalsTestCase(unittest.TestCase):
         strategies.sampled_from(RoundingMethods.METHODS()),
     )
     @settings(max_examples=500)
-    def testRoundingConversion(self, value, base, precision, method):
+    def test_rounding_conversion(self, value, base, precision, method):
         """
         Test that converting and then rounding is the same as converting
         with rounding.
@@ -65,25 +65,25 @@ class RationalsTestCase(unittest.TestCase):
         (rounded, rel) = Radices.from_rational(value, base, precision, method)
         (unrounded, urel) = Radices.from_rational(value, base)
 
-        assert urel == 0
+        self.assertEqual(urel, 0)
 
         (frounded, frel) = unrounded.rounded(precision, method)
 
-        assert frounded == rounded
-        assert rel == frel
+        self.assertEqual(frounded, rounded)
+        self.assertEqual(rel, frel)
 
         rounded_value = rounded.as_rational()
 
         if rounded_value > value:
-            assert rel == 1
+            self.assertEqual(rel, 1)
         elif rounded_value < value:
-            assert rel == -1
+            self.assertEqual(rel, -1)
         else:
-            assert rel == 0
+            self.assertEqual(rel, 0)
 
     @given(strategies.fractions(), strategies.sampled_from(RoundingMethods.METHODS()))
     @settings(max_examples=50)
-    def testRounding(self, value, method):
+    def test_rounding(self, value, method):
         """
         Test rounding to int.
         """
@@ -95,7 +95,7 @@ class RationalsTestCase(unittest.TestCase):
 
     @given(strategies.integers(min_value=1, max_value=9))
     @settings(max_examples=20)
-    def testRoundingPrecise(self, numerator):
+    def test_rounding_precise(self, numerator):
         """
         Test with predicted value.
         """

@@ -28,10 +28,10 @@ from justbases import RoundingMethods
 class RoundingMethodsTestCase(unittest.TestCase):
     """ Tests for RoundingMethods constants. """
 
-    def testStr(self):
+    def test_str(self):
         """
         Test __str__ and __repr__ method.
         """
         for method in RoundingMethods.METHODS():
-            assert str(method) is not None
-            assert repr(method) is not None
+            self.assertIsNotNone(str(method))
+            self.assertIsNotNone(repr(method))
