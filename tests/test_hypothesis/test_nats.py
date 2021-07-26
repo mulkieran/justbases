@@ -46,7 +46,7 @@ class NatsTestCase(unittest.TestCase):
         strategies.integers(min_value=0),
         strategies.integers(min_value=2),
     )
-    def testFromInt(self, value, to_base):
+    def test_from_int(self, value, to_base):
         """
         convert_to_int(convert_from_int(value, to_base), 10) == value
         No leading zeros in convert_from_int(value, to_base)
@@ -56,7 +56,7 @@ class NatsTestCase(unittest.TestCase):
         assert Nats.convert_to_int(result, to_base) == value
 
     @given(_NATS_STRATEGY, strategies.integers(min_value=2, max_value=64))
-    def testFromOther(self, nat, to_base):
+    def test_from_other(self, nat, to_base):
         """ Test roundtrip from number in arbitrary base. """
         (subject, from_base) = nat
         result = Nats.convert(subject, from_base, to_base)
@@ -73,7 +73,7 @@ class NatsTestCase(unittest.TestCase):
     )
 
     @given(_CARRY_STRATEGY)
-    def testCarryIn(self, strategy):
+    def test_carry_in(self, strategy):
         """
         Test carry_in.
 

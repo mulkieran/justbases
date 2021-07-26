@@ -31,7 +31,7 @@ class TestDigits(unittest.TestCase):
     Test Digits methods.
     """
 
-    def testExceptions(self):
+    def test_exceptions(self):
         """
         Test exceptions.
         """

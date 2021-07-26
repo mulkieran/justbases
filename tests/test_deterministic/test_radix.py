@@ -28,7 +28,7 @@ from justbases import BasesError, Radix, RoundingMethods
 class RadixTestCase(unittest.TestCase):
     """ Tests for radix. """
 
-    def testExceptions(self):
+    def test_exceptions(self):
         """
         Test exceptions.
         """
@@ -45,13 +45,13 @@ class RadixTestCase(unittest.TestCase):
         with self.assertRaises(BasesError):
             Radix(1, [1], [0], [1], 2).in_base(0)
 
-    def testOptions(self):
+    def test_options(self):
         """
         Skip validation and canonicalization.
         """
         self.assertIsNotNone(Radix(-1, [], [], [], 4, False, False))
 
-    def testEquality(self):
+    def test_equality(self):
         """
         Test == operator.
         """
@@ -60,7 +60,7 @@ class RadixTestCase(unittest.TestCase):
             Radix(1, [1], [], [], 2),
         )
 
-    def testInEquality(self):
+    def test_in_equality(self):
         """
         Test != operator.
         """
@@ -69,7 +69,7 @@ class RadixTestCase(unittest.TestCase):
             Radix(0, [], [], [], 2),
         )
 
-    def testOperatorExceptions(self):
+    def test_operator_exceptions(self):
         """
         Test that comparsion operators yield exceptions.
         """
@@ -91,13 +91,13 @@ class RadixTestCase(unittest.TestCase):
         with self.assertRaises(BasesError):
             radix1 != 1
 
-    def testCarryOnRepeatingPart(self):
+    def test_carry_on_repeating_part(self):
         """
         Carry from non_repeating_part to integer_part and then out.
         """
         assert Radix(1, [3], [3], [3], 4) == Radix(1, [1, 0], [], [], 4)
 
-    def testRepeatingRepeatPart(self):
+    def test_repeating_repeat_part(self):
         """
         Repeat part is made up of repeating parts.
         """
@@ -121,7 +121,7 @@ class RadixTestCase(unittest.TestCase):
 class RoundingTestCase(unittest.TestCase):
     """ Tests for rounding Radixes. """
 
-    def testExceptions(self):
+    def test_exceptions(self):
         """
         Test exception.
         """
