@@ -36,7 +36,7 @@ def local_file(name):
 
 README = local_file("README.rst")
 
-with open(local_file("src/justbases/version.py")) as o:
+with open(local_file("src/justbases/version.py"), encoding="utf-8") as o:
     exec(o.read())  # pylint: disable=exec-used
 
 
