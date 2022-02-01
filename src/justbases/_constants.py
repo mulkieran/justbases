@@ -22,7 +22,7 @@ Constants required by the package.
 
 
 class _RoundingMethod:
-    """ Class to generate rounding method enumeration. """
+    """Class to generate rounding method enumeration."""
 
     # pylint: disable=too-few-public-methods
 
@@ -45,7 +45,7 @@ class _RoundingMethod:
 
 
 class RoundingMethods:
-    """ Static class for accessing rounding methods. """
+    """Static class for accessing rounding methods."""
 
     # pylint: disable=too-few-public-methods
 
@@ -67,10 +67,10 @@ class RoundingMethods:
 
     @classmethod
     def METHODS(cls):  # pylint: disable=invalid-name
-        """ Methods of this class. """
+        """Methods of this class."""
         return cls._METHODS[:]
 
     @classmethod
     def CONDITIONAL_METHODS(cls):  # pylint: disable=invalid-name
-        """ Conditional rounding methods. """
+        """Conditional rounding methods."""
         return [cls.ROUND_HALF_DOWN, cls.ROUND_HALF_UP, cls.ROUND_HALF_ZERO]

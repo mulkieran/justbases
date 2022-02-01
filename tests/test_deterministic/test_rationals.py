@@ -27,7 +27,7 @@ from justbases import BasesError, Radices, Rationals
 
 
 class RationalsTestCase(unittest.TestCase):
-    """ Tests for rationals. """
+    """Tests for rationals."""
 
     def test_exceptions(self):
         """

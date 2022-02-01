@@ -26,7 +26,7 @@ from justbases import BasesError, NatDivision
 
 
 class NatDivisionTestCase(unittest.TestCase):
-    """ Tests for division. """
+    """Tests for division."""
 
     def test_exceptions_division(self):
         """

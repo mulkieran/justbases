@@ -26,7 +26,7 @@ from justbases import RoundingMethods
 
 
 class RoundingMethodsTestCase(unittest.TestCase):
-    """ Tests for RoundingMethods constants. """
+    """Tests for RoundingMethods constants."""
 
     def test_str(self):
         """

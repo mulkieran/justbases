@@ -34,7 +34,7 @@ if sys.gettrace() is not None:
 
 
 class RationalsTestCase(unittest.TestCase):
-    """ Tests for rationals. """
+    """Tests for rationals."""
 
     @given(
         strategies.fractions().map(lambda x: x.limit_denominator(100)),

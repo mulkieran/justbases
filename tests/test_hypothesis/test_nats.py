@@ -40,7 +40,7 @@ _NATS_STRATEGY = strategies.integers(min_value=2).flatmap(
 
 
 class NatsTestCase(unittest.TestCase):
-    """ Tests for ints. """
+    """Tests for ints."""
 
     @given(
         strategies.integers(min_value=0),
@@ -57,7 +57,7 @@ class NatsTestCase(unittest.TestCase):
 
     @given(_NATS_STRATEGY, strategies.integers(min_value=2, max_value=64))
     def test_from_other(self, nat, to_base):
-        """ Test roundtrip from number in arbitrary base. """
+        """Test roundtrip from number in arbitrary base."""
         (subject, from_base) = nat
         result = Nats.convert(subject, from_base, to_base)
         self.assertEqual(

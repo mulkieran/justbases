@@ -2,11 +2,15 @@ TOX=tox
 
 .PHONY: lint
 lint:
-	$(TOX) -c tox.ini -e lint
+	pylint setup.py	
+	pylint src/justbases
+	pylint tests
 
 .PHONY: coverage
 coverage:
-	$(TOX) -c tox.ini -e coverage
+	coverage --version
+	coverage run --timid --branch -m unittest discover tests/
+	coverage report -m --fail-under=98 --show-missing --include="./src/*"
 
 .PHONY: fmt
 fmt:
