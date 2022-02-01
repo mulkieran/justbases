@@ -2,7 +2,9 @@ TOX=tox
 
 .PHONY: lint
 lint:
-	$(TOX) -c tox.ini -e lint
+	pylint setup.py	
+	pylint src/justbases
+	pylint tests
 
 .PHONY: coverage
 coverage:
