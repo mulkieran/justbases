@@ -26,10 +26,10 @@ from justbases import BasesError, Nats
 
 
 class NatsTestCase(unittest.TestCase):
-    """ Tests for ints. """
+    """Tests for ints."""
 
     def test_exceptions(self):
-        """ Test throwing exception. """
+        """Test throwing exception."""
         with self.assertRaises(BasesError):
             Nats.convert_from_int(-32, 2)
         with self.assertRaises(BasesError):

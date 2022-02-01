@@ -26,7 +26,7 @@ from justbases import BasesError, Radix, RoundingMethods
 
 
 class RadixTestCase(unittest.TestCase):
-    """ Tests for radix. """
+    """Tests for radix."""
 
     def test_exceptions(self):
         """
@@ -119,7 +119,7 @@ class RadixTestCase(unittest.TestCase):
 
 
 class RoundingTestCase(unittest.TestCase):
-    """ Tests for rounding Radixes. """
+    """Tests for rounding Radixes."""
 
     def test_exceptions(self):
         """

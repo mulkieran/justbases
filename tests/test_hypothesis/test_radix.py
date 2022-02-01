@@ -37,7 +37,7 @@ if sys.gettrace() is not None:
 
 
 class RadixTestCase(unittest.TestCase):
-    """ Tests for radix. """
+    """Tests for radix."""
 
     @given(build_radix(16, 3), build_base(16))
     @settings(max_examples=50, deadline=None)
@@ -79,7 +79,7 @@ class RadixTestCase(unittest.TestCase):
 
 
 class RoundingTestCase(unittest.TestCase):
-    """ Tests for rounding Radixes. """
+    """Tests for rounding Radixes."""
 
     @given(
         build_radix(16, 10),

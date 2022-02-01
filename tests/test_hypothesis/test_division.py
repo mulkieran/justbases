@@ -46,7 +46,7 @@ _DIVISION_STRATEGY = strategies.integers(min_value=2, max_value=17).flatmap(
 
 
 class NatDivisionTestCase(unittest.TestCase):
-    """ Tests for division. """
+    """Tests for division."""
 
     @given(_DIVISION_STRATEGY)
     @settings(max_examples=50, deadline=None)
