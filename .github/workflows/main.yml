@@ -16,7 +16,7 @@ jobs:
   tox-checks:
     strategy:
       matrix:
-        task: [test, coverage]
+        task: [test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -39,6 +39,8 @@ jobs:
             task: make -f Makefile yamllint
           - dependencies: pylint python3-hypothesis
             task: PYTHONPATH=./src make -f Makefile lint
+          - dependencies: python3-coverage python3-hypothesis
+            task: PYTHONPATH=./src make -f Makefile coverage
     runs-on: ubuntu-latest
     container: fedora:35  # CURRENT DEVELOPMENT ENVIRONMENT
     steps:
