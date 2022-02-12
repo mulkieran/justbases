@@ -122,8 +122,8 @@ class NatDivisionTestCase(unittest.TestCase):
         )
 
     @given(
-        strategies.integers(min_value=1, max_value=2 ** 16),
-        strategies.integers(min_value=0, max_value=2 ** 64),
+        strategies.integers(min_value=1, max_value=2**16),
+        strategies.integers(min_value=0, max_value=2**64),
         strategies.integers(min_value=3),
         strategies.integers(min_value=0, max_value=32),
     )
