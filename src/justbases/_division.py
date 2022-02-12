@@ -299,7 +299,7 @@ class NatDivision:
             Nats.convert_to_int(
                 integer_part + non_repeating_part + repeating_part, base
             ),
-            base ** frac_length,
+            base**frac_length,
         )
 
         if shift_length == 0:
@@ -310,9 +310,9 @@ class NatDivision:
 
         bottom = fractions.Fraction(
             Nats.convert_to_int(integer_part + non_repeating_part, base),
-            base ** frac_length,
+            base**frac_length,
         )
-        result = (top - bottom) / ((base ** shift_length) - 1)
+        result = (top - bottom) / ((base**shift_length) - 1)
         return (
             Nats.convert_from_int(result.denominator, base),
             Nats.convert_from_int(result.numerator, base),

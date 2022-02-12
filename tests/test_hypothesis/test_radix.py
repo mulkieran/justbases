@@ -97,7 +97,7 @@ class RoundingTestCase(unittest.TestCase):
         (result, relation) = radix.rounded(precision, method)
         self.assertEqual(len(result.non_repeating_part), precision)
 
-        ulp = Fraction(1, radix.base ** precision)
+        ulp = Fraction(1, radix.base**precision)
         rational_result = result.as_rational()
         self.assertLessEqual(value - ulp, rational_result)
         self.assertGreaterEqual(value + ulp, rational_result)
