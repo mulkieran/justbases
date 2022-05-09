@@ -218,19 +218,19 @@ class Radix:
         """
         if any(x < 0 or x >= base for x in integer_part):
             return BasesValueError(
-                integer_part, "integer_part", "values must be between 0 and %s" % base
+                integer_part, "integer_part", "values must be between 0 and {base}"
             )
         if any(x < 0 or x >= base for x in non_repeating_part):
             return BasesValueError(
                 non_repeating_part,
                 "non_repeating_part",
-                "values must be between 0 and %s" % base,
+                "values must be between 0 and {base}",
             )
         if any(x < 0 or x >= base for x in repeating_part):
             return BasesValueError(
                 repeating_part,
                 "repeating_part",
-                "values must be between 0 and %s" % base,
+                "values must be between 0 and {base}",
             )
         if base < 2:
             return BasesValueError(base, "base", "must be at least 2")

@@ -80,7 +80,7 @@ class Nats:
             raise BasesValueError(
                 value,
                 "value",
-                "elements must be at least 0 and less than %s" % from_base,
+                f"elements must be at least 0 and less than {from_base}",
             )
         return reduce(lambda x, y: x * from_base + y, value, 0)
 
@@ -134,11 +134,11 @@ class Nats:
 
         if any(x < 0 or x >= base for x in value):
             raise BasesValueError(
-                value, "value", "elements must be at least 0 and less than %s" % base
+                value, "value", "elements must be at least 0 and less than {base}"
             )
 
         if carry < 0 or carry >= base:
-            raise BasesValueError(carry, "carry", "carry must be less than %s" % base)
+            raise BasesValueError(carry, "carry", "carry must be less than {base}")
 
         result = []
         for val in reversed(value):

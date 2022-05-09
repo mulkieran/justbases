@@ -42,7 +42,7 @@ class BaseConfig:
 
     def __str__(self):  # pragma: no cover
         values = {"use_prefix": self.use_prefix, "use_subscript": self.use_subscript}
-        return "BaseConfig(%s)" % (self._FMT_STR % values)
+        return f"BaseConfig({self._FMT_STR % values})"
 
     __repr__ = __str__
 
@@ -82,7 +82,7 @@ class StripConfig:
             "strip_exact": self.strip_exact,
             "strip_whole": self.strip_whole,
         }
-        return "StripConfig(%s)" % (self._FMT_STR % values)
+        return f"StripConfig({self._FMT_STR % values})"
 
     __repr__ = __str__
 
@@ -122,7 +122,7 @@ class DigitsConfig:
             "use_caps": self.use_caps,
             "use_letters": self.use_letters,
         }
-        return "DigitsConfig(%s)" % (self._FMT_STR % values)
+        return f"DigitsConfig({self._FMT_STR % values})"
 
     __repr__ = __str__
 
@@ -173,7 +173,7 @@ class DisplayConfig:
             "digits_config": self.digits_config,
             "strip_config": self.strip_config,
         }
-        return "DisplayConfig(%s)" % (self._FMT_STR % values)
+        return f"DisplayConfig({self._FMT_STR % values})"
 
     __repr__ = __str__
 
