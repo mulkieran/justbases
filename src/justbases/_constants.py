@@ -38,7 +38,7 @@ class _RoundingMethod:
         return self.__class__.__name__
 
     def __repr__(self):
-        return "%s(%s)" % (str(self), self.doc)
+        return f"{self}({self.doc})"
 
     # pylint: disable=protected-access
     doc = property(lambda s: s._doc, doc="explanation of rounding method")

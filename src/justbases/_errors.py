@@ -45,11 +45,8 @@ class BasesInvalidOperationError(BasesError):  # pragma: no cover
 
     def __str__(self):
         if self._other is None:
-            return "invalid operation for Radix: %s" % self._operator
-        return "invalid operation %s for Radix and %s" % (
-            self._operator,
-            type(self._other).__name__,
-        )
+            return f"invalid operation for Radix: {self._operator}"
+        return f"invalid operation {self._operator} for Radix and {type(self._other).__name__}"
 
 
 class BasesValueError(BasesError):

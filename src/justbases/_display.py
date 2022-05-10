@@ -192,7 +192,7 @@ class Number:
             "left": left,
             "radix": "." if (right != "" or repeating != "") else "",
             "right": right,
-            "repeating": ("(%s)" % repeating) if repeating != "" else "",
+            "repeating": (f"{repeating}") if repeating != "" else "",
             "base_separator": "" if base_subscript == "" else "_",
             "base_subscript": base_subscript,
         }
