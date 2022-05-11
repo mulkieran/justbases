@@ -392,12 +392,9 @@ class Radix:
         return self.getString(BasesConfig.DISPLAY_CONFIG, 0)
 
     def __repr__(self):
-        return "Radix(%s,%s,%s,%s,%s)" % (
-            self.sign,
-            self.integer_part,
-            self.non_repeating_part,
-            self.repeating_part,
-            self.base,
+        return (
+            f"Radix({self.sign},{self.integer_part},"
+            f"{self.non_repeating_part},{self.repeating_part},{self.base})"
         )
 
     def __eq__(self, other):
