@@ -66,7 +66,10 @@ class NatDivisionTestCase(unittest.TestCase):
         (denominator, numerator) = NatDivision.undivision(
             integer_part, non_repeating_part, repeating_part, base
         )
-        self.assertTrue(numerator == [] or numerator[0] != 0)
+
+        self.assertTrue(
+            isinstance(numerator, list) and (not numerator or numerator[0] != 0)
+        )
         self.assertNotEqual(denominator, [])
         self.assertNotEqual(denominator[0], 0)
 
