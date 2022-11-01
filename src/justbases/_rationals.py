@@ -594,13 +594,20 @@ class _Rounding:
         non_repeating_part = list(itertools.islice(digits, 0, precision))
         non_repeating_part += (precision - len(non_repeating_part)) * [0]
 
-        truncated = lambda: Radix(
-            value.sign, value.integer_part, non_repeating_part, [], value.base, False
-        )
+        def truncated():
+            return Radix(
+                value.sign,
+                value.integer_part,
+                non_repeating_part,
+                [],
+                value.base,
+                False,
+            )
 
-        incremented = lambda: cls._increment(
-            value.sign, value.integer_part, non_repeating_part, value.base
-        )
+        def incremented():
+            return cls._increment(
+                value.sign, value.integer_part, non_repeating_part, value.base
+            )
 
         if (
             all(x == 0 for x in value.non_repeating_part[precision:])
