@@ -51,7 +51,7 @@ setuptools.setup(
     description="conversion of ints and rationals to any base",
     long_description=long_description,
     platforms=["Linux"],
-    license="LGPLv2+",
+    license="LGPL-2.1-or-later",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
