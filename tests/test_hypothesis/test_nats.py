@@ -68,7 +68,7 @@ class NatsTestCase(unittest.TestCase):
     _CARRY_STRATEGY = strategies.integers(min_value=2).flatmap(
         lambda n: strategies.tuples(
             build_nat(n, 64),
-            strategies.integers(min_value=1, max_value=(n - 1)),
+            strategies.integers(min_value=1, max_value=n - 1),
             strategies.just(n),
         )
     )
