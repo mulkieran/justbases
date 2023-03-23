@@ -32,7 +32,7 @@ def build_nat(base, max_len):
     """
     Build a well-formed nat strategy from ``base``.
     """
-    ints = strategies.integers(min_value=0, max_value=(base - 1))
+    ints = strategies.integers(min_value=0, max_value=base - 1)
     nats = strategies.lists(ints, min_size=1, max_size=max_len)
     return nats.map(lambda l: list(itertools.dropwhile(lambda x: x == 0, l)))
 
