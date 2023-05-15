@@ -1,3 +1,11 @@
+justbases 0.15.2
+================
+Recommended development environment: Fedora 38
+
+- Tidies and Maintenance:
+  https://github.com/mulkieran/justbases/pull/103
+
+
 justbases 0.15.1
 ================
 Recommended development environment: Fedora 38
