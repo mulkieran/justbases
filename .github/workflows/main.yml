@@ -26,8 +26,30 @@ jobs:
             task: PYTHONPATH=./src make -f Makefile test
           - dependencies: python3-coverage python3-hypothesis
             task: PYTHONPATH=./src make -f Makefile coverage
+          - dependencies: python python3-build twine
+            task: make -f Makefile package
     runs-on: ubuntu-latest
     container: fedora:38  # CURRENT DEVELOPMENT ENVIRONMENT
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: >
+          dnf install -y
+          make
+          ${{ matrix.dependencies }}
+      - name: Run ${{ matrix.task }}
+        run: ${{ matrix.task }}
+
+  lowest_environment_checks:
+    strategy:
+      matrix:
+        include:
+          - dependencies: python3-hypothesis
+            task: PYTHONPATH=./src make -f Makefile test
+          - dependencies: python3-hypothesis
+            task: PYTHONPATH=./src make -f Makefile legacy-package
+    runs-on: ubuntu-latest
+    container: fedora:34  # LOWEST DEVELOPMENT ENVIRONMENT
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
