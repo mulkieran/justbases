@@ -61,3 +61,5 @@ target/
 doc/justbases
 doc/tests
 doc/_build
+
+*.swp
