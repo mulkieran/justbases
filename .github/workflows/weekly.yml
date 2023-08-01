@@ -19,7 +19,7 @@ jobs:
           - dependencies: pylint python3-hypothesis
             task: PYTHONPATH=./src make -f Makefile lint
     runs-on: ubuntu-latest
-    container: fedora:38  # NEXT DEVELOPMENT ENVIRONMENT
+    container: fedora:39  # NEXT DEVELOPMENT ENVIRONMENT
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
