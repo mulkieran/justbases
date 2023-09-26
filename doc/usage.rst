@@ -75,7 +75,7 @@ Note that this is conversion of natural numbers, so all int values are
 non-negative. Invoking convert_from_int() on a negative integer raises an
 exception.
 
-It is also possible to peform an add operation of a single digit to
+It is also possible to perform an add operation of a single digit to
 a number in any base. ::
 
     >>> Nats.carry_in([1, 1], 1, 2)

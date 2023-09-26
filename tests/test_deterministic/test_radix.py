@@ -71,7 +71,7 @@ class RadixTestCase(unittest.TestCase):
 
     def test_operator_exceptions(self):
         """
-        Test that comparsion operators yield exceptions.
+        Test that comparison operators yield exceptions.
         """
         radix1 = Radix(0, [], [], [], 3)
         radix2 = Radix(0, [], [], [], 2)
