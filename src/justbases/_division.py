@@ -137,7 +137,7 @@ class NatDivision:
         :param precision: maximum number of fractional digits
         :type precision: int or NoneType
         :param method: rounding method
-        :type method: element of RoundignMethods.METHODS
+        :type method: element of RoundingMethods.METHODS
 
         :returns: carry-out digit, non_repeating and repeating parts
         :rtype: tuple of int * list of int * list of int * int
@@ -199,7 +199,7 @@ class NatDivision:
         :param precision: maximum number of fractional digits
         :type precision: int or NoneType
         :param method: rounding method
-        :type method: element of RoundignMethods.METHODS
+        :type method: element of RoundingMethods.METHODS
         :returns: the result
         :rtype: tuple of list of int * list of int * list of int * int
         :raises ConvertError: on invalid values
