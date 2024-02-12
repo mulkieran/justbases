@@ -1,6 +1,7 @@
 """
 Initializations for the tests.
 """
+
 # isort: THIRDPARTY
 from hypothesis import HealthCheck, settings
 
