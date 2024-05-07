@@ -29,7 +29,7 @@ jobs:
           - dependencies: python python3-build twine
             task: make -f Makefile package
     runs-on: ubuntu-latest
-    container: fedora:39  # CURRENT DEVELOPMENT ENVIRONMENT
+    container: fedora:40  # CURRENT DEVELOPMENT ENVIRONMENT
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
