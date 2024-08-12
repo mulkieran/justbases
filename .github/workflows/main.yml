@@ -46,7 +46,9 @@ jobs:
         include:
           - dependencies: python3-hypothesis
             task: PYTHONPATH=./src make -f Makefile test
-          - dependencies: python3-hypothesis
+          - dependencies: >
+              python3-hypothesis
+              python3-setuptools
             task: PYTHONPATH=./src make -f Makefile legacy-package
     runs-on: ubuntu-latest
     container: fedora:35  # LOWEST DEVELOPMENT ENVIRONMENT
