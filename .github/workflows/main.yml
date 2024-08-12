@@ -49,7 +49,7 @@ jobs:
           - dependencies: python3-hypothesis
             task: PYTHONPATH=./src make -f Makefile legacy-package
     runs-on: ubuntu-latest
-    container: fedora:34  # LOWEST DEVELOPMENT ENVIRONMENT
+    container: fedora:35  # LOWEST DEVELOPMENT ENVIRONMENT
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
