@@ -196,7 +196,7 @@ class Radix:
     )
 
     @classmethod
-    def _validate(  # pylint: disable=too-many-arguments
+    def _validate(  # pylint: disable=too-many-arguments, too-many-positional-arguments
         cls, sign, integer_part, non_repeating_part, repeating_part, base
     ):
         """
@@ -309,7 +309,7 @@ class Radix:
         )
         return (non_repeating[: (end - index)], repeating[-index:] + repeating[:-index])
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # pylint: disable=too-many-arguments, disable=too-many-positional-arguments
         self,
         sign,
         integer_part,

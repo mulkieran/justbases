@@ -36,7 +36,7 @@ class NatDivision:
 
     @classmethod
     def _round(
-        cls, quotient, divisor, remainder, base, method=RoundingMethods.ROUND_DOWN
+        cls, quotient, divisor, remainder, base, *, method=RoundingMethods.ROUND_DOWN
     ):
         """
         Round the quotient.
@@ -91,7 +91,7 @@ class NatDivision:
         )
 
     @staticmethod
-    def _divide(divisor, remainder, quotient, remainders, base, precision=None):
+    def _divide(divisor, remainder, quotient, remainders, base, *, precision=None):
         """
         Given a divisor and dividend, continue until precision in is reached.
 
@@ -126,7 +126,13 @@ class NatDivision:
 
     @classmethod
     def _fractional_division(
-        cls, divisor, remainder, base, precision=None, method=RoundingMethods.ROUND_DOWN
+        cls,
+        divisor,
+        remainder,
+        base,
+        *,
+        precision=None,
+        method=RoundingMethods.ROUND_DOWN
     ):
         """
         Get the repeating and non-repeating part.
@@ -150,7 +156,7 @@ class NatDivision:
         quotient = []
         remainders = []
         remainder = cls._divide(
-            divisor, remainder * base, quotient, remainders, base, precision
+            divisor, remainder * base, quotient, remainders, base, precision=precision
         )
 
         if remainder == 0:
@@ -158,7 +164,7 @@ class NatDivision:
         if remainder in remainders:
             start = remainders.index(remainder)
             return (0, quotient[:start], quotient[start:], 0)
-        return cls._round(quotient, divisor, remainder, base, method)
+        return cls._round(quotient, divisor, remainder, base, method=method)
 
     @staticmethod
     def _division(divisor, dividend, remainder, base):
@@ -186,7 +192,7 @@ class NatDivision:
         return (quotient, remainder)
 
     @classmethod
-    def division(
+    def division(  # pylint: disable=too-many-positional-arguments
         cls, divisor, dividend, base, precision=None, method=RoundingMethods.ROUND_DOWN
     ):
         """
@@ -239,7 +245,9 @@ class NatDivision:
             non_repeating_part,
             repeating_part,
             relation,
-        ) = cls._fractional_division(divisor, rem, base, precision, method)
+        ) = cls._fractional_division(
+            divisor, rem, base, precision=precision, method=method
+        )
 
         (carry, integer_part) = Nats.carry_in(integer_part, carry, base)
 

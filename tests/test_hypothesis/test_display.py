@@ -83,7 +83,7 @@ class TestNumber(unittest.TestCase):
     @settings(max_examples=100)
     def test_xform(
         self, integer_part, non_repeating_part, repeating_part, config, base, sign
-    ):
+    ):  # pylint: disable=too-many-positional-arguments
         """
         Test xform.
         """
