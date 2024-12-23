@@ -126,7 +126,13 @@ class NatDivision:
 
     @classmethod
     def _fractional_division(
-        cls, divisor, remainder, base, precision=None, method=RoundingMethods.ROUND_DOWN
+        cls,
+        divisor,
+        remainder,
+        base,
+        *,
+        precision=None,
+        method=RoundingMethods.ROUND_DOWN
     ):
         """
         Get the repeating and non-repeating part.
@@ -239,7 +245,9 @@ class NatDivision:
             non_repeating_part,
             repeating_part,
             relation,
-        ) = cls._fractional_division(divisor, rem, base, precision, method)
+        ) = cls._fractional_division(
+            divisor, rem, base, precision=precision, method=method
+        )
 
         (carry, integer_part) = Nats.carry_in(integer_part, carry, base)
 
