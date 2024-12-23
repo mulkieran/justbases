@@ -91,7 +91,7 @@ class NatDivision:
         )
 
     @staticmethod
-    def _divide(divisor, remainder, quotient, remainders, base, precision=None):
+    def _divide(divisor, remainder, quotient, remainders, base, *, precision=None):
         """
         Given a divisor and dividend, continue until precision in is reached.
 
@@ -150,7 +150,7 @@ class NatDivision:
         quotient = []
         remainders = []
         remainder = cls._divide(
-            divisor, remainder * base, quotient, remainders, base, precision
+            divisor, remainder * base, quotient, remainders, base, precision=precision
         )
 
         if remainder == 0:
