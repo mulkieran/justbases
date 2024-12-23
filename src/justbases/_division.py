@@ -36,7 +36,7 @@ class NatDivision:
 
     @classmethod
     def _round(
-        cls, quotient, divisor, remainder, base, method=RoundingMethods.ROUND_DOWN
+        cls, quotient, divisor, remainder, base, *, method=RoundingMethods.ROUND_DOWN
     ):
         """
         Round the quotient.
@@ -158,7 +158,7 @@ class NatDivision:
         if remainder in remainders:
             start = remainders.index(remainder)
             return (0, quotient[:start], quotient[start:], 0)
-        return cls._round(quotient, divisor, remainder, base, method)
+        return cls._round(quotient, divisor, remainder, base, method=method)
 
     @staticmethod
     def _division(divisor, dividend, remainder, base):
