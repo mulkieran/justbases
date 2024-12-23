@@ -161,7 +161,9 @@ class Number:
         # pylint: disable=unused-argument
         self.CONFIG = config
 
-    def xform(self, left, right, repeating, base, sign):
+    def xform(
+        self, left, right, repeating, base, sign
+    ):  # pylint: disable=too-many-positional-arguments
         """
         Return prefixes for tuple.
 

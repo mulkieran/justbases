@@ -192,7 +192,7 @@ class NatDivision:
         return (quotient, remainder)
 
     @classmethod
-    def division(
+    def division(  # pylint: disable=too-many-positional-arguments
         cls, divisor, dividend, base, precision=None, method=RoundingMethods.ROUND_DOWN
     ):
         """
