@@ -32,6 +32,8 @@ jobs:
     container: fedora:41  # CURRENT DEVELOPMENT ENVIRONMENT
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Install dependencies
         run: >
           dnf install -y
@@ -64,6 +66,8 @@ jobs:
       - name: Display Python version
         run: python3 --version
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Install dependencies
         run: >
           dnf install -y
