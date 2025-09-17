@@ -1,3 +1,40 @@
+justbases 0.15.3
+================
+Recommended development environment: Fedora 44
+
+- Make Python3 3.12 lowest supported Python version:
+  https://github.com/mulkieran/justbases/pull/117
+
+- Use exclusively pyproject.toml for project metadata:
+  https://github.com/mulkieran/justbases/pull/130
+
+- Remove license classifer deprecated by PEP 639:
+  https://github.com/mulkieran/justbases/pull/116
+
+- Tidies and Maintenance:
+  https://github.com/mulkieran/justbases/pull/129
+  https://github.com/mulkieran/justbases/pull/128
+  https://github.com/mulkieran/justbases/pull/127
+  https://github.com/mulkieran/justbases/pull/126
+  https://github.com/mulkieran/justbases/pull/125
+  https://github.com/mulkieran/justbases/pull/124
+  https://github.com/mulkieran/justbases/pull/123
+  https://github.com/mulkieran/justbases/pull/122
+  https://github.com/mulkieran/justbases/pull/121
+  https://github.com/mulkieran/justbases/pull/120
+  https://github.com/mulkieran/justbases/pull/118
+  https://github.com/mulkieran/justbases/pull/115
+  https://github.com/mulkieran/justbases/pull/113
+  https://github.com/mulkieran/justbases/pull/112
+  https://github.com/mulkieran/justbases/pull/111
+  https://github.com/mulkieran/justbases/pull/110
+  https://github.com/mulkieran/justbases/pull/109
+  https://github.com/mulkieran/justbases/pull/108
+  https://github.com/mulkieran/justbases/pull/107
+  https://github.com/mulkieran/justbases/pull/106
+  https://github.com/mulkieran/justbases/pull/105
+
+
 justbases 0.15.2
 ================
 Recommended development environment: Fedora 38
