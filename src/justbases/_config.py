@@ -16,7 +16,7 @@
 # Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
 # Other Author(s): Anne Mulhern <mulhern@cs.wisc.edu>
 
-""" Configuration of the justbytes package. """
+"""Configuration of the justbytes package."""
 
 
 class BaseConfig:
