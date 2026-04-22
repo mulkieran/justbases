@@ -15,7 +15,7 @@
 #
 # Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
 
-""" Handling lists of digits. """
+"""Handling lists of digits."""
 
 # pylint: disable=invalid-name
 

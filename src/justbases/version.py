@@ -17,12 +17,12 @@
 # Red Hat Author(s): Anne Mulhern <amulhern@redhat.com>
 
 """
-    justbases.version
-    =================
+justbases.version
+=================
 
-    Version information.
+Version information.
 
-    .. moduleauthor::  mulhern  <amulhern@redhat.com>
+.. moduleauthor::  mulhern  <amulhern@redhat.com>
 """
 
 __version__ = "0.15.2"
