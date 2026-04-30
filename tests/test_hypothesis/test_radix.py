@@ -18,19 +18,14 @@
 
 """Test for rational conversions."""
 
-# isort: STDLIB
 import unittest
 from fractions import Fraction
 from os import sys
 
-# isort: THIRDPARTY
 from hypothesis import given, settings, strategies
 
-# isort: LOCAL
 from justbases import Rationals, RoundingMethods
-
-# isort considers this third party, but it is not
-from tests.test_hypothesis._utils import build_base, build_radix  # isort:skip
+from tests.test_hypothesis._utils import build_base, build_radix
 
 if sys.gettrace() is not None:
     settings.load_profile("tracing")
@@ -71,11 +66,10 @@ class RadixTestCase(unittest.TestCase):
         """
         Make sure that result is evalable.
         """
-        # pylint: disable=import-outside-toplevel, unused-import
-        # isort: LOCAL
-        from justbases import Radix
 
-        self.assertEqual(eval(repr(radix)), radix)  # pylint: disable=eval-used
+        from justbases import Radix  # noqa: PLC0415
+
+        self.assertEqual(eval(repr(radix)), radix)
 
 
 class RoundingTestCase(unittest.TestCase):

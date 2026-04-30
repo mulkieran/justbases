@@ -20,10 +20,8 @@
 Errors.
 """
 
-# isort: FUTURE
 from __future__ import absolute_import
 
-# isort: STDLIB
 import abc
 
 
@@ -39,7 +37,7 @@ class BasesInvalidOperationError(BasesError):  # pragma: no cover
     """
 
     def __init__(self, op, other=None):
-        # pylint: disable=super-init-not-called
+
         self._operator = op
         self._other = other
 
@@ -66,7 +64,7 @@ class BasesValueError(BasesError):
         :param str param: the parameter
         :param str msg: an explanatory message
         """
-        # pylint: disable=super-init-not-called
+
         self._value = value
         self._param = param
         self._msg = msg

@@ -17,10 +17,6 @@
 
 """Handling lists of digits."""
 
-# pylint: disable=invalid-name
-
-
-# isort: STDLIB
 import itertools
 import string
 from collections import namedtuple
@@ -32,8 +28,6 @@ class Digits:
     """
     Transforms digits as ints to corresponding symbols.
     """
-
-    # pylint: disable=too-few-public-methods
 
     _LOWER_DIGITS = string.digits + string.ascii_lowercase
     _UPPER_DIGITS = string.digits + string.ascii_uppercase
@@ -70,7 +64,7 @@ class Digits:
         if self.CONFIG.use_letters:
             digits = self._UPPER_DIGITS if self.CONFIG.use_caps else self._LOWER_DIGITS
             return "".join(digits[x] for x in number)
-        separator = "" if base <= 10 else self.CONFIG.separator
+        separator = "" if base <= 10 else self.CONFIG.separator  # noqa: PLR2004
         return separator.join(str(x) for x in number)
 
 
@@ -78,8 +72,6 @@ class Strip:
     """
     Handle stripping digits.
     """
-
-    # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _strip_trailing_zeros(value):
@@ -103,7 +95,7 @@ class Strip:
         :param StripConfig config: configuration for stripping zeros
         :param int base: the base
         """
-        # pylint: disable=unused-argument
+
         self.CONFIG = config
 
     def xform(self, number, relation):
@@ -115,7 +107,6 @@ class Strip:
         :param int relation: the relation of the display value to the actual
         """
 
-        # pylint: disable=too-many-boolean-expressions
         if (
             (self.CONFIG.strip)
             or (self.CONFIG.strip_exact and relation == 0)
@@ -135,8 +126,6 @@ class Number:
 
     Returns modifications to the number string.
     """
-
-    # pylint: disable=too-few-public-methods
 
     _FMT_STR = "".join(
         [
@@ -158,12 +147,10 @@ class Number:
         :param BaseConfig config: display configuration
         :param int base: the base
         """
-        # pylint: disable=unused-argument
+
         self.CONFIG = config
 
-    def xform(
-        self, left, right, repeating, base, sign
-    ):  # pylint: disable=too-many-positional-arguments
+    def xform(self, left, right, repeating, base, sign):
         """
         Return prefixes for tuple.
 
@@ -175,13 +162,12 @@ class Number:
         :returns: the number string
         :rtype: str
         """
-        # pylint: disable=too-many-arguments
 
         base_prefix = ""
         if self.CONFIG.use_prefix:
-            if base == 8:
+            if base == 8:  # noqa: PLR2004
                 base_prefix = "0"
-            elif base == 16:
+            elif base == 16:  # noqa: PLR2004
                 base_prefix = "0x"
             else:
                 base_prefix = ""
@@ -212,7 +198,6 @@ class Decorators:
     Returns decorators for the value.
     """
 
-    # pylint: disable=inconsistent-return-statements
     @staticmethod
     def relation_to_symbol(relation):
         """
@@ -223,7 +208,7 @@ class Decorators:
         :returns: a symbol with the right relation to ``relation``
         :rtype: str
         """
-        # pylint: disable=no-else-return
+
         if relation == 0:
             return ""
         elif relation == -1:
@@ -240,7 +225,7 @@ class Decorators:
         :param DisplayConfig config: the display configuration
         :param int base: the base
         """
-        # pylint: disable=unused-argument
+
         self.CONFIG = config
 
     def decorators(self, relation):
@@ -261,8 +246,6 @@ class String:
     """
     Convert size components to string according to configuration.
     """
-
-    # pylint: disable=too-few-public-methods
 
     _FMT_STR = "".join(["%(approx)s", "%(space)s", "%(number)s"])
 

@@ -24,8 +24,6 @@ Constants required by the package.
 class _RoundingMethod:
     """Class to generate rounding method enumeration."""
 
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, doc):
         """
         Initializer.
@@ -40,14 +38,11 @@ class _RoundingMethod:
     def __repr__(self):
         return f"{self}({self.doc})"
 
-    # pylint: disable=protected-access
     doc = property(lambda s: s._doc, doc="explanation of rounding method")
 
 
 class RoundingMethods:
     """Static class for accessing rounding methods."""
-
-    # pylint: disable=too-few-public-methods
 
     ROUND_DOWN = _RoundingMethod("Round down.")
     ROUND_HALF_DOWN = _RoundingMethod("Round to nearest, down on a tie.")
@@ -66,11 +61,11 @@ class RoundingMethods:
     ]
 
     @classmethod
-    def METHODS(cls):  # pylint: disable=invalid-name
+    def METHODS(cls):
         """Methods of this class."""
         return cls._METHODS[:]
 
     @classmethod
-    def CONDITIONAL_METHODS(cls):  # pylint: disable=invalid-name
+    def CONDITIONAL_METHODS(cls):
         """Conditional rounding methods."""
         return [cls.ROUND_HALF_DOWN, cls.ROUND_HALF_UP, cls.ROUND_HALF_ZERO]

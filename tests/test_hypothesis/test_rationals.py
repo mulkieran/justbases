@@ -18,15 +18,12 @@
 
 """Test for rational conversions."""
 
-# isort: STDLIB
 import unittest
 from fractions import Fraction
 from os import sys
 
-# isort: THIRDPARTY
 from hypothesis import given, settings, strategies
 
-# isort: LOCAL
 from justbases import Radices, Rationals, RoundingMethods
 
 if sys.gettrace() is not None:
@@ -95,11 +92,11 @@ class RationalsTestCase(unittest.TestCase):
 
     @given(strategies.integers(min_value=1, max_value=9))
     @settings(max_examples=20)
-    def test_rounding_precise(self, numerator):
+    def test_rounding_precise(self, numerator):  # noqa: PLR0915
         """
         Test with predicted value.
         """
-        # pylint: disable=too-many-statements
+
         value = Fraction(numerator, 10)
         (result, rel) = Rationals.round_to_int(value, RoundingMethods.ROUND_DOWN)
         self.assertEqual(result, 0)
@@ -126,7 +123,7 @@ class RationalsTestCase(unittest.TestCase):
         self.assertEqual(rel, 1)
 
         (result, rel) = Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_UP)
-        if numerator < 5:
+        if numerator < 5:  # noqa: PLR2004
             self.assertEqual(result, 0)
             self.assertEqual(rel, -1)
         else:
@@ -134,7 +131,7 @@ class RationalsTestCase(unittest.TestCase):
             self.assertEqual(rel, 1)
 
         (result, rel) = Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_UP)
-        if numerator <= 5:
+        if numerator <= 5:  # noqa: PLR2004
             self.assertEqual(result, 0)
             self.assertEqual(rel, 1)
         else:
@@ -142,7 +139,7 @@ class RationalsTestCase(unittest.TestCase):
             self.assertEqual(rel, -1)
 
         (result, rel) = Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_DOWN)
-        if numerator > 5:
+        if numerator > 5:  # noqa: PLR2004
             self.assertEqual(result, 1)
             self.assertEqual(rel, 1)
         else:
@@ -150,7 +147,7 @@ class RationalsTestCase(unittest.TestCase):
             self.assertEqual(rel, -1)
 
         (result, rel) = Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_DOWN)
-        if numerator >= 5:
+        if numerator >= 5:  # noqa: PLR2004
             self.assertEqual(result, -1)
             self.assertEqual(rel, -1)
         else:
@@ -158,7 +155,7 @@ class RationalsTestCase(unittest.TestCase):
             self.assertEqual(rel, 1)
 
         (result, rel) = Rationals.round_to_int(value, RoundingMethods.ROUND_HALF_ZERO)
-        if numerator > 5:
+        if numerator > 5:  # noqa: PLR2004
             self.assertEqual(result, 1)
             self.assertEqual(rel, 1)
         else:
@@ -166,7 +163,7 @@ class RationalsTestCase(unittest.TestCase):
             self.assertEqual(rel, -1)
 
         (result, rel) = Rationals.round_to_int(-value, RoundingMethods.ROUND_HALF_ZERO)
-        if numerator > 5:
+        if numerator > 5:  # noqa: PLR2004
             self.assertEqual(result, -1)
             self.assertEqual(rel, -1)
         else:

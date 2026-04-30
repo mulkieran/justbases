@@ -18,18 +18,13 @@
 
 """Test for integer conversions."""
 
-# isort: STDLIB
 import unittest
 from os import sys
 
-# isort: THIRDPARTY
 from hypothesis import given, settings, strategies
 
-# isort: LOCAL
 from justbases import Nats
-
-# isort considers this third party, but it is not
-from tests.test_hypothesis._utils import build_nat  # isort:skip
+from tests.test_hypothesis._utils import build_nat
 
 if sys.gettrace() is not None:
     settings.load_profile("tracing")
@@ -42,10 +37,7 @@ _NATS_STRATEGY = strategies.integers(min_value=2).flatmap(
 class NatsTestCase(unittest.TestCase):
     """Tests for ints."""
 
-    @given(
-        strategies.integers(min_value=0),
-        strategies.integers(min_value=2),
-    )
+    @given(strategies.integers(min_value=0), strategies.integers(min_value=2))
     def test_from_int(self, value, to_base):
         """
         convert_to_int(convert_from_int(value, to_base), 10) == value
