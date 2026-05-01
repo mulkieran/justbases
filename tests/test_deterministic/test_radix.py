@@ -18,10 +18,8 @@
 
 """Test for rational conversions."""
 
-# isort: STDLIB
 import unittest
 
-# isort: LOCAL
 from justbases import BasesError, Radix, RoundingMethods
 
 
@@ -55,19 +53,13 @@ class RadixTestCase(unittest.TestCase):
         """
         Test == operator.
         """
-        self.assertEqual(
-            Radix(1, [1], [], [], 2),
-            Radix(1, [1], [], [], 2),
-        )
+        self.assertEqual(Radix(1, [1], [], [], 2), Radix(1, [1], [], [], 2))
 
     def test_in_equality(self):
         """
         Test != operator.
         """
-        self.assertNotEqual(
-            Radix(0, [], [], [], 3),
-            Radix(0, [], [], [], 2),
-        )
+        self.assertNotEqual(Radix(0, [], [], [], 3), Radix(0, [], [], [], 2))
 
     def test_operator_exceptions(self):
         """
@@ -75,7 +67,7 @@ class RadixTestCase(unittest.TestCase):
         """
         radix1 = Radix(0, [], [], [], 3)
         radix2 = Radix(0, [], [], [], 2)
-        # pylint: disable=pointless-statement
+
         with self.assertRaises(BasesError):
             radix1 > radix2
         with self.assertRaises(BasesError):

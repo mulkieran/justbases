@@ -19,8 +19,8 @@
 """
 Methods dealing exclusively with natural numbers.
 """
-# isort: STDLIB
-from functools import reduce  # pylint: disable=redefined-builtin
+
+from functools import reduce
 
 from ._errors import BasesValueError
 
@@ -73,14 +73,12 @@ class Nats:
 
         Complexity: O(len(value))
         """
-        if from_base < 2:
+        if from_base < 2:  # noqa: PLR2004
             raise BasesValueError(from_base, "from_base", "must be greater than 2")
 
         if any(x < 0 or x >= from_base for x in value):
             raise BasesValueError(
-                value,
-                "value",
-                f"elements must be at least 0 and less than {from_base}",
+                value, "value", f"elements must be at least 0 and less than {from_base}"
             )
         return reduce(lambda x, y: x * from_base + y, value, 0)
 
@@ -104,7 +102,7 @@ class Nats:
         if value < 0:
             raise BasesValueError(value, "value", "must be at least 0")
 
-        if to_base < 2:
+        if to_base < 2:  # noqa: PLR2004
             raise BasesValueError(to_base, "to_base", "must be at least 2")
 
         result = []
@@ -129,7 +127,7 @@ class Nats:
 
         Complexity: O(len(value))
         """
-        if base < 2:
+        if base < 2:  # noqa: PLR2004
             raise BasesValueError(base, "base", "must be at least 2")
 
         if any(x < 0 or x >= base for x in value):

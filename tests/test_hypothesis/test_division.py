@@ -18,19 +18,14 @@
 
 """Test for integer conversions."""
 
-# isort: STDLIB
 import fractions
 import unittest
 from os import sys
 
-# isort: THIRDPARTY
 from hypothesis import example, given, settings, strategies
 
-# isort: LOCAL
 from justbases import NatDivision, Nats, RoundingMethods
-
-# isort considers this third party, but it is not
-from tests.test_hypothesis._utils import build_nat  # isort:skip
+from tests.test_hypothesis._utils import build_nat
 
 if sys.gettrace() is not None:
     settings.load_profile("tracing")
@@ -55,12 +50,9 @@ class NatDivisionTestCase(unittest.TestCase):
         Test that division and undivision are inverses.
         """
         (divisor, dividend, base) = strategy
-        (
-            integer_part,
-            non_repeating_part,
-            repeating_part,
-            relation,
-        ) = NatDivision.division(divisor, dividend, base)
+        (integer_part, non_repeating_part, repeating_part, relation) = (
+            NatDivision.division(divisor, dividend, base)
+        )
         self.assertEqual(relation, 0)
 
         (denominator, numerator) = NatDivision.undivision(
@@ -102,12 +94,9 @@ class NatDivisionTestCase(unittest.TestCase):
         (integer_part, non_repeating_part, repeating_part, rel) = NatDivision.division(
             divisor, dividend, base, precision
         )
-        (
-            integer_part_2,
-            non_repeating_part_2,
-            repeating_part_2,
-            rel_2,
-        ) = NatDivision.division(divisor, dividend, base, None)
+        (integer_part_2, non_repeating_part_2, repeating_part_2, rel_2) = (
+            NatDivision.division(divisor, dividend, base, None)
+        )
 
         self.assertEqual(rel_2, 0)
         self.assertEqual(integer_part, integer_part_2)
@@ -136,27 +125,21 @@ class NatDivisionTestCase(unittest.TestCase):
         """
         Test that rounding up and rounding down have the right relationship.
         """
-        # pylint: disable=too-many-locals
+
         divisor = Nats.convert_from_int(divisor, base)
         dividend = Nats.convert_from_int(dividend, base)
         (integer_part, non_repeating_part, repeating_part, rel) = NatDivision.division(
             divisor, dividend, base, precision, RoundingMethods.ROUND_UP
         )
-        (
-            integer_part_2,
-            non_repeating_part_2,
-            repeating_part_2,
-            rel_2,
-        ) = NatDivision.division(
-            divisor, dividend, base, precision, RoundingMethods.ROUND_DOWN
+        (integer_part_2, non_repeating_part_2, repeating_part_2, rel_2) = (
+            NatDivision.division(
+                divisor, dividend, base, precision, RoundingMethods.ROUND_DOWN
+            )
         )
-        (
-            integer_part_3,
-            non_repeating_part_3,
-            repeating_part_3,
-            rel_3,
-        ) = NatDivision.division(
-            divisor, dividend, base, precision, RoundingMethods.ROUND_TO_ZERO
+        (integer_part_3, non_repeating_part_3, repeating_part_3, rel_3) = (
+            NatDivision.division(
+                divisor, dividend, base, precision, RoundingMethods.ROUND_TO_ZERO
+            )
         )
 
         self.assertEqual(integer_part_2, integer_part_3)

@@ -11,7 +11,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import os
+import sys
 
 import justbases
 
@@ -188,7 +189,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "justbases.tex", "justbases Documentation", "mulhern", "manual"),
+    ("index", "justbases.tex", "justbases Documentation", "mulhern", "manual")
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -236,7 +237,7 @@ texinfo_documents = [
         "justbases",
         "One line description of project.",
         "Miscellaneous",
-    ),
+    )
 ]
 
 # Documents to append as an appendix to all manuals.

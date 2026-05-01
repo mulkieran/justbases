@@ -2,7 +2,6 @@
 Initializations for the tests.
 """
 
-# isort: THIRDPARTY
 from hypothesis import HealthCheck, settings
 
 settings.register_profile(

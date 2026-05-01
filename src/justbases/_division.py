@@ -20,7 +20,6 @@
 Long division in any bases.
 """
 
-# isort: STDLIB
 import fractions
 import itertools
 
@@ -35,7 +34,7 @@ class NatDivision:
     """
 
     @classmethod
-    def _round(
+    def _round(  # noqa: PLR0911
         cls, quotient, divisor, remainder, base, *, method=RoundingMethods.ROUND_DOWN
     ):
         """
@@ -54,8 +53,7 @@ class NatDivision:
 
         Complexity: O(len(quotient))
         """
-        # pylint: disable=too-many-return-statements
-        # pylint: disable=too-many-arguments
+
         if method not in RoundingMethods.METHODS():
             raise BasesValueError(
                 method, "method", "must be one of RoundingMethods.METHODS"
@@ -91,7 +89,7 @@ class NatDivision:
         )
 
     @staticmethod
-    def _divide(divisor, remainder, quotient, remainders, base, *, precision=None):
+    def _divide(divisor, remainder, quotient, remainders, base, *, precision=None):  # noqa: PLR0913
         """
         Given a divisor and dividend, continue until precision in is reached.
 
@@ -108,7 +106,6 @@ class NatDivision:
 
         Complexity: O(precision) if precision is not None else O(divisor)
         """
-        # pylint: disable=too-many-arguments
 
         indices = itertools.count() if precision is None else range(precision)
 
@@ -132,7 +129,7 @@ class NatDivision:
         base,
         *,
         precision=None,
-        method=RoundingMethods.ROUND_DOWN
+        method=RoundingMethods.ROUND_DOWN,
     ):
         """
         Get the repeating and non-repeating part.
@@ -152,7 +149,7 @@ class NatDivision:
 
         Complexity: O(precision) if precision is not None else O(divisor)
         """
-        # pylint: disable=too-many-arguments
+
         quotient = []
         remainders = []
         remainder = cls._divide(
@@ -192,7 +189,7 @@ class NatDivision:
         return (quotient, remainder)
 
     @classmethod
-    def division(  # pylint: disable=too-many-positional-arguments
+    def division(
         cls, divisor, dividend, base, precision=None, method=RoundingMethods.ROUND_DOWN
     ):
         """
@@ -216,9 +213,8 @@ class NatDivision:
 
         Complexity: Uncalculated
         """
-        # pylint: disable=too-many-arguments
 
-        if base < 2:
+        if base < 2:  # noqa: PLR2004
             raise BasesValueError(base, "base", "must be at least 2")
 
         if precision is not None and precision < 0:
@@ -240,13 +236,10 @@ class NatDivision:
         divisor = Nats.convert_to_int(divisor, base)
 
         (integer_part, rem) = cls._division(divisor, dividend, 0, base)
-        (
-            carry,
-            non_repeating_part,
-            repeating_part,
-            relation,
-        ) = cls._fractional_division(
-            divisor, rem, base, precision=precision, method=method
+        (carry, non_repeating_part, repeating_part, relation) = (
+            cls._fractional_division(
+                divisor, rem, base, precision=precision, method=method
+            )
         )
 
         (carry, integer_part) = Nats.carry_in(integer_part, carry, base)
@@ -276,7 +269,7 @@ class NatDivision:
 
         Complexity: O(len(non_repeating_part + repeating_part + integer_part))
         """
-        if base < 2:
+        if base < 2:  # noqa: PLR2004
             raise BasesValueError(base, "base", "must be at least 2")
 
         if any(x < 0 or x >= base for x in integer_part):

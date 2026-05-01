@@ -18,11 +18,9 @@
 
 """Test for rational conversions."""
 
-# isort: STDLIB
 import unittest
 from fractions import Fraction
 
-# isort: LOCAL
 from justbases import BasesError, Radices, Rationals
 
 
@@ -42,6 +40,6 @@ class RationalsTestCase(unittest.TestCase):
         """
         Test exceptions.
         """
-        # pylint: disable=pointless-statement
+
         with self.assertRaises(BasesError):
             Rationals.round_to_int(Fraction(1, 2), None)

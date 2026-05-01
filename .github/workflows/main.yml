@@ -16,12 +16,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - dependencies: black python3-isort
+          - dependencies: ruff
             task: make -f Makefile fmt-travis
           - dependencies: yamllint
             task: make -f Makefile yamllint
-          - dependencies: pylint python3-hypothesis python3-setuptools
-            task: PYTHONPATH=./src make -f Makefile lint
+          - dependencies: python3-hypothesis python3-setuptools ruff
+            task: make -f Makefile lint
           - dependencies: python3-hypothesis python3-setuptools
             task: PYTHONPATH=./src make -f Makefile test
           - dependencies: python3-coverage python3-hypothesis python3-setuptools

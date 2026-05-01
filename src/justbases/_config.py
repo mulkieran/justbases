@@ -24,8 +24,6 @@ class BaseConfig:
     Whether and how to show the base.
     """
 
-    # pylint: disable=too-few-public-methods
-
     _FMT_STR = ", ".join(
         ["use_prefix=%(use_prefix)s", "use_subscript=%(use_subscript)s"]
     )
@@ -51,8 +49,6 @@ class StripConfig:
     """
     Stripping trailing zeros.
     """
-
-    # pylint: disable=too-few-public-methods
 
     _FMT_STR = ", ".join(
         [
@@ -92,8 +88,6 @@ class DigitsConfig:
     How to display digits.
     """
 
-    # pylint: disable=too-few-public-methods
-
     _FMT_STR = ", ".join(
         [
             "separator=%(separator)s",
@@ -131,8 +125,6 @@ class DisplayConfig:
     """
     Superficial aspects of display.
     """
-
-    # pylint: disable=too-few-public-methods
 
     _FMT_STR = ", ".join(
         [
@@ -182,8 +174,6 @@ class BasesConfig:
     """
     Configuration class for any bases things.
     """
-
-    # pylint: disable=too-few-public-methods
 
     DISPLAY_CONFIG = DisplayConfig()
 

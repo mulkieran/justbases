@@ -18,10 +18,8 @@
 
 """Test for utility functions."""
 
-# isort: STDLIB
 import unittest
 
-# isort: LOCAL
 from justbases import BasesConfig, BasesError
 from justbases._display import Digits
 
@@ -36,7 +34,6 @@ class TestDigits(unittest.TestCase):
         Test exceptions.
         """
         with self.assertRaises(BasesError):
-            # pylint: disable=protected-access
             Digits(
                 BasesConfig.DISPLAY_CONFIG.digits_config,
                 Digits._MAX_SIZE_BASE_FOR_CHARS + 1,

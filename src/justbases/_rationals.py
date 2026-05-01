@@ -20,7 +20,6 @@
 Methods dealing with rationals.
 """
 
-# isort: STDLIB
 import copy
 import itertools
 from fractions import Fraction
@@ -37,8 +36,6 @@ class Radices:
     """
     Methods for Radices.
     """
-
-    # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _reverse_rounding_method(method):
@@ -76,8 +73,8 @@ class Radices:
 
         Complexity: Uncalculated.
         """
-        # pylint: disable=too-many-locals
-        if to_base < 2:
+
+        if to_base < 2:  # noqa: PLR2004
             raise BasesValueError(to_base, "to_base", "must be at least 2")
 
         if precision is not None and precision < 0:
@@ -101,12 +98,9 @@ class Radices:
         numerator = Nats.convert_from_int(value.numerator, to_base)
         denominator = Nats.convert_from_int(value.denominator, to_base)
 
-        (
-            integer_part,
-            non_repeating_part,
-            repeating_part,
-            relation,
-        ) = NatDivision.division(denominator, numerator, to_base, precision, div_method)
+        (integer_part, non_repeating_part, repeating_part, relation) = (
+            NatDivision.division(denominator, numerator, to_base, precision, div_method)
+        )
 
         relation = relation * sign
 
@@ -124,10 +118,8 @@ class Rationals:
     Miscellaneous methods for rationals.
     """
 
-    # pylint: disable=too-few-public-methods
-
     @staticmethod
-    def round_to_int(value, method):
+    def round_to_int(value, method):  # noqa: PLR0911
         """
         Round ``value`` to an int according to ``method``.
 
@@ -139,7 +131,7 @@ class Rationals:
 
         Complexity: O(1)
         """
-        # pylint: disable=too-many-return-statements
+
         if value.denominator == 1:
             return (value.numerator, 0)
 
@@ -174,14 +166,12 @@ class Rationals:
         raise BasesValueError(method, "method")
 
 
-class Radix:
+class Radix:  # noqa: PLW1641
     """
     An object containing information about a rational representation.
 
     Such values can not be ordered, but can be compared for equality.
     """
-
-    # pylint: disable=too-few-public-methods
 
     _FMT_STR = "".join(
         [
@@ -196,9 +186,7 @@ class Radix:
     )
 
     @classmethod
-    def _validate(  # pylint: disable=too-many-arguments, too-many-positional-arguments
-        cls, sign, integer_part, non_repeating_part, repeating_part, base
-    ):
+    def _validate(cls, sign, integer_part, non_repeating_part, repeating_part, base):
         """
         Check if radix is valid.
 
@@ -228,11 +216,9 @@ class Radix:
             )
         if any(x < 0 or x >= base for x in repeating_part):
             return BasesValueError(
-                repeating_part,
-                "repeating_part",
-                "values must be between 0 and {base}",
+                repeating_part, "repeating_part", "values must be between 0 and {base}"
             )
-        if base < 2:
+        if base < 2:  # noqa: PLR2004
             return BasesValueError(base, "base", "must be at least 2")
 
         if sign not in (-1, 0, 1) or sign is True or sign is False:
@@ -309,7 +295,7 @@ class Radix:
         )
         return (non_repeating[: (end - index)], repeating[-index:] + repeating[:-index])
 
-    def __init__(  # pylint: disable=too-many-arguments, disable=too-many-positional-arguments
+    def __init__(  # noqa: PLR0913
         self,
         sign,
         integer_part,
@@ -343,7 +329,7 @@ class Radix:
                 sign, integer_part, non_repeating_part, repeating_part, base
             )
             if error is not None:
-                raise error  # pylint: disable=raising-bad-type
+                raise error
 
         if canonicalize:
             if all(x == 0 for x in integer_part):
@@ -379,7 +365,7 @@ class Radix:
         self.non_repeating_part = non_repeating_part
         self.repeating_part = repeating_part
 
-    def getString(self, config, relation=0):  # pylint: disable=invalid-name
+    def getString(self, config, relation=0):
         """
         Return a representation of a Radix according to config.
 
@@ -513,8 +499,6 @@ class _Rounding:
     Rounding of radix objects.
     """
 
-    # pylint: disable=too-few-public-methods
-
     @staticmethod
     def _conditional_toward_zero(method, sign):
         """
@@ -561,7 +545,7 @@ class _Rounding:
         )
 
     @classmethod
-    def roundFractional(cls, value, precision, method):  # pylint: disable=invalid-name
+    def roundFractional(cls, value, precision, method):  # noqa: PLR0911
         """
         Round to precision as number of digits after radix.
 
@@ -574,8 +558,6 @@ class _Rounding:
 
         Complexity: O(len(components))
         """
-        # pylint: disable=too-many-return-statements
-        # pylint: disable=too-many-branches
 
         if precision < 0:
             raise BasesValueError(precision, "precision", "must be at least 0")

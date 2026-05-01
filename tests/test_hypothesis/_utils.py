@@ -18,13 +18,10 @@
 
 """Test utilities."""
 
-# isort: STDLIB
 import itertools
 
-# isort: THIRDPARTY
 from hypothesis import strategies
 
-# isort: LOCAL
 from justbases import BaseConfig, DisplayConfig, Radix, StripConfig
 
 

@@ -18,10 +18,8 @@
 
 """Test for integer conversions."""
 
-# isort: STDLIB
 import unittest
 
-# isort: LOCAL
 from justbases import BasesError, NatDivision
 
 
