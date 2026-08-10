@@ -76,7 +76,7 @@ class TestNumber(unittest.TestCase):
         build_sign(),
     )
     @settings(max_examples=100)
-    def test_xform(  # noqa: PLR0913
+    def test_xform(  # noqa: PLR0913,PLR0917
         self, integer_part, non_repeating_part, repeating_part, config, base, sign
     ):
         """

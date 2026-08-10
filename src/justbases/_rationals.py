@@ -295,7 +295,7 @@ class Radix:  # noqa: PLW1641
         )
         return (non_repeating[: (end - index)], repeating[-index:] + repeating[:-index])
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # noqa: PLR0913,PLR0917
         self,
         sign,
         integer_part,
