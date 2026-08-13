@@ -42,3 +42,11 @@ yamllint:
 .PHONY: package
 package:
 	(umask 0022; python -m build; python -m twine check --strict ./dist/*)
+
+.PHONY: check-typos
+check-typos:
+	typos
+
+.PHONY: fix-typos
+fix-typos:
+	typos -w
