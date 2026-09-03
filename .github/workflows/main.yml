@@ -25,7 +25,7 @@ jobs:
           - dependencies: python python3-build twine
             task: make -f Makefile package
     runs-on: ubuntu-latest
-    container: fedora:43  # CURRENT DEVELOPMENT ENVIRONMENT
+    container: fedora:44  # CURRENT DEVELOPMENT ENVIRONMENT
     steps:
       - uses: actions/checkout@v6
         with:
@@ -45,7 +45,7 @@ jobs:
           - dependencies: python3-hypothesis
             task: PYTHONPATH=./src make -f Makefile test
     runs-on: ubuntu-latest
-    container: fedora:43  # CURRENT DEVELOPMENT ENVIRONMENT
+    container: fedora:44  # CURRENT DEVELOPMENT ENVIRONMENT
     steps:
       - name: Install python3.12
         run: >
@@ -75,4 +75,4 @@ jobs:
   general_checks:
     uses: stratis-storage/github-actions/.github/workflows/reusable_general.yml@master
     with:
-      fedora-container-image-number: 43  # CURRENT DEVELOPMENT ENVIRONMENT
+      fedora-container-image-number: 44  # CURRENT DEVELOPMENT ENVIRONMENT
