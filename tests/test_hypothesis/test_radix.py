@@ -67,7 +67,7 @@ class RadixTestCase(unittest.TestCase):
         Make sure that result is evalable.
         """
 
-        from justbases import Radix  # noqa: PLC0415
+        from justbases import Radix  # noqa: F401, PLC0415
 
         self.assertEqual(eval(repr(radix)), radix)
 
