@@ -18,11 +18,11 @@ jobs:
         include:
           - dependencies: ruff
             task: make -f Makefile fmt-travis
-          - dependencies: libatomic python3-hypothesis python3-setuptools ruff
+          - dependencies: libatomic python3-hypothesis ruff
             task: PATH=${PATH}:/github/home/.local/bin make -f Makefile lint
-          - dependencies: python3-hypothesis python3-setuptools
+          - dependencies: python3-hypothesis
             task: PYTHONPATH=./src make -f Makefile test
-          - dependencies: python3-coverage python3-hypothesis python3-setuptools
+          - dependencies: python3-coverage python3-hypothesis
             task: PYTHONPATH=./src make -f Makefile coverage
           - dependencies: python python3-build twine
             task: make -f Makefile package
