@@ -11,6 +11,8 @@ on:
 
 jobs:
   development_environment_checks:
+    permissions:
+      contents: read
     strategy:
       matrix:
         include:
