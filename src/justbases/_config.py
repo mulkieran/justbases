@@ -138,9 +138,9 @@ class DisplayConfig:
     def __init__(
         self,
         show_approx_str=True,
-        base_config=BaseConfig(),
-        digits_config=DigitsConfig(),
-        strip_config=StripConfig(),
+        base_config=BaseConfig(),  # noqa: B008  # FIXME
+        digits_config=DigitsConfig(),  # noqa: B008 # FIXME
+        strip_config=StripConfig(),  # noqa: B008 # FIXME
     ):
         """
         Initializer.

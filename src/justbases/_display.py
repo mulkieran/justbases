@@ -20,6 +20,7 @@
 import itertools
 import string
 from collections import namedtuple
+from typing import assert_never
 
 from ._errors import BasesValueError
 
@@ -216,7 +217,7 @@ class Decorators:
         elif relation == 1:
             return "<"
         else:
-            assert False  # pragma: no cover
+            assert_never(relation)  # pragma: no cover
 
     def __init__(self, config, base):
         """
