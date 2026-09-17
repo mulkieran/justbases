@@ -19,8 +19,8 @@
 """Test for integer conversions."""
 
 import fractions
+import sys
 import unittest
-from os import sys
 
 from hypothesis import example, given, settings, strategies
 
