@@ -1,6 +1,7 @@
 .PHONY: lint
 lint:
 	ruff check
+	pyright
 
 .PHONY: test
 test:

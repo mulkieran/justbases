@@ -18,9 +18,9 @@
 
 """Test for rational conversions."""
 
+import sys
 import unittest
 from fractions import Fraction
-from os import sys
 
 from hypothesis import given, settings, strategies
 

@@ -69,19 +69,19 @@ class RadixTestCase(unittest.TestCase):
         radix2 = Radix(0, [], [], [], 2)
 
         with self.assertRaises(BasesError):
-            radix1 > radix2
+            radix1 > radix2  # pyright: ignore [reportUnusedExpression]
         with self.assertRaises(BasesError):
-            radix1 < radix2
+            radix1 < radix2  # pyright: ignore [reportUnusedExpression]
         with self.assertRaises(BasesError):
-            radix1 <= radix2
+            radix1 <= radix2  # pyright: ignore [reportUnusedExpression]
         with self.assertRaises(BasesError):
-            radix1 >= radix2
+            radix1 >= radix2  # pyright: ignore [reportUnusedExpression]
         with self.assertRaises(BasesError):
-            radix1 >= 1
+            radix1 >= 1  # pyright: ignore [reportUnusedExpression]
         with self.assertRaises(BasesError):
-            radix1 == 1
+            radix1 == 1  # pyright: ignore [reportUnusedExpression]
         with self.assertRaises(BasesError):
-            radix1 != 1
+            radix1 != 1  # pyright: ignore [reportUnusedExpression]
 
     def test_carry_on_repeating_part(self):
         """

@@ -18,8 +18,8 @@
 
 """Test for integer conversions."""
 
+import sys
 import unittest
-from os import sys
 
 from hypothesis import given, settings, strategies
 
